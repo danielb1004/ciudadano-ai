@@ -1,0 +1,27 @@
+openapi: 3.0.3
+info: { title: Ciudadano AI API, version: 1.0.0, description: Orientación ciudadana; no reemplaza canales oficiales. }
+servers: [{ url: "http://localhost:8000" }]
+paths:
+  /api/v1/conversations: { post: { summary: Crear conversación, responses: { '201': { description: Creada } } } }
+  /api/v1/conversations/{id}/messages: { post: { summary: Enviar mensaje, parameters: [{ in: path, name: id, required: true, schema: { type: string, format: uuid } }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, responses: { '200': { description: Orientación } } } }
+  /api/v1/classify: { post: { summary: Clasificar intención, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Text' } } } }, responses: { '200': { description: Clasificación } } } }
+  /api/v1/profiles: { post: { summary: Crear perfil con privacidad predeterminada, responses: { '201': { description: Creado } } } }
+  /api/v1/profiles/{id}: { get: { summary: Consultar perfil }, patch: { summary: Actualizar preferencias }, delete: { summary: Eliminar perfil } }
+  /api/v1/profiles/{id}/consents: { get: { summary: Consultar consentimientos }, post: { summary: Otorgar consentimiento } }
+  /api/v1/profiles/{id}/consents/{consentId}: { delete: { summary: Revocar consentimiento } }
+  /api/v1/recommendations: { post: { summary: Obtener recomendaciones verificadas, responses: { '200': { description: Resultados } } } }
+  /api/v1/procedures/search: { get: { summary: Buscar trámites por texto } }
+  /api/v1/procedures/{id}: { get: { summary: Consultar trámite publicado } }
+  /api/v1/entities: { get: { summary: Listar entidades } }
+  /api/v1/auth/login: { post: { summary: Iniciar sesión administrativa, responses: { '200': { description: Tokens }, '401': { description: No autorizado } } } }
+  /api/v1/auth/refresh: { post: { summary: Rotar refresh token } }
+  /api/v1/auth/logout: { post: { summary: Revocar sesión } }
+  /api/v1/auth/me: { get: { summary: Consultar identidad, security: [{ bearerAuth: [] }] } }
+  /api/v1/audit/events: { get: { summary: Consultar auditoría autorizada, security: [{ bearerAuth: [] }], responses: { '200': { description: Eventos } } } }
+  /api/v1/audit/conversations/{id}: { get: { summary: Consultar trazabilidad de conversación, security: [{ bearerAuth: [] }] } }
+  /api/v1/audit/security: { get: { summary: Consultar eventos de seguridad, security: [{ bearerAuth: [] }] } }
+components:
+  securitySchemes: { bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT } }
+  schemas:
+    Text: { type: object, required: [text], properties: { text: { type: string, minLength: 1, maxLength: 2000 } } }
+    Message: { allOf: [{ $ref: '#/components/schemas/Text' }] }

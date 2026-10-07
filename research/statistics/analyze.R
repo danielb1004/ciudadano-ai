@@ -1,0 +1,5 @@
+args <- commandArgs(trailingOnly=TRUE)
+if (length(args) < 2) stop("Uso: Rscript analyze.R input.csv output.csv")
+d <- read.csv(args[1]); num <- intersect(c("sus", "duration_seconds", "failed_attempts", "recoveries"), names(d))
+summary <- aggregate(d[num], by=list(round=d$round), FUN=function(x) c(mean=mean(x,na.rm=TRUE), median=median(x,na.rm=TRUE), sd=sd(x,na.rm=TRUE)))
+write.csv(summary, args[2], row.names=FALSE)

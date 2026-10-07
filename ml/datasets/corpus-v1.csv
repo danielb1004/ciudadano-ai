@@ -1,0 +1,101 @@
+text,intent
+"¿Qué requisitos necesito para tramitar el duplicado de la cédula?",SOLICITUD_TRAMITE
+"Necesito sacar la cédula digital por primera vez",SOLICITUD_TRAMITE
+"Quiero renovar mi licencia de conducción de carro",SOLICITUD_TRAMITE
+"¿Cómo solicito el pasaporte colombiano ordinario?",SOLICITUD_TRAMITE
+"Deseo inscribirme en el Registro Único Tributario RUT",SOLICITUD_TRAMITE
+"Cómo solicitar la encuesta del Sisbén IV en mi municipio",SOLICITUD_TRAMITE
+"Quiero pedir el certificado de antecedentes judiciales",SOLICITUD_TRAMITE
+"Cómo sacar la libreta militar por primera vez",SOLICITUD_TRAMITE
+"Necesito afiliarme a una EPS del régimen subsidiado",SOLICITUD_TRAMITE
+"Quiero postularme al subsidio de vivienda Mi Casa Ya",SOLICITUD_TRAMITE
+"Cómo solicitar la pensión de vejez en Colpensiones",SOLICITUD_TRAMITE
+"Quiero tramitar el duplicado de la tarjeta de identidad",SOLICITUD_TRAMITE
+"Necesito renovar mi tarjeta profesional de abogado",SOLICITUD_TRAMITE
+"Cómo expedir el certificado de tradición y libertad de un inmueble",SOLICITUD_TRAMITE
+"Quiero pedir una cita para sacar la visa",SOLICITUD_TRAMITE
+"Cómo solicitar el certificado de antecedentes disciplinarios en Procuraduría",SOLICITUD_TRAMITE
+"Necesito inscribir mi cédula para las próximas elecciones",SOLICITUD_TRAMITE
+"Quiero registrar una empresa nueva en la Cámara de Comercio",SOLICITUD_TRAMITE
+"Cómo solicitar la convalidación de un título universitario del exterior",SOLICITUD_TRAMITE
+"Deseo registrar una marca ante la Superintendencia de Industria y Comercio",SOLICITUD_TRAMITE
+"¿Cuáles son los horarios de atención de la Registraduría?",CONSULTA_INFORMATIVA
+"¿Qué costo tiene expedir el pasaporte ejecutivo?",CONSULTA_INFORMATIVA
+"Información sobre los grupos y categorías del Sisbén",CONSULTA_INFORMATIVA
+"¿Qué documentos exigen para la convalidación de títulos?",CONSULTA_INFORMATIVA
+"¿Cuáles son las tarifas del duplicado de la cédula?",CONSULTA_INFORMATIVA
+"Quiero saber qué es el certificado de supervivencia",CONSULTA_INFORMATIVA
+"¿Hasta qué edad se debe definir la situación militar en Colombia?",CONSULTA_INFORMATIVA
+"¿Cuáles son los requisitos para acceder a Jóvenes en Acción?",CONSULTA_INFORMATIVA
+"Información sobre el calendario tributario de la DIAN para personas naturales",CONSULTA_INFORMATIVA
+"¿Qué beneficios tiene estar en el grupo A del Sisbén?",CONSULTA_INFORMATIVA
+"¿Cómo funciona el régimen de prima media de Colpensiones?",CONSULTA_INFORMATIVA
+"¿Qué es la cédula digital y qué costo tiene?",CONSULTA_INFORMATIVA
+"¿Cuáles son las causales de exoneración del servicio militar?",CONSULTA_INFORMATIVA
+"Información sobre los subsidios de las cajas de compensación familiar",CONSULTA_INFORMATIVA
+"¿Qué vigencia tiene el certificado de antecedentes fiscales de la Contraloría?",CONSULTA_INFORMATIVA
+"¿Dónde puedo consultar el valor del impuesto vehicular?",CONSULTA_INFORMATIVA
+"¿Qué requisitos piden para viajar con menores de edad al exterior?",CONSULTA_INFORMATIVA
+"Información sobre el programa Renta Ciudadana del DPS",CONSULTA_INFORMATIVA
+"¿Cómo saber en qué EPS estoy afiliado actualmente?",CONSULTA_INFORMATIVA
+"¿Cuáles son las tarifas de los derechos notariales este año?",CONSULTA_INFORMATIVA
+"¿Cómo va el estado de mi trámite de cédula?",VERIFICACION_ESTADO
+"Quiero consultar el estado de mi radicado número 2026-003492",VERIFICACION_ESTADO
+"¿Cómo revisar si mi pasaporte ya está listo para reclamar?",VERIFICACION_ESTADO
+"Deseo verificar si ya me asignaron el grupo del Sisbén",VERIFICACION_ESTADO
+"¿Cómo saber si mi liquidación de cesantías ya fue procesada?",VERIFICACION_ESTADO
+"Revisar el estado de mi solicitud de pensión en Colpensiones",VERIFICACION_ESTADO
+"Quiero verificar si mi libreta militar ya está digitalizada",VERIFICACION_ESTADO
+"¿Cómo consultar el avance de mi derecho de petición?",VERIFICACION_ESTADO
+"Verificar si mi título universitario ya fue convalidado por el Mineducación",VERIFICACION_ESTADO
+"Consultar si mi subsidio de Mi Casa Ya fue aprobado",VERIFICACION_ESTADO
+"¿Cómo consultar si tengo comparendos de tránsito pendientes?",VERIFICACION_ESTADO
+"Revisar el estado de mi cita para el pasaporte en la Cancillería",VERIFICACION_ESTADO
+"Verificar si mi declaración de renta fue recibida correctamente",VERIFICACION_ESTADO
+"¿Cómo saber si tengo saldo a favor en la DIAN?",VERIFICACION_ESTADO
+"Consultar estado de mi radicado de PQRS en la Alcaldía",VERIFICACION_ESTADO
+"Revisar si ya está lista la resolución de mi pensión",VERIFICACION_ESTADO
+"¿Cómo saber si mi registro civil ya fue digitalizado?",VERIFICACION_ESTADO
+"Verificar si mi pago de impuestos ya se ve reflejado en el sistema",VERIFICACION_ESTADO
+"Consultar si sigo activo en la base de datos de ADRES BDUA",VERIFICACION_ESTADO
+"Revisar el estado de mi solicitud de devolución de saldos",VERIFICACION_ESTADO
+"Tengo un problema para ingresar al portal de la DIAN, me sale error",REPORTE_PROBLEMA
+"La página de la Registraduría no me deja agendar cita",REPORTE_PROBLEMA
+"El formulario virtual se queda cargando y no genera el recibo",REPORTE_PROBLEMA
+"No puedo descargar el certificado de antecedentes de la Policía",REPORTE_PROBLEMA
+"El sistema me descuenta el pago pero no genera el código de confirmación",REPORTE_PROBLEMA
+"Me sale un error de validación en la plataforma del Sisbén",REPORTE_PROBLEMA
+"No recibo el correo con el enlace de confirmación de mi trámite",REPORTE_PROBLEMA
+"La plataforma de citas de la Cancillería dice que no hay turnos disponibles",REPORTE_PROBLEMA
+"El portal web de Colpensiones se cayó y no puedo descargar la historia laboral",REPORTE_PROBLEMA
+"El botón de pago por PSE genera un error 500 en la página",REPORTE_PROBLEMA
+"No puedo actualizar mis datos personales en el portal tributario",REPORTE_PROBLEMA
+"La página no reconoce mi número de documento al iniciar sesión",REPORTE_PROBLEMA
+"El archivo PDF generado está dañado y no se puede abrir",REPORTE_PROBLEMA
+"El sistema me arroja un mensaje de sesión expirada constantemente",REPORTE_PROBLEMA
+"Tengo una queja porque el funcionario no me quiso recibir los documentos",REPORTE_PROBLEMA
+"El sitio web no carga en mi navegador móvil",REPORTE_PROBLEMA
+"Me aparece un error de contraseña bloqueada en el portal ciudadano",REPORTE_PROBLEMA
+"No me deja adjuntar los documentos en formato PDF porque dice que exceden el tamaño",REPORTE_PROBLEMA
+"El enlace de recuperación de cuenta no funciona",REPORTE_PROBLEMA
+"Falla en el aplicativo móvil al momento de autenticar con biometría",REPORTE_PROBLEMA
+"¿A qué entidad debo dirigirme para denunciar una estafa?",DERIVACION_ENTIDAD
+"¿Dónde queda la oficina de la Registraduría más cercana en Bogotá?",DERIVACION_ENTIDAD
+"¿Qué entidad se encarga de vigilar a los prestadores de salud?",DERIVACION_ENTIDAD
+"¿A quién le corresponde resolver conflictos con servicios públicos domiciliarios?",DERIVACION_ENTIDAD
+"¿Dónde puedo acudir para denunciar violencia intrafamiliar?",DERIVACION_ENTIDAD
+"¿A qué entidad debo acudir para tramitar el certificado de uso del suelo?",DERIVACION_ENTIDAD
+"¿Qué organismo atiende reclamos laborales contra mi empleador?",DERIVACION_ENTIDAD
+"¿Dónde puedo consultar la oficina de la DIAN en Medellín?",DERIVACION_ENTIDAD
+"¿A qué entidad le compete el control de precios de los medicamentos?",DERIVACION_ENTIDAD
+"¿Dónde debo presentar una queja contra una entidad bancaria?",DERIVACION_ENTIDAD
+"¿Cuál es la institución encargada de la restitución de tierras?",DERIVACION_ENTIDAD
+"¿Dónde queda la sede de la Superintendencia de Industria y Comercio?",DERIVACION_ENTIDAD
+"¿A qué entidad debo acudir si la EPS me niega un medicamento?",DERIVACION_ENTIDAD
+"¿Qué oficina atiende los trámites de titulación de predios baldíos?",DERIVACION_ENTIDAD
+"¿Dónde presentar una denuncia por contaminación ambiental en mi barrio?",DERIVACION_ENTIDAD
+"¿A quién acudir si me cobraron de más en el recibo de energía?",DERIVACION_ENTIDAD
+"¿Qué entidad tramita la protección de los derechos de autor?",DERIVACION_ENTIDAD
+"¿Dónde puedo encontrar el punto de atención de la Cancillería para pasaportes?",DERIVACION_ENTIDAD
+"¿A qué entidad corresponde la inspección y vigilancia de los colegios privados?",DERIVACION_ENTIDAD
+"¿Dónde acudir para una conciliación prejudicial en materia civil?",DERIVACION_ENTIDAD

@@ -1,0 +1,8 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ciudadano-gateway
+  annotations: { nginx.ingress.kubernetes.io/ssl-redirect: "true" }
+spec:
+  tls: [{ hosts: [ciudadano.example], secretName: ciudadano-tls }]
+  rules: [{ host: ciudadano.example, http: { paths: [{ path: /api, pathType: Prefix, backend: { service: { name: kong, port: { number: 8000 } } } }, { path: /, pathType: Prefix, backend: { service: { name: frontend, port: { number: 80 } } } }] } }]

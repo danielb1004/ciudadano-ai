@@ -1,0 +1,26 @@
+_format_version: "3.0"
+services:
+  - name: conversation
+    url: http://conversation:3001
+    routes: [{ name: conversation-route, paths: [/api/v1/conversations] }]
+  - name: nlp
+    url: http://nlp:8001
+    routes: [{ name: nlp-route, paths: [/api/v1/classify, /api/v1/extract-entities, /api/v1/models] }]
+  - name: profile
+    url: http://profile:3002
+    routes: [{ name: profile-route, paths: [/api/v1/profiles] }]
+  - name: recommendation
+    url: http://recommendation:3003
+    routes: [{ name: recommendation-route, paths: [/api/v1/recommendations, /api/v1/procedures, /api/v1/entities] }]
+  - name: auth
+    url: http://auth:3004
+    routes: [{ name: auth-route, paths: [/api/v1/auth] }]
+  - name: audit
+    url: http://audit:3005
+    routes: [{ name: audit-route, paths: [/api/v1/audit] }]
+plugins:
+  - name: cors
+    config: { origins: ["http://localhost:5173"], credentials: true }
+  - name: correlation-id
+  - name: rate-limiting
+    config: { minute: 120, policy: local }

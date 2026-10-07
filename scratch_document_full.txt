@@ -1,0 +1,2471 @@
+Diseño e Implementación de un Sistema Conversacional Inteligente Basado en Microservicios y Procesamiento de Lenguaje Natural para la Automatización de Trámites y Servicios Ciudadanos: Arquitectura de Software, Seguridad de la Información y Evaluación de Usabilidad
+
+Apellidos y nombres completos de los autores
+
+Bobadilla Ávila, Daniel Yecid
+
+Ballesteros Perez, Juan David
+
+Rodríguez Vanegas, Ángel David
+
+Universidad Manuela Beltrán
+
+Educación Virtual
+
+Ingeniería de Software
+
+Facultad de Ingeniería
+
+Bogotá, Colombia
+
+2025
+
+Diseño e Implementación de un Sistema Conversacional Inteligente Basado en Microservicios y Procesamiento de Lenguaje Natural para la Automatización de Trámites y Servicios Ciudadanos: Arquitectura de Software, Seguridad de la Información y Evaluación de Usabilidad
+
+Apellidos y nombres completos de los autores
+
+Bobadilla Ávila, Daniel
+
+Ballesteros, Juan David
+
+Rodríguez Vanegas, David
+
+Trabajo de Grado presentado como requisito parcial para optar al título de:
+
+Ingeniero de Software
+
+Robert Osorio Torres
+
+Ingeniero de sistemas
+
+Universidad Manuela Beltrán
+
+Educación Virtual
+
+Ingeniería de Software
+
+Facultad de Ingeniería
+
+Bogotá, Colombia
+
+2025
+
+Autoridades Académicas
+
+Dr. Juan Carlos Cárdenas Castaño
+
+Rector
+
+Dra. Elisa Yeimy Landazuri Cocinero
+
+Vicerrectora Académica
+
+Dra. Ivonne Hernández Villamizar
+
+Vicerrectora de Investigaciones
+
+Dra. Laura Garavito Escobar
+
+Vicerrectora de Calidad
+
+Jose Daniel Rodriguez Munca
+
+Director(a) del Programa de Ingeniería de Software
+
+Resumen
+
+El presente trabajo de grado propone el diseño, desarrollo y validación de una plataforma conversacional inteligente orientada a la automatización de trámites y servicios ciudadanos digitales en el contexto colombiano. Este proyecto se aborda o se ejecuta desde la ingeniería de software, centrándose en 4 pilares técnicos sólidos y fundamentales:(1) La arquitectura de microservicios es la más escalable para un sistema con alto volumen transaccional; (2) la implementación y diseño de pipelines e integración continua con (PNL) Proceso de Lenguaje Natural en español colombiano; (3) La implementación y ejecución de principios de seguridad de la información y privacidad por diseño (Privacy by Design) para el manejo sensible de los datos de los ciudadanos; y (4) La usabilidad del sistema por medio de testeo continuo o evaluaciones continuas mediante estándares internacionales como (ISO 9241-11, SUS).La metodología será SCRUM siguiendo los principios agiles, adaptada a el proyecto académico. El sistema no reemplaza los canales oficiales de atención; la función es actuar como un primer nivel o alto nivel de orientación que agiliza la consulta y o canaliza a la persona hacia los recursos que requiere a nivel institucional. De los resultados preliminares se puede evidenciar la viabilidad técnica de la solución y lo que se puede llegar a ofrecer como un modelo de referencia replicable para aquellas plataformas conversacionales en dominios de servicios públicos digitales.
+
+Palabras clave: arquitectura de software, microservicios, procesamiento de lenguaje natural, seguridad de la información, usabilidad, sistemas conversacionales, gobierno digital, trámites ciudadanos, chatbot, Privacy by Design.
+
+Abstract
+
+This thesis proposes the design, development, and validation of an intelligent conversational platform aimed at automating digital citizen services and administrative procedures within the Colombian context. The project is analyzed from the point of view of software engineering and considers four reliable technical pillars: (1) microservices architecture as a scalable system architecture for applications with a large volume of transactions; (2) development of pipelines and continuous integration using Natural Language Processing (NLP) customized to Colombian Spanish; (3) implementation of the concepts of information security and "Privacy by Design" for processing personal information of citizens; and (4) usability, which is achieved through continuous testing and evaluation of the system according to international standards such as ISO 9241-11 and SUS. The project uses the SCRUM methodology, based on Agile principles, but adjusted for academic purposes. The system will not replace official communication channels, but it will work as the first-line guidance tool that guides users to the appropriate sources of information. Initial results show the technical feasibility of the solution and its potential to become a replicable model for conversational platforms in the digital public services area.
+
+Keywords: software architecture, microservices, natural language processing, information security, usability, conversational systems, digital government, citizen services, chatbot, Privacy by Design.
+
+Tabla de contenido
+
+Resumen4
+
+Abstract5
+
+Tabla de contenido6
+
+Introducción12
+
+Capítulo I: Descripción del Proyecto14
+
+1.1 Planteamiento del Problema14
+
+1.2 Justificación y Pertinencia15
+
+1.3 Objetivos15
+
+1.3.1 Objetivo General15
+
+1.3.2 Objetivos Específicos16
+
+Capítulo II: Marco Teórico y Referencial17
+
+2.1 Antecedentes Técnicos17
+
+2.2 Arquitectura de Software para Sistemas Conversacionales18
+
+2.2.1 Arquitectura de Microservicios18
+
+2.2.2 Patrones de Diseño Aplicados18
+
+2.2.3 Calidad del Software: ISO/IEC 2501019
+
+2.3 Procesamiento de Lenguaje Natural (PLN)19
+
+2.3.1 Fundamentos del Pipeline de PLN19
+
+2.3.2 Modelos de Lenguaje Preentrenados para Español19
+
+2.3.3 Clasificación de Intención y Detección de Entidades en Lenguaje Ciudadano20
+
+2.4 Seguridad de la Información y Privacidad por Diseño20
+
+2.4.1 ISO/IEC 27001 y Controles Aplicables20
+
+2.4.2 Privacy by Design (PbD)20
+
+2.4.3 Marco Legal Colombiano Aplicable21
+
+2.5 Ingeniería de Usabilidad21
+
+2.5.1 ISO 9241-11 y Modelo de Usabilidad21
+
+2.5.2 System Usability Scale (SUS)22
+
+2.5.3 Diseño de Interfaces Conversacionales22
+
+2.6 Antecedentes del Contexto Institucional22
+
+2.7 Bases Legales de la Investigación24
+
+2.8 Variables de la Investigación25
+
+Capítulo III: Marco Metodológico27
+
+3.1 Tipo y Diseño de la Investigación27
+
+3.2 Fases del Proyecto27
+
+3.3 Definición de Actores y Roles28
+
+3.3.1 Roles del equipo de desarrollo28
+
+3.3.2 Actores del sistema29
+
+3.4 Casos de Uso30
+
+3.4.1 Casos de uso de alto nivel30
+
+3.4.2 Casos de uso extendidos32
+
+3.5 Población y Muestra36
+
+3.5.1 Desarrolladores36
+
+3.5.2 Usuarios finales37
+
+3.6 Técnicas e Instrumentos de Recolección de Datos38
+
+3.6.1 Talleres de requisitos38
+
+3.6.2 Instrumentos Técnicos39
+
+3.6.3 Instrumentos de Usabilidad39
+
+3.7 Procesamiento y Análisis de Datos39
+
+3.7.1 Análisis cualitativo y cuantitativo39
+
+3.7.2 Lista de procesos40
+
+3.8 Modelado y Documentación del Sistema41
+
+3.8.1 Requerimientos funcionales y no funcionales41
+
+3.8.2 Diagrama de clases44
+
+3.8.3 Diagramas de estados46
+
+3.8.4 Diagramas de colaboración49
+
+3.8.5 Diagramas de secuencia50
+
+3.8.6 Diagrama de componentes53
+
+3.8.7 Diagrama de distribución54
+
+Capítulo IV: Análisis y Discusión de Resultados56
+
+4.1 Funcionalidades Implementadas56
+
+4.2 Resultados: Arquitectura del Sistema57
+
+4.3 Resultados: Pipeline de PLN58
+
+4.4 Resultados: Seguridad de la Información59
+
+4.5 Resultados: Usabilidad60
+
+4.6 Resultados de las Pruebas Funcionales60
+
+4.7 Análisis e Interpretación de los Resultados62
+
+4.8 Discusión64
+
+4.9 Conclusiones y Recomendaciones65
+
+Capítulo V: Referencias67
+
+Lista de Tablas
+
+Tabla 1 Marco normativo aplicable y su traducción en decisiones de diseño21
+
+Tabla 2 Fases del proyecto y entregables por sprint24
+
+Tabla 3 Roles del equipo de desarrollo25
+
+Tabla 4 Actores del sistema y casos de uso asociados26
+
+Tabla 5 Casos de uso de alto nivel28
+
+Tabla 6 Caso de uso extendido CU-0230
+
+Tabla 7 Caso de uso extendido CU-0431
+
+Tabla 8 Caso de uso extendido CU-0631
+
+Tabla 9 Caso de uso extendido CU-1032
+
+Tabla 10 Segmentación de los participantes en las pruebas de usabilidad34
+
+Tabla 11 Talleres de requisitos realizados35
+
+Tabla 12 Lista de procesos del sistema37
+
+Tabla 13 Requerimientos funcionales del sistema39
+
+Tabla 14 Requerimientos no funcionales clasificados según ISO/IEC 2501040
+
+Tabla 15 Funcionalidades implementadas y su trazabilidad con los requerimientos53
+
+Tabla 16 Desempeño del clasificador de intención por categoría55
+
+Tabla 17 Resultados de las pruebas funcionales de extremo a extremo57
+
+Tabla 18 Cobertura de pruebas automatizadas por microservicio59
+
+Tabla 19 Cumplimiento de los objetivos específicos según la evidencia recolectada59
+
+Nota: las tablas se numeran de forma consecutiva a lo largo del documento.
+
+Lista de Figuras
+
+Figura 1 Diagrama de casos de uso del sistema28
+
+Figura 2 Diagrama de clases del dominio42
+
+Figura 3 Diagrama de estados de la sesión conversacional44
+
+Figura 4 Diagrama de estados de la solicitud de derivación45
+
+Figura 5 Diagrama de colaboración del caso de uso CU-0246
+
+Figura 6 Diagrama de colaboración del caso de uso CU-0647
+
+Figura 7 Diagrama de secuencia del caso de uso CU-0248
+
+Figura 8 Diagrama de secuencia de los casos de uso CU-03 y CU-0449
+
+Figura 9 Diagrama de secuencia del caso de uso CU-0650
+
+Figura 10 Diagrama de componentes del sistema51
+
+Figura 11 Diagrama de distribución del sistema52
+
+Nota: las figuras se numeran de forma consecutiva a lo largo del documento.
+
+Introducción
+
+La transformación digital del gobierno colombiano ha aumentado la necesidad de canales de comunicación con los ciudadanos que son rápidos, eficaces y siempre disponibles. Datos recientes del Departamento Administrativo de la Función Pública (DAFP, 2022) indican que el 60% o más de las inquietudes relacionadas con documentos gubernamentales en Colombia se resuelven todavía en persona o por teléfono, generando demoras y dificultades geográficas en el acceso, especialmente entre poblaciones ubicadas en regiones rurales y suburbanas.
+
+Por lo tanto, la tecnología —principalmente los sistemas de interacción con inteligencia artificial— surge como un complemento potencial y valioso frente a una realidad donde los canales institucionales para recibir atención están ausentes o ineficientes: no como un sustituto de tales canales, sino como un nivel primario de ayuda accesible, disponible en cualquier momento y gratuito para el ciudadano. Experiencias en otros países, como el asistente digital de la AFIP en Argentina y el chatbot del Ministerio de Economía chileno, han mostrado que esta clase de implementaciones es práctica e atractiva para los usuarios siempre y cuando su labor sea orientar a los ciudadanos, nunca resolver de manera definitiva las dudas y cuestiones.
+
+El proyecto no tiene carácter institucional sino técnico. Su labor consiste en abordar los problemas de ingeniería vinculados a la creación de un sistema de conversación de gran calidad. En qué forma se organiza una arquitectura para aumentar la escalabilidad del sistema mientras no se pierde la disponibilidad? ¿Cuál es la forma de crear un proceso de procesamiento de lenguaje natural que funcione bien en español colombiano hablado normalmente y en variaciones de la región de habla más habitualmente utilizada? ¿Cómo se garantiza la privacidad y seguridad de los datos ciudadanos altamente sensibles? ¿Cómo se evalúa la usabilidad de un sistema de este tipo de forma rigurosa para perfiles de usuario diversos? Esas son las preguntas que articulan este proyecto.
+
+El documento se organiza en cinco capítulos. El primero describe el problema desde una perspectiva de ingeniería, su justificación y los objetivos técnicos del trabajo. El segundo desarrolla el marco teórico y referencial, con énfasis en arquitectura de software, PLN, seguridad de la información y usabilidad. El tercero presenta la metodología de desarrollo. El cuarto expone y discute los resultados. El quinto recoge las referencias consultadas.
+
+Capítulo I: Descripción del Proyecto
+
+1.1 Planteamiento del Problema
+
+Desde la perspectiva de la ingeniería de software, el problema central que aborda este proyecto puede formularse así: existe una necesidad documentada de orientación ciudadana digital accesible en Colombia y, sin embargo, no existe una plataforma conversacional inteligente orientada a trámites del Estado que reúna simultáneamente los requisitos técnicos necesarios para operar de forma confiable en ese dominio: procesamiento lingüístico adecuado al español colombiano, arquitectura escalable y de alta disponibilidad, protección robusta de datos sensibles de los ciudadanos, e interfaz usable para perfiles de usuario diversos.
+
+En el mercado colombiano, se encuentran soluciones que suelen verse afectadas por al menos una de las siguientes limitaciones técnicas: (a) están concebidas principalmente en inglés o en un español estandarizado; eso ocasiona que la precisión del reconocimiento disminuya cuando se tratan con jergas coloquiales y lenguaje específico del país; (b) no mencionan explícitamente sus prácticas de almacenamiento de datos sensibles ni incluyen mecanismos efectivos para mover dichos datos; (c) su diseño no puede expandirse para adaptarse al aumento de la demanda; o (d) no disponen de interfaces que cumplan los mínimos estándares de accesibilidad para usuarios que sean mayores o menos familiarizados con tecnologías avanzadas.
+
+La pregunta de investigación que guía el trabajo es: ¿Cómo diseñar e implementar un sistema conversacional inteligente basado en microservicios y procesamiento de lenguaje natural que cumpla simultáneamente con criterios de calidad de arquitectura de software, seguridad de la información y usabilidad, para la automatización de trámites y servicios ciudadanos en el contexto colombiano?
+
+1.2 Justificación y Pertinencia
+
+La justificación de este proyecto opera en tres dimensiones: social, técnica y académica.
+
+Dimensión social: La dimensión social: El déficit de acceso a los trámites y servicios públicos digitales es una realidad demostrada. El modelo sugerido no se proyecta para solucionarlo, sino que tiene la intención de ser una primera guía accesible para los ciudadanos que carecen de tiempo u oportunidades geográficas para interactuar con las entidades públicas de forma presencial.
+
+Dimensión técnica: Los diseños de sistemas de IA conversacionales para temas sensibles plantean desafíos técnicos que las estudios de casos en español no cubren: qué tan fácil es instalar pipelines de procesamiento de lenguaje natural en entornos empresariales, cómo aplicar la privacidad por diseño a plataformas con IA, y si es correcto el método utilizado para evaluar la eficiencia del sistema. El proyecto resultará en conocimientos técnicos aplicables a otros campos.
+
+Dimensión académica: el trabajo se desarrolla según las áreas básicas de la Ingeniería de Software: arquitectura, desarrollo, seguridad, prueba y usabilidad. No se trata de crear solo una función, sino de diseñar una aplicación de referencia documentada que sirva como modelo para plataformas comunicativas en entornos de gran riesgo..
+
+1.3 Objetivos
+
+1.3.1 Objetivo General
+
+Diseñar, implementar y validar un sistema conversacional inteligente basado en microservicios y procesamiento de lenguaje natural, aplicando principios de arquitectura de software, seguridad de la información e ingeniería de usabilidad que garanticen la calidad técnica del sistema en el contexto colombiano.
+
+1.3.2 Objetivos Específicos
+
+Definir y documentar la arquitectura de microservicios del sistema, especificando los componentes, sus interfaces, los patrones de comunicación y los mecanismos de tolerancia a fallos.
+
+Diseñar y desarrollar un proceso de Procesamiento de Lenguaje Natural (PLN) refinado para lenguaje coloquial español colombiano, con el fin de discernir la intención ciudadana mediante el análisis de la información escrita de los usuarios en contextos referentes a los trámites y servicios gubernamentales.
+
+Aplicar el principio Privacy by Design y emplear controles de seguridad configurados conforme a la norma ISO/IEC 27001, con objeto de administrar las revelaciones sensibles generadas al cabo de las interacciones del sistema.‎Evaluar la funcionalidad de la interfaz conversacional mediante usuarios reales usando el estándar ISO 9241-11 y la escala SUS (System Usability Scale) y hacer uso de los hallazgos para una mejora iterativa.
+
+‎Asegurar que el proceso de entrenamiento de la inteligencia artificial cumpla con el estándar técnico (precisión, exhaustividad, F1-score) y compare su rendimiento con los modelos preentrenados en español genérico.
+
+Capítulo II: Marco Teórico y Referencial
+
+El marco teórico de este proyecto se estructura alrededor de cuatro pilares de la Ingeniería de Software que, en conjunto, determinan la calidad de un sistema conversacional inteligente para dominios sensibles: arquitectura de software, procesamiento de lenguaje natural, seguridad de la información y usabilidad. Se incluye además una revisión de antecedentes técnicos y el marco legal aplicable.
+
+2.1 Antecedentes Técnicos
+
+El campo de los sistemas conversacionales inteligentes aplicados a servicios ciudadanos y gobierno digital ha experimentado un crecimiento significativo en la última década. Proyectos como el asistente virtual de la AFIP argentina (2019) y el chatbot del Ministerio de Hacienda de Chile (2020) demostraron que los sistemas conversacionales pueden reducir de forma medible los tiempos de atención ciudadana. Además, la literatura técnica sobre su estructura interna, métodos de entrenamiento y controles de seguridad es escasa, lo que reduce la posibilidad de reproducir los modelos.
+
+En cuanto al PLN aplicado al español, avances como BETO (Canete et al., 2020)—un modelo preentrenado en español similar a BERT—y RoBERTa-base-BNE (Gutiérrez-Fandiño et al., 2022) han incrementado notablemente el rendimiento de tareas de clasificación de texto en español. Aun así, la adaptación a variaciones regionales, como el español coloquial colombiano, requiere un ajuste fino (finetuning) con información relevante de esa variación lingüística.
+
+Desde el punto de vista de la arquitectura, estudios como el del proyecto de Netflix (Mauro et al., 2017) y las prácticas de Richardson para patrones de microservicios (2018) proporcionan marcos de referencia aceptados para diseñar sistemas distribuidos altamente disponibles, lo que puede ser usado en el ámbito conversacional..
+
+2.2 Arquitectura de Software para Sistemas Conversacionales
+
+2.2.1 Arquitectura de Microservicios
+
+La arquitectura de microservicios descompone un sistema en servicios autónomos, cada uno responsable de una capacidad de negocio específica, que se comunican mediante APIs bien definidas. El enfoque proporciona numerosos beneficios para un sistema de chatbot inteligente: posibilita la escalabilidad de los distintos elementos con mayor demanda de recursos (p.ej., el motor de procesamiento del lenguaje natural, NLPI); simplifica el arranque constante y la continuidad del servicio sin necesidad de paradas; y disminuye la incidencia de incidentes mediante la separación de errores en zonas geográficas definidas.
+
+Para el sistema propuesto, se han identificado por lo menos los siguientes servicios de microservicio: (1) Servicio de Conversación, encargado del mantenimiento de la información relativa al estado del diálogo; (2) Servicio de Procesamiento del Lenguaje Natural (NLPI), que administra la secuencia de procesamiento lingüístico; (3) Servicio de Estudio de Perfil, que construye y refresca las preferencias del usuario; (4) Servicio de Recomendación, que presenta contenido relevante; (5) Servicio de Autentificación y Autorización; y (6) Servicio de Auditoría, que registra los acontecimientos del sistema para fines de rastreabilidad y cumplimiento.
+
+2.2.2 Patrones de Diseño Aplicados
+
+El diseño del sistema incorpora patrones reconocidos de la ingeniería de software. El patrón API Gateway centraliza el punto de entrada al sistema y gestiona autenticación, control de acceso y enrutamiento. El patrón Circuit Breaker protege el sistema ante fallos en cascada cuando un microservicio no está disponible. El patrón CQRS (Command Query Responsibility Segregation) separa las operaciones de escritura (registro de interacciones) de las de lectura (consulta de historial), optimizando el rendimiento de ambas. El patrón Event Sourcing garantiza la trazabilidad completa de las interacciones del usuario, requisito cruc ial para el cumplimiento de la Ley 1581 de 2012.
+
+2.2.3 Calidad del Software: ISO/IEC 25010
+
+El estándar ISO/IEC 25010 (SQuaRE) define el modelo de calidad de producto software a través de ocho características: adecuación funcional, eficiencia de desempeño, compatibilidad, usabilidad, fiabilidad, seguridad, mantenibilidad y portabilidad. Este marco orienta la definición de los criterios de aceptación del sistema y la selección de las métricas de evaluación. En particular, las características de usabilidad, seguridad y fiabilidad reciben atención prioritaria dado el dominio sensible de la aplicación.
+
+2.3 Procesamiento de Lenguaje Natural (PLN)
+
+2.3.1 Fundamentos del Pipeline de PLN
+
+Un pipeline de PLN para clasificación de intención ciudadana comprende tipicamente las siguientes etapas: preprocesamiento del texto (tokenización, normalización, eliminación de ruido), representación vectorial (embeddings), extracción de características y clasificación. Para el español colombiano coloquial, la etapa de preprocesamiento requiere tratamiento específico de regionalismos, abreviaciones y expresiones informales ampliamente usadas en conversaciones digitales.
+
+2.3.2 Modelos de Lenguaje Preentrenados para Español
+
+Los modelos Transformer preentrenados, en particular las variantes de BERT y RoBERTa para español (BETO, RoBERTa-BNE), representan el estado del arte para tareas de clasificación de texto en castellano. Estos modelos capturan representaciones contextuales profundas del lenguaje que superan significativamente a los enfoques tradicionales basados en bolsa de palabras o TF-IDF. El proceso de ajuste fino (fine-tuning) adapta estos modelos a la tarea específica de clasificación de intención ciudadana mediante el entrenamiento sobre un corpus etiquetado relevante.
+
+2.3.3 Clasificación de Intención y Detección de Entidades en Lenguaje Ciudadano
+
+La detección de intención ciudadana en texto es una tarea de clasificación multi-etiqueta que va más allá del análisis de palabras clave simple. Los servicios y trámites del sistema están relacionados con indicadores de contenido vinculados a categorías como la consulta de documentos, solicitud de citas, estado de procedimientos, guía sobre los requerimientos y comunicación con instituciones especializadas. El clasificador de salida ofrece un conjunto de probabilidades para cada categoría, lo que le permite al sistema dar a conocer respuestas y indicaciones apropiadas.
+
+2.4 Seguridad de la Información y Privacidad por Diseño
+
+2.4.1 ISO/IEC 27001 y Controles Aplicables
+
+La norma ISO/IEC 27001 establece los requerimientos para un Sistema de Gestión de Seguridad de la Información (SGSI). Los controles más significativos para el sistema propuesto son: el control de acceso (A.9), la criptografía (A.10), la seguridad en las comunicaciones (A.13), la adquisición, desarrollo y mantenimiento de sistemas (A.14) y la gestión de incidentes de seguridad (A.16). El uso de estos controles se registra mediante un análisis de riesgos, donde se determinan las amenazas, vulnerabilidades y los posibles impactos más probables para cada parte del sistema.
+
+2.4.2 Privacy by Design (PbD)
+
+El paradigma Privacy by Design, formalizado por Cavoukian (2009) y adoptado en el artículo 25 del Reglamento General de Protección de Datos (RGPD) europeo, establece que la privacidad debe integrarse en el diseño de los sistemas desde su concepción, no añadirse como un componente posterior. Sus siete principios fundacionales —proactivo, privacidad como configuración predeterminada, privacidad incorporada en el diseño, funcionalidad plena, seguridad de extremo a extremo, visibilidad y transparencia, y respeto por la privacidad del usuario— se aplican en cada decisión de diseño de la plataforma.
+
+2.4.3 Marco Legal Colombiano Aplicable
+
+El proyecto se inscribe en el marco normativo colombiano vigente. La Ley 1581 de 2012 regula el tratamiento de datos personales y establece principios de finalidad, libertad, veracidad y seguridad. El Decreto 1377 de 2013 desarrolla sus disposiciones normativas. La Ley 1273 de 2009 tipifica los delitos informáticos e impone controles tecnológicos para evitar conexiones no autorizadas. Internamente, la Recomendación sobre Ética en Inteligencia Artificial de la UNESCO (2021) contiene principios de transparencia, responsabilidad y equidad que guían las resoluciones en cuanto al diseño del pipeline de la inteligencia artificial de tipo generador de texto.
+
+2.5 Ingeniería de Usabilidad
+
+2.5.1 ISO 9241-11 y Modelo de Usabilidad
+
+La norma ISO 9241-11 define la usabilidad como el nivel en el que un sistema puede ser empleado por usuarios particulares para lograr objetivos particulares con efectividad, eficacia y satisfacción en un ambiente de empleo específico. Esta definición específica la usabilidad en tres aspectos medibles: efectividad (nivel de logro de los objetivos por parte del usuario), eficacia (relación de recursos invertidos con los resultados obtenidos) y satisfacción (buen estado físico o emocional del sistema).
+
+2.5.2 System Usability Scale (SUS)
+
+La escala SUS (Brooke, 1996) es un instrumento de diez ítems ampliamente validado para la evaluación rápida de la usabilidad de sistemas interactivos. Produce una puntuación en una escala de 0 a 100 que permite comparar el sistema evaluado con benchmarks consolidados: puntuaciones superiores a 68 se consideran aceptables y superiores a 80 corresponden a sistemas de excelente usabilidad. Su brevedad y robustez la hacen adecuada para aplicarla en múltiples iteraciones del ciclo de diseño.
+
+2.5.3 Diseño de Interfaces Conversacionales
+
+Las interfaces conversacionales (CUI, Conversational User Interfaces) presentan desafíos específicos de diseño que no están completamente cubiertos por las guías de usabilidad para interfaces gráficas tradicionales. Aspectos como la gestión de malentendidos, la recuperación de errores, el manejo del contexto de la conversación y la calibración de las expectativas del usuario sobre las capacidades del sistema son críticos para la experiencia de uso. El proyecto incorpora las guías de diseño de CUI propuestas por Moore y Arar (2019) y las heurísticas de evaluación adaptadas para chatbots de Jiang et al. (2022).
+
+2.6 Antecedentes del Contexto Institucional
+
+Aunque el proyecto se desarrolla en un marco académico y no responde al encargo de una empresa cliente, el sistema propuesto se inserta en un contexto institucional concreto que condiciona sus requisitos técnicos: el ecosistema de trámites y servicios del Estado colombiano. Caracterizar ese contexto es necesario porque de él se derivan el dominio del lenguaje, las fuentes de información, los límites de alcance del sistema y las obligaciones de seguridad que se describen en las secciones siguientes.
+
+El inventario oficial de trámites del país está consolidado en el Sistema Único de Información de Trámites (SUIT), administrado por el Departamento Administrativo de la Función Pública (DAFP), mientras que el portal único del Estado, GOV.CO, coordinado por el Ministerio de Tecnologías de la Información y las Comunicaciones (MinTIC), concentra el acceso digital a esos trámites. Ambos operan bajo la Política de Gobierno Digital, que orienta la racionalización y digitalización de la relación entre el ciudadano y el Estado (DAFP, 2022; MinTIC, 2023).
+
+Sobre ese ecosistema, el proyecto identifica tres condiciones de contexto que inciden directamente en el diseño técnico:
+
+Dispersión de la información. La ficha de un mismo trámite puede estar distribuida entre el SUIT, el portal de la entidad competente y GOV.CO, con distintos niveles de actualización. El sistema no puede asumir una fuente única y debe registrar la procedencia y la vigencia de cada dato que entrega.
+
+Predominio de los canales presenciales. Según el informe de racionalización del DAFP (2022), la mayor parte de las consultas sobre documentos y trámites se siguen resolviendo de forma presencial o telefónica, lo que sustenta la pertinencia de un canal de orientación disponible de forma permanente.
+
+Carácter no vinculante de la orientación. Ninguna respuesta del sistema sustituye un acto administrativo. Esta condición se traduce en un requisito funcional explícito de advertencia de alcance (RF-14) y en el caso de uso de derivación a canal oficial (CU-06).
+
+En consecuencia, la organización de referencia para la que se diseña el sistema es una entidad pública del orden nacional o territorial con alto volumen de consultas ciudadanas, que ya dispone de un portal informativo y de canales de atención presencial y telefónica, y que requiere un primer nivel de orientación automatizado sin asumir la resolución definitiva del trámite. El prototipo se construyó y evaluó con información pública de trámites de alta demanda, sin acceso a sistemas de información reales de ninguna entidad y sin tratamiento de datos personales de ciudadanos en producción.
+
+2.7 Bases Legales de la Investigación
+
+El sistema opera sobre consultas ciudadanas que pueden incluir datos personales y sobre información pública sujeta a obligaciones de transparencia y accesibilidad. El marco normativo que se relaciona a continuación no constituye un anexo formal: cada norma se tradujo en decisiones concretas de diseño, que se documentan en los requerimientos no funcionales de la sección 3.8.1 y en los resultados de seguridad del capítulo IV.
+
+Tabla 1 Marco normativo aplicable y su traducción en decisiones de diseño
+
+Norma
+
+Contenido relevante
+
+Implicación para el proyecto
+
+Constitución Política de Colombia (1991), arts. 15, 20 y 23
+
+Derecho a la intimidad y al habeas data, acceso a la información y derecho de petición.
+
+Fundamento del control del ciudadano sobre sus datos y del deber de no obstruir el acceso a los canales oficiales.
+
+Ley 1581 de 2012 y Decreto 1377 de 2013
+
+Régimen general de protección de datos personales: autorización previa, finalidad, seguridad y derechos del titular.
+
+Consentimiento informado antes de cualquier tratamiento (RF-02), finalidad limitada, y mecanismos de consulta, actualización y supresión (RF-19).
+
+Ley 1712 de 2014
+
+Transparencia y derecho de acceso a la información pública nacional.
+
+La información de trámites entregada por el sistema debe ser pública, verificable y citar su fuente oficial.
+
+Ley 1755 de 2015
+
+Regulación del derecho fundamental de petición.
+
+El sistema no tramita peticiones: cuando la consulta lo exige, deriva al canal formal competente (CU-06).
+
+Ley 962 de 2005 y Ley 2052 de 2020
+
+Racionalización de trámites y política de transformación digital de trámites.
+
+Justifica la orientación automatizada como mecanismo de racionalización sin crear requisitos adicionales al ciudadano.
+
+Decreto 1078 de 2015 y Decreto 1008 de 2018
+
+Decreto único reglamentario del sector TIC y Política de Gobierno Digital.
+
+Alinea la arquitectura con los lineamientos de servicios ciudadanos digitales e interoperabilidad.
+
+Decreto 1474 de 2022
+
+Disposiciones sobre gobierno digital y transformación digital del Estado.
+
+Marco de referencia para la integración con APIs institucionales.
+
+Resolución 1519 de 2020 (MinTIC), anexo 1 – NTC 5854 / WCAG 2.1
+
+Estándares de publicación y accesibilidad digital para sujetos obligados.
+
+Criterio de aceptación de accesibilidad nivel AA en la interfaz conversacional (RNF-11).
+
+CONPES 3975 de 2019
+
+Política nacional para la transformación digital e inteligencia artificial.
+
+Encuadra el uso de modelos de lenguaje en servicios públicos y la exigencia de explicabilidad.
+
+ISO/IEC 27001:2018, ISO/IEC 25010:2011, ISO 9241-11:2018
+
+Gestión de la seguridad de la información, modelo de calidad del producto software y usabilidad.
+
+Definen los controles implementados y las métricas de calidad usadas en la evaluación.
+
+Recomendación de la UNESCO sobre la ética de la IA (2021)
+
+Principios de transparencia, supervisión humana y no discriminación.
+
+Sustenta la advertencia de alcance, la trazabilidad de las decisiones del clasificador y la supervisión humana en la derivación.
+
+Fuente: Elaboración propia.
+
+De este marco se desprende el criterio rector del proyecto en materia legal: el sistema es un servicio de orientación informativa, no un canal de trámite. Toda decisión técnica que pudiera interpretarse como sustitución de un acto administrativo —por ejemplo, confirmar la aprobación de una solicitud— fue excluida del alcance y reemplazada por la derivación al canal oficial competente.
+
+2.8 Variables de la Investigación
+
+La estructura investigativa del proyecto define las variables desde una perspectiva estrictamente técnica:
+
+Variable independiente: La plataforma conversacional inteligente, con todos sus componentes técnicos: arquitectura de microservicios, pipeline de PLN, mecanismos de seguridad e interfaz conversacional.
+
+Variable dependiente principal: La calidad técnica del sistema, medido por medio de las métricas del estándar ISO/IEC 25010 escogidas (usabilidad, fiabilidad, seguridad, rendimiento eficiente).
+
+Variable de control: el perfil tecnológico del conjunto de usuarios probadores en las pruebas de usabilidad, el volumen y la diversidad de lenguaje del conjunto de datos de entrada para el pipeline del PLN, y las condiciones de red donde se realiza la evaluación del rendimiento del sistema.
+
+Capítulo III: Marco Metodológico
+
+La metodología de este proyecto integra el ciclo de vida de desarrollo de software ágil con procedimientos de investigación aplicada. Este enfoque es coherente con la naturaleza del trabajo: no se trata solo de describir un fenómeno (aunque hay una dimensión descriptiva), sino de construir un artefacto software evaluable y de extraer conclusiones técnicas sobre ese proceso de construcción y evaluación.
+
+3.1 Tipo y Diseño de la Investigación
+
+El tipo de investigación es aplicada con diseño mixto. El componente cuantitativo mide el rendimiento del proceso PLN usando métricas estadísticas (precisión, exhaustividad, F1-score, tiempo de respuesta) y la usabilidad del sistema con la escala SUS. El componente cualitativo identifica patrones de comunicación del usuario y el soporte a través de técnicas de análisis de contenido. También permite evidenciar carencias en la usabilidad que no resultan evidentes mediante los métodos cuantitativos y orienta los ciclos iterativos de mejora.
+
+El marco de desarrollo sigue Scrum adaptado a un equipo académico de tres integrantes. Se definen cinco sprints de tres semanas cada uno, con ceremonias simplificadas (sprint planning, daily standup semanal, sprint review y retrospectiva). El backlog del producto se organiza en las cuatro áreas técnicas del proyecto: arquitectura, PLN, seguridad y usabilidad.
+
+3.2 Fases del Proyecto
+
+Tabla 2 Fases del proyecto y entregables por sprint
+
+Fase / Sprint
+
+Actividades Principales
+
+Entregables
+
+Sprint 1 Arquitectura
+
+Definición de microservicios, diseño de APIs, selección de stack tecnológico, modelado C4.
+
+Documento en donde se validara la arquitectura, diagramas e implementación de APIS
+
+Sprint 2 PNL
+
+Creación del corpus de entrenamiento, preprocesamiento, ajuste fino del modelo BETO, evaluación.
+
+Pipeline de PLN funcional, métricas de evaluación (precisión, exhaustividad, F1), repositorio de código.
+
+Sprint 3 Seguridad
+
+Análisis de riesgos, implementación de controles ISO 27001, aplicación de PbD, pruebas de penetración básicas.
+
+Informe de análisis de riesgos, controles implementados, resultados de pen-testing.
+
+Sprint 4 Usabilidad
+
+Diseño de prototipos (wireframes, mockups), pruebas de usabilidad con usuarios, análisis SUS.
+
+Prototipos validados, informe de usabilidad, puntuación SUS, lista priorizada de mejoras.
+
+Sprint 5 Integración y Validación
+
+Integración de todos los componentes, pruebas de sistema, pruebas de rendimiento, ajustes finales.
+
+Sistema integrado funcional, informe de pruebas de sistema, documento de lecciones aprendidas.
+
+Fuente: Elaboración propia.
+
+3.3 Definición de Actores y Roles
+
+La definición de roles se establece en dos planos: los roles del equipo de trabajo dentro del marco Scrum descrito en la sección 3.1, y los actores que interactúan con el sistema, que son la entrada para el modelo de casos de uso de la sección 3.4.
+
+3.3.1 Roles del equipo de desarrollo
+
+Tabla 3 Roles del equipo de desarrollo
+
+Rol
+
+Responsable
+
+Responsabilidades principales
+
+Product Owner
+
+Rotativo entre los tres integrantes por sprint
+
+Priorizar el backlog, definir criterios de aceptación y validar los incrementos al cierre de cada sprint.
+
+Scrum Master
+
+Rotativo entre los tres integrantes por sprint
+
+Facilitar las ceremonias, retirar impedimentos y mantener la trazabilidad entre requisitos, código y pruebas.
+
+Arquitecto y desarrollador backend
+
+Daniel Bobadilla Ávila
+
+Diseño de la arquitectura de microservicios, API Gateway, mensajería asíncrona y despliegue en contenedores.
+
+Ingeniero de PLN
+
+Juan David Ballesteros
+
+Construcción y etiquetado del corpus, ajuste fino del modelo BETO, evaluación de métricas y versionado del modelo.
+
+Ingeniero de seguridad y calidad
+
+David Rodríguez Vanegas
+
+Análisis de riesgos, implementación de controles ISO/IEC 27001, pruebas de seguridad y coordinación de las pruebas de usabilidad.
+
+Tutor académico
+
+Docente asignado por la Universidad
+
+Orientación metodológica, revisión de entregables y validación del rigor investigativo.
+
+Fuente: Elaboración propia.
+
+La rotación de los roles de Product Owner y Scrum Master responde al carácter formativo del proyecto: permite que los tres integrantes ejerzan las responsabilidades de priorización y facilitación, sin afectar la especialización técnica de cada uno, que se mantiene estable durante los cinco sprints.
+
+3.3.2 Actores del sistema
+
+Tabla 4 Actores del sistema y casos de uso asociados
+
+Actor
+
+Tipo
+
+Descripción
+
+Casos de uso
+
+Ciudadano
+
+Primario, humano
+
+Persona que consulta información sobre un trámite sin identificarse. Es el actor de mayor volumen y el de menor nivel de conocimiento técnico asumido.
+
+CU-01, CU-02, CU-05, CU-07, CU-10
+
+Ciudadano autenticado
+
+Primario, humano
+
+Ciudadano que se identifica mediante un código de un solo uso para consultar el estado de una solicitud propia. Especializa al actor Ciudadano.
+
+CU-03, CU-04
+
+Administrador de contenido
+
+Primario, humano
+
+Perfil funcional responsable de mantener el catálogo de trámites, sus requisitos y la vigencia de la información publicada.
+
+CU-08
+
+Administrador del sistema
+
+Primario, humano
+
+Perfil técnico responsable de la operación, el monitoreo, la revisión de la bitácora de auditoría y la gestión de incidentes.
+
+CU-09
+
+Agente de la entidad
+
+Secundario, humano
+
+Funcionario de la entidad competente que recibe la notificación de una derivación. No interactúa con la interfaz conversacional.
+
+CU-06
+
+APIs institucionales
+
+Secundario, sistema
+
+Servicios externos (GOV.CO, SUIT, portales de entidades) consultados para obtener información vigente y el estado de las solicitudes.
+
+CU-02, CU-04
+
+Motor de PLN
+
+Secundario, sistema
+
+Componente interno que clasifica la intención y extrae entidades. Se modela como actor de apoyo por su carácter de servicio independiente.
+
+CU-11
+
+Fuente: Elaboración propia.
+
+3.4 Casos de Uso
+
+3.4.1 Casos de uso de alto nivel
+
+El modelo de casos de uso delimita el alcance funcional del sistema. Se identificaron doce casos de uso, de los cuales diez son iniciados por un actor humano y dos (CU-11 y CU-12) corresponden a comportamientos incluidos que se modelan de forma explícita por su peso en la arquitectura: la clasificación de intención y el registro de auditoría intervienen en casi todos los flujos y concentran los requisitos de desempeño y de trazabilidad.
+
+Figura 1 Diagrama de casos de uso del sistema
+
+Fuente: Elaboración propia.
+
+Tabla 5 Casos de uso de alto nivel
+
+Código
+
+Nombre
+
+Actor principal
+
+Descripción
+
+Prioridad
+
+CU-01
+
+Iniciar conversación
+
+Ciudadano
+
+Abre una sesión conversacional, presenta el alcance del sistema y solicita el consentimiento de tratamiento de datos.
+
+Alta
+
+CU-02
+
+Consultar información de un trámite
+
+Ciudadano
+
+Entrega requisitos, costos, tiempos y canal oficial de un trámite a partir de una consulta en lenguaje natural.
+
+Alta
+
+CU-03
+
+Autenticarse
+
+Ciudadano autenticado
+
+Verifica la identidad del ciudadano mediante un código de un solo uso antes de acceder a información particular.
+
+Alta
+
+CU-04
+
+Verificar estado de una solicitud
+
+Ciudadano autenticado
+
+Consulta el estado de una solicitud propia contra las APIs institucionales disponibles.
+
+Media
+
+CU-05
+
+Recibir recomendación de trámites
+
+Ciudadano
+
+Sugiere trámites relacionados o pasos siguientes a partir de la intención detectada y del contexto de la sesión.
+
+Media
+
+CU-06
+
+Derivar a canal oficial de la entidad
+
+Ciudadano
+
+Identifica la entidad competente y entrega el canal oficial cuando la consulta excede el alcance del sistema.
+
+Alta
+
+CU-07
+
+Reportar un problema
+
+Ciudadano
+
+Permite reportar una respuesta incorrecta o incompleta y alimenta el ciclo de mejora del corpus.
+
+Media
+
+CU-08
+
+Gestionar catálogo de trámites
+
+Administrador de contenido
+
+Crea, actualiza, desactiva y versiona las fichas de trámites y sus fuentes oficiales.
+
+Alta
+
+CU-09
+
+Consultar métricas y auditoría
+
+Administrador del sistema
+
+Presenta indicadores de uso, desempeño del clasificador y eventos registrados en la bitácora.
+
+Media
+
+CU-10
+
+Gestionar consentimiento y datos personales
+
+Ciudadano
+
+Permite otorgar o revocar el consentimiento y solicitar la consulta o supresión de los datos de sus sesiones.
+
+Alta
+
+CU-11
+
+Clasificar intención y extraer entidades
+
+Motor de PLN
+
+Caso de uso incluido: procesa el texto anonimizado y devuelve la intención, las entidades y el nivel de confianza.
+
+Alta
+
+CU-12
+
+Registrar evento de auditoría
+
+Sistema
+
+Caso de uso incluido: persiste de forma firmada los eventos relevantes para trazabilidad y seguridad.
+
+Alta
+
+Fuente: Elaboración propia.
+
+3.4.2 Casos de uso extendidos
+
+Se documentan en formato extendido los cuatro casos de uso que concentran el mayor riesgo técnico del sistema: el flujo principal de consulta (CU-02), el acceso a información particular del ciudadano (CU-04), el mecanismo que preserva el alcance del sistema (CU-06) y el ejercicio de los derechos sobre los datos personales (CU-10). Los casos de uso restantes se documentan en el repositorio del proyecto con la misma plantilla.
+
+Tabla 6 Caso de uso extendido CU-02
+
+Campo
+
+Descripción
+
+Código
+
+CU-02
+
+Nombre
+
+Consultar información de un trámite
+
+Actores
+
+Ciudadano (principal); Motor de PLN y APIs institucionales (secundarios)
+
+Propósito
+
+Entregar de forma comprensible los requisitos, costos, tiempos y canal oficial de un trámite a partir de una consulta escrita en lenguaje natural.
+
+Precondiciones
+
+El ciudadano tiene una sesión activa (CU-01).
+
+El consentimiento de tratamiento de datos fue otorgado.
+
+El catálogo de trámites está disponible y vigente.
+
+Flujo principal
+
+1. El ciudadano escribe su consulta en lenguaje natural.
+
+2. El sistema anonimiza el texto y elimina identificadores personales.
+
+3. El sistema envía el texto anonimizado al servicio de PLN (CU-11).
+
+4. El servicio de PLN devuelve la intención, las entidades y el nivel de confianza.
+
+5. El sistema verifica que la confianza sea igual o superior a 0,70.
+
+6. El sistema consulta la ficha del trámite en el catálogo.
+
+7. El sistema compone la respuesta con requisitos, costo, tiempo estimado, canal oficial y fecha de actualización de la fuente.
+
+8. El sistema entrega la respuesta y actualiza el contexto de la sesión.
+
+9. El sistema registra el evento en la bitácora de auditoría (CU-12).
+
+Flujos alternativos y de excepción
+
+5a. Confianza inferior a 0,70: el sistema solicita una aclaración y ofrece hasta dos opciones de reformulación. Tras dos intentos fallidos, continúa en CU-06.
+
+6a. El trámite no existe en el catálogo: el sistema informa la limitación y continúa en CU-06.
+
+6b. La ficha está vencida: el sistema entrega la información marcada como no vigente y prioriza el enlace a la fuente oficial.
+
+7a. La API institucional no responde en 3 segundos: el sistema entrega la información almacenada en caché e indica la fecha de la última sincronización.
+
+Postcondiciones
+
+El ciudadano recibe la información del trámite con su fuente oficial.
+
+El evento queda registrado en la bitácora sin datos personales identificables.
+
+Requerimientos asociados
+
+RF-03, RF-04, RF-05, RF-06, RF-07, RF-08, RF-09, RF-14, RF-15
+
+Prioridad
+
+Alta
+
+Fuente: Elaboración propia.
+
+Tabla 7 Caso de uso extendido CU-04
+
+Campo
+
+Descripción
+
+Código
+
+CU-04
+
+Nombre
+
+Verificar el estado de una solicitud
+
+Actores
+
+Ciudadano autenticado (principal); APIs institucionales (secundario)
+
+Propósito
+
+Permitir que el ciudadano consulte el estado de una solicitud propia previamente radicada ante una entidad, sin exponer información de terceros.
+
+Precondiciones
+
+El ciudadano cuenta con un número de radicado.
+
+El servicio de autenticación está disponible.
+
+Existe una API institucional habilitada para el trámite consultado.
+
+Flujo principal
+
+1. El ciudadano solicita conocer el estado de su solicitud.
+
+2. El sistema inicia el proceso de autenticación (CU-03) y envía un código de un solo uso.
+
+3. El ciudadano ingresa el código recibido.
+
+4. El sistema valida el código y emite un token de sesión con vigencia de quince minutos.
+
+5. El ciudadano indica el número de radicado.
+
+6. El sistema consulta la API institucional correspondiente.
+
+7. El sistema presenta el estado, la fecha de la última actualización y el canal de seguimiento.
+
+8. El sistema registra el acceso en la bitácora de auditoría.
+
+Flujos alternativos y de excepción
+
+4a. Código inválido: se permiten tres intentos; superados, la cuenta se bloquea durante cinco minutos y se ofrece el canal telefónico de la entidad.
+
+6a. La API institucional no está disponible: el sistema informa la indisponibilidad, no entrega información parcial y deriva al canal oficial (CU-06).
+
+6b. El radicado no corresponde al ciudadano autenticado: el sistema niega el acceso y registra el intento como evento de seguridad.
+
+Postcondiciones
+
+El ciudadano conoce el estado vigente de su solicitud.
+
+El token de sesión expira automáticamente y los datos de la consulta no se conservan más allá del período de retención definido.
+
+Requerimientos asociados
+
+RF-11, RF-12, RF-14, RF-15, RF-20
+
+Prioridad
+
+Media
+
+Fuente: Elaboración propia.
+
+Tabla 8 Caso de uso extendido CU-06
+
+Campo
+
+Descripción
+
+Código
+
+CU-06
+
+Nombre
+
+Derivar a canal oficial de la entidad
+
+Actores
+
+Ciudadano (principal); Agente de la entidad (secundario)
+
+Propósito
+
+Preservar el alcance del sistema entregando al ciudadano el canal oficial competente cuando la consulta no puede resolverse con información pública o excede la orientación informativa.
+
+Precondiciones
+
+Existe una sesión activa.
+
+El sistema detectó una condición de derivación: baja confianza reiterada, trámite fuera del catálogo, solicitud de decisión administrativa o reporte de problema.
+
+Flujo principal
+
+1. El sistema identifica la condición de derivación.
+
+2. El sistema determina la entidad competente a partir de las entidades nombradas y del catálogo.
+
+3. El sistema recupera el canal oficial de atención de la entidad.
+
+4. El sistema informa al ciudadano el límite de su alcance y entrega el canal, el horario y el enlace oficial.
+
+5. El sistema publica el evento de derivación en el bus de mensajería.
+
+6. El servicio de auditoría firma y almacena el registro de la derivación.
+
+Flujos alternativos y de excepción
+
+2a. No se identifica la entidad competente: el sistema entrega el punto único de acceso GOV.CO y marca el caso como brecha del catálogo para revisión del administrador de contenido.
+
+4a. El ciudadano solicita otra alternativa: el sistema ofrece el canal secundario registrado para la entidad.
+
+Postcondiciones
+
+El ciudadano dispone del canal oficial competente.
+
+La derivación queda registrada y disponible para el análisis de brechas del catálogo.
+
+Requerimientos asociados
+
+RF-13, RF-14, RF-15, RF-16
+
+Prioridad
+
+Alta
+
+Fuente: Elaboración propia.
+
+Tabla 9 Caso de uso extendido CU-10
+
+Campo
+
+Descripción
+
+Código
+
+CU-10
+
+Nombre
+
+Gestionar consentimiento y datos personales
+
+Actores
+
+Ciudadano (principal)
+
+Propósito
+
+Garantizar el ejercicio efectivo de los derechos del titular sobre los datos tratados durante la conversación, conforme a la Ley 1581 de 2012.
+
+Precondiciones
+
+El ciudadano cuenta con un identificador de sesión vigente o con el comprobante de una sesión anterior.
+
+Flujo principal
+
+1. El ciudadano solicita conocer o eliminar los datos asociados a sus conversaciones.
+
+2. El sistema presenta la finalidad del tratamiento, el período de retención y las categorías de datos almacenadas.
+
+3. El ciudadano selecciona la acción: consultar, exportar, revocar el consentimiento o solicitar la supresión.
+
+4. El sistema ejecuta la acción sobre los registros asociados al identificador de sesión.
+
+5. El sistema confirma la ejecución y entrega la constancia correspondiente.
+
+6. El sistema registra la operación en la bitácora de auditoría.
+
+Flujos alternativos y de excepción
+
+3a. Revocación del consentimiento: el sistema cierra la sesión, detiene el tratamiento y programa la supresión de los datos asociados.
+
+4a. Los datos ya fueron purgados por vencimiento del período de retención: el sistema informa esa condición y entrega la constancia de inexistencia.
+
+Postcondiciones
+
+El ciudadano conserva el control efectivo sobre sus datos.
+
+La bitácora conserva únicamente el evento de la operación, sin el contenido suprimido.
+
+Requerimientos asociados
+
+RF-02, RF-15, RF-19, RF-20
+
+Prioridad
+
+Alta
+
+Fuente: Elaboración propia.
+
+3.5 Población y Muestra
+
+En cuanto al corpus de PLN, se incluye una secuencia de diálogos en español colombiano dedicados a consultar servicios y trámites estatales. El estudio cuenta con una variedad de fuentes, incluyendo información oficial y los resultados de una encuesta. La investigación establece la necesidad de alrededor de 2.000 ejemplos claramente etiquetados para lograr un rendimiento óptimo del modelo. En cuanto a las pruebas de accesibilidad, se determinó una población aproximada entre 50 y 100 individuos para el piloto y se aumentará a 28 en la versión final. Se eligieron a los participantes según un criterio no aleatorio y están representados en diferentes niveles de experiencia tecnológica, en edad entre 18 y 64 años y con diversas funciones laborales.
+
+3.5.1 Desarrolladores
+
+El equipo de desarrollo está conformado por los tres estudiantes autores del trabajo, con una dedicación estimada de doce horas semanales por integrante durante los cinco sprints de tres semanas. Esta población es la unidad de observación de los instrumentos técnicos descritos en la sección 3.6.2: de ella provienen las métricas de cobertura de pruebas, los registros de revisión de código por pares y las decisiones de arquitectura documentadas en cada retrospectiva.
+
+El etiquetado del corpus de entrenamiento fue realizado por los tres integrantes de forma independiente sobre un subconjunto común, con el fin de estimar el acuerdo entre anotadores y depurar las categorías con mayor superposición semántica. Las discrepancias se resolvieron por consenso y dieron lugar a la guía de anotación que acompaña al corpus.
+
+3.5.2 Usuarios finales
+
+La población de usuarios finales corresponde a personas mayores de edad residentes en Colombia que han realizado al menos un trámite estatal en los últimos doce meses. El muestreo fue no probabilístico por conveniencia, con cuotas orientadas a garantizar diversidad de edad y de familiaridad tecnológica, dado que estas dos variables condicionan de manera directa los resultados de usabilidad.
+
+Tabla 10 Segmentación de los participantes en las pruebas de usabilidad
+
+Segmento
+
+Criterio
+
+Fase 1 (prototipo)
+
+Fase 2 (alta fidelidad)
+
+18 a 29 años
+
+Alta familiaridad tecnológica
+
+9
+
+15
+
+30 a 49 años
+
+Familiaridad media
+
+11
+
+20
+
+50 a 64 años
+
+Familiaridad baja o media
+
+8
+
+17
+
+Total
+
+—
+
+28
+
+52
+
+Fuente: Elaboración propia.
+
+Los criterios de inclusión fueron: ser mayor de 18 años, haber realizado un trámite estatal reciente y otorgar consentimiento informado para la grabación de la sesión. Se excluyeron participantes con vínculo laboral en desarrollo de software, para evitar el sesgo de familiaridad con interfaces conversacionales, y los datos recolectados se trataron de forma anónima y agregada.
+
+3.6 Técnicas e Instrumentos de Recolección de Datos
+
+3.6.1 Talleres de requisitos
+
+La elicitación de requisitos se realizó mediante tres talleres estructurados, previos al primer sprint y complementados con una sesión de validación al cierre del tercero. Los talleres fueron la fuente principal del catálogo de trámites priorizado, del modelo de casos de uso de la sección 3.4 y de la lista de requerimientos de la sección 3.8.1.
+
+Tabla 11 Talleres de requisitos realizados
+
+Taller
+
+Objetivo
+
+Participantes
+
+Técnica
+
+Producto
+
+T1. Identificación del dominio
+
+Delimitar los trámites de mayor demanda y el vocabulario ciudadano asociado.
+
+Equipo de desarrollo y 6 usuarios potenciales
+
+Lluvia de ideas y tarjetas de escenario
+
+Lista preliminar de 24 trámites y glosario de expresiones coloquiales.
+
+T2. Priorización funcional
+
+Ordenar las funcionalidades candidatas según valor y esfuerzo.
+
+Equipo de desarrollo y tutor académico
+
+MoSCoW y estimación por puntos de historia
+
+Backlog priorizado y definición del alcance mínimo viable.
+
+T3. Validación de flujos conversacionales
+
+Verificar la comprensión de los diálogos propuestos y detectar puntos de fricción.
+
+Equipo de desarrollo y 8 usuarios potenciales
+
+Recorrido cognitivo sobre guiones de conversación
+
+Ajustes a los flujos de aclaración y a los mensajes de alcance del sistema.
+
+T4. Sesión de validación
+
+Contrastar el incremento del tercer sprint con los requisitos acordados.
+
+Equipo de desarrollo, tutor académico y 4 usuarios de T1
+
+Demostración guiada y lista de verificación
+
+Registro de conformidad por requisito y lista de ajustes para el sprint 4.
+
+Fuente: Elaboración propia.
+
+Cada taller tuvo una duración aproximada de noventa minutos y fue documentado en un acta con los acuerdos, los desacuerdos no resueltos y los responsables de seguimiento. El vocabulario recogido en el taller T1 se incorporó directamente al corpus de entrenamiento del clasificador, lo que explica parte de la mejora del modelo ajustado frente al modelo preentrenado genérico reportada en el capítulo IV.
+
+3.6.2 Instrumentos Técnicos
+
+Banco de pruebas de rendimiento (Apache JMeter) para la evaluación de tiempos de respuesta del sistema en diferentes niveles de demanda.
+
+‎Herramienta de pruebas de seguridad (OWASP ZAP) para identificar vulnerabilidades comunes en las APIs del sistema.
+
+‎Cobertura de pruebas unitarias e integración (Jest, pytest) que asegura un umbral de cobertura del 80% o más.
+
+‎Métricas del flujo de procesamiento de procesamiento de lenguaje natural (PLN): matriz de confusión, precisión.
+
+3.6.3 Instrumentos de Usabilidad
+
+Escala SUS (10 ítems, escala Likert 1-5) utilizada al término de cada prueba.
+
+1. Proceso de pensamiento emitido a voz alta (think-aloud) durante las pruebas.
+
+Entrevista semiestructurada tras la prueba para recoger percusas cualitativas sobre la experiencia de usar la herramienta.
+
+Registro de comportamiento de los indicadores de rendimiento: tasa de conversación completa, número de intentos.
+
+3.7 Procesamiento y Análisis de Datos
+
+3.7.1 Análisis cualitativo y cuantitativo
+
+Las medidas cuantitativas (PLN, puntajes de satisfacción con el servicio, indicadores de rendimiento) se analizan utilizando estadística descriptiva (promedios, desviaciones estándar, valores percentiles), así como inferencia estadística, cuando sea necesario debido al tamaño muestral. Para analizar los índices de PLN, el sistema emplea Python junto con las bibliotecas scikit-learn. Para realizar el análisis estatístico de los datos de usabilidad se usa R.
+
+‎Los datos cualitativos (transcripciones de las sesiones think-aloud, entrevistas) son examinados utilizando análisis de contenido temático, separando las categorías recurrentes que vinculan problemas de usabilidad como la falta de claridad en las respuestas del sistema, la confusión en el flujo conversacional y la desconfianza en la herramienta, entre otros.
+
+3.7.2 Lista de procesos
+
+A partir de los casos de uso y de la arquitectura definida se identificaron doce procesos operativos. La lista cumple una doble función: sirve de puente entre el modelo funcional y el diseño de los microservicios de la sección 3.8, y delimita qué eventos deben quedar registrados en la bitácora de auditoría.
+
+Tabla 12 Lista de procesos del sistema
+
+Código
+
+Proceso
+
+Entradas
+
+Salidas
+
+Servicio responsable
+
+P-01
+
+Gestión del consentimiento
+
+Solicitud de inicio de sesión
+
+Registro de consentimiento vigente
+
+ms-auth
+
+P-02
+
+Recepción y anonimización del mensaje
+
+Texto del ciudadano
+
+Texto anonimizado y contexto actualizado
+
+ms-chat
+
+P-03
+
+Clasificación de intención y extracción de entidades
+
+Texto anonimizado
+
+Intención, entidades y confianza
+
+ms-pln
+
+P-04
+
+Resolución de la consulta contra el catálogo
+
+Intención y entidades
+
+Ficha del trámite
+
+ms-catalogo
+
+P-05
+
+Generación de recomendaciones
+
+Intención y contexto de sesión
+
+Lista priorizada de trámites relacionados
+
+ms-recomendacion
+
+P-06
+
+Autenticación del ciudadano
+
+Solicitud de acceso y código de un solo uso
+
+Token de sesión con vigencia limitada
+
+ms-auth
+
+P-07
+
+Verificación de estado ante APIs institucionales
+
+Número de radicado y token
+
+Estado de la solicitud
+
+ms-catalogo
+
+P-08
+
+Derivación a canal oficial
+
+Condición de derivación
+
+Canal oficial y evento de derivación
+
+ms-recomendacion
+
+P-09
+
+Registro y auditoría de eventos
+
+Eventos publicados en el bus
+
+Registros firmados en la bitácora
+
+ms-auditoria
+
+P-10
+
+Actualización del catálogo de trámites
+
+Fuentes oficiales y reportes de brecha
+
+Fichas versionadas y vigentes
+
+ms-catalogo
+
+P-11
+
+Reentrenamiento y versionado del modelo
+
+Corpus ampliado y reportes de error
+
+Nueva versión del modelo y métricas
+
+ms-pln
+
+P-12
+
+Gestión de incidentes de seguridad
+
+Alertas y hallazgos de análisis
+
+Plan de remediación y evidencia de cierre
+
+Administrador del sistema
+
+Fuente: Elaboración propia.
+
+3.8 Modelado y Documentación del Sistema
+
+Esta sección documenta el diseño del sistema mediante los modelos de UML 2.5 seleccionados por su capacidad de comunicar decisiones distintas: la estructura del dominio (diagrama de clases), el comportamiento dependiente del estado (diagramas de estados), la interacción entre servicios (diagramas de colaboración y de secuencia) y la organización física de la solución (diagramas de componentes y de distribución). Los modelos se elaboraron de forma incremental durante los cinco sprints y se mantuvieron sincronizados con el código mediante revisión al cierre de cada iteración.
+
+3.8.1 Requerimientos funcionales y no funcionales
+
+Los requerimientos funcionales se derivaron de los talleres de la sección 3.6.1 y de los casos de uso de la sección 3.4. Cada requerimiento se enuncia de forma verificable, con un criterio de aceptación que hizo posible su comprobación en las pruebas funcionales reportadas en el capítulo IV.
+
+Tabla 13 Requerimientos funcionales del sistema
+
+Código
+
+Requerimiento funcional
+
+Criterio de aceptación
+
+CU
+
+Prior.
+
+RF-01
+
+El sistema debe permitir iniciar una sesión conversacional sin exigir identificación previa.
+
+La sesión se crea en menos de 1 s y devuelve un identificador seudonimizado.
+
+CU-01
+
+Alta
+
+RF-02
+
+El sistema debe solicitar y registrar el consentimiento informado antes de tratar datos del ciudadano.
+
+No se procesa ningún mensaje sin un consentimiento vigente asociado a la sesión.
+
+CU-01, CU-10
+
+Alta
+
+RF-03
+
+El sistema debe recibir consultas escritas en lenguaje natural en español colombiano.
+
+Se aceptan mensajes de hasta 500 caracteres con tildes, abreviaturas y expresiones coloquiales.
+
+CU-02
+
+Alta
+
+RF-04
+
+El sistema debe anonimizar los identificadores personales antes de enviar el texto al motor de PLN.
+
+Números de documento, teléfonos y correos son reemplazados por marcadores antes de la inferencia.
+
+CU-02
+
+Alta
+
+RF-05
+
+El sistema debe clasificar cada mensaje en una de las cinco categorías de intención definidas.
+
+La respuesta incluye la categoría y un valor de confianza entre 0 y 1.
+
+CU-11
+
+Alta
+
+RF-06
+
+El sistema debe extraer las entidades nombradas relevantes del mensaje.
+
+Se identifican tipo de trámite, entidad, tipo de documento y ciudad cuando están presentes.
+
+CU-11
+
+Alta
+
+RF-07
+
+El sistema debe solicitar aclaración cuando la confianza sea inferior al umbral definido.
+
+Con confianza menor a 0,70 se genera una pregunta de aclaración con opciones.
+
+CU-02
+
+Alta
+
+RF-08
+
+El sistema debe entregar la ficha del trámite con requisitos, costo, tiempo y canal oficial.
+
+La respuesta incluye siempre el enlace a la fuente oficial y su fecha de actualización.
+
+CU-02
+
+Alta
+
+RF-09
+
+El sistema debe mantener el contexto de la conversación durante la sesión.
+
+Una consulta de seguimiento se resuelve sin repetir el trámite mencionado antes.
+
+CU-02
+
+Alta
+
+RF-10
+
+El sistema debe generar recomendaciones de trámites relacionados.
+
+Se ofrecen hasta tres sugerencias ordenadas por puntaje de pertinencia.
+
+CU-05
+
+Media
+
+RF-11
+
+El sistema debe autenticar al ciudadano mediante un código de un solo uso.
+
+El código expira en 5 minutos y se permiten máximo 3 intentos.
+
+CU-03
+
+Alta
+
+RF-12
+
+El sistema debe consultar el estado de una solicitud en las APIs institucionales habilitadas.
+
+Se muestra el estado y la fecha de la última actualización de la fuente.
+
+CU-04
+
+Media
+
+RF-13
+
+El sistema debe derivar al canal oficial competente cuando la consulta exceda su alcance.
+
+La derivación entrega entidad, canal, horario y enlace oficial.
+
+CU-06
+
+Alta
+
+RF-14
+
+El sistema debe advertir de manera explícita que no reemplaza los canales oficiales.
+
+La advertencia aparece al inicio de la sesión y en toda respuesta que involucre una decisión administrativa.
+
+CU-01, CU-02
+
+Alta
+
+RF-15
+
+El sistema debe registrar los eventos relevantes en una bitácora de auditoría.
+
+Cada evento se almacena con marca de tiempo, servicio de origen y huella de integridad.
+
+CU-12
+
+Alta
+
+RF-16
+
+El sistema debe permitir reportar una respuesta incorrecta o incompleta.
+
+El reporte queda asociado al mensaje y alimenta la revisión del corpus.
+
+CU-07
+
+Media
+
+RF-17
+
+El sistema debe permitir la gestión completa del catálogo de trámites.
+
+El administrador puede crear, actualizar, desactivar y versionar fichas.
+
+CU-08
+
+Alta
+
+RF-18
+
+El sistema debe presentar un tablero de métricas de uso y desempeño.
+
+Incluye volumen de sesiones, distribución de intenciones, tasa de derivación y latencia.
+
+CU-09
+
+Media
+
+RF-19
+
+El sistema debe permitir al ciudadano consultar, exportar y suprimir sus datos.
+
+La solicitud se ejecuta y se entrega constancia en la misma sesión.
+
+CU-10
+
+Alta
+
+RF-20
+
+El sistema debe cerrar y purgar las sesiones inactivas.
+
+Tras 15 minutos sin actividad la sesión se cierra y su contexto se elimina de la caché.
+
+CU-01
+
+Alta
+
+Fuente: Elaboración propia.
+
+Los requerimientos no funcionales se organizan según las características de calidad del producto software de la norma ISO/IEC 25010, lo que permite trazar cada exigencia técnica hasta una dimensión de calidad evaluable y evita que el diseño quede sustentado en criterios de desempeño enunciados de manera genérica.
+
+Tabla 14 Requerimientos no funcionales clasificados según ISO/IEC 25010
+
+Código
+
+Característica ISO/IEC 25010
+
+Requerimiento no funcional
+
+Métrica de verificación
+
+RNF-01
+
+Eficiencia de desempeño
+
+El tiempo de respuesta promedio no debe superar los 800 ms con 500 usuarios concurrentes.
+
+Prueba de carga con Apache JMeter.
+
+RNF-02
+
+Eficiencia de desempeño
+
+La inferencia del modelo de PLN no debe superar los 300 ms por mensaje.
+
+Instrumentación del servicio ms-pln.
+
+RNF-03
+
+Fiabilidad
+
+La disponibilidad mensual del servicio debe ser igual o superior al 99,5 %.
+
+Monitoreo de disponibilidad por sondas de salud.
+
+RNF-04
+
+Fiabilidad
+
+Ante la falla de un servicio dependiente el sistema debe degradarse de forma controlada.
+
+Prueba de caos: apagado del servicio de catálogo.
+
+RNF-05
+
+Eficiencia de desempeño
+
+El sistema debe escalar horizontalmente de forma automática.
+
+Escalado por umbral de CPU superior al 70 %.
+
+RNF-06
+
+Seguridad
+
+Los datos deben cifrarse en tránsito con TLS 1.3 y en reposo con AES-256.
+
+Revisión de configuración y análisis con OWASP ZAP.
+
+RNF-07
+
+Seguridad
+
+El acceso a información particular debe exigir autenticación con token de vigencia limitada.
+
+Token JWT de 15 minutos y límite de 60 peticiones por minuto por IP.
+
+RNF-08
+
+Seguridad
+
+No deben existir vulnerabilidades de severidad alta en las APIs expuestas.
+
+Ausencia de hallazgos con CVSS superior a 7,0.
+
+RNF-09
+
+Seguridad
+
+El texto debe anonimizarse antes del procesamiento y las conversaciones deben purgarse al vencer la retención.
+
+Retención máxima de 30 días verificada por trabajo programado.
+
+RNF-10
+
+Usabilidad
+
+La interfaz debe alcanzar una puntuación SUS igual o superior a 68.
+
+Aplicación de la escala SUS a la muestra definida.
+
+RNF-11
+
+Usabilidad
+
+La interfaz debe cumplir el nivel AA de la WCAG 2.1 y la Resolución 1519 de 2020.
+
+Auditoría de accesibilidad con herramientas automatizadas y revisión manual.
+
+RNF-12
+
+Mantenibilidad
+
+La cobertura de pruebas automatizadas debe ser igual o superior al 80 %.
+
+Informe de cobertura de Jest y pytest.
+
+RNF-13
+
+Mantenibilidad
+
+Cada microservicio debe poder desplegarse de forma independiente.
+
+Canalización de integración y despliegue continuo por servicio.
+
+RNF-14
+
+Portabilidad
+
+El sistema debe ejecutarse en contenedores orquestados, sin dependencia de un proveedor específico.
+
+Despliegue reproducible en Kubernetes.
+
+RNF-15
+
+Compatibilidad
+
+La interfaz debe funcionar en navegadores vigentes y adaptarse a pantallas móviles.
+
+Pruebas en resoluciones de 320 px a 1920 px.
+
+Fuente: Elaboración propia.
+
+3.8.2 Diagrama de clases
+
+El diagrama de clases representa el modelo de dominio compartido por los microservicios. Se privilegió un modelo reducido y explícito sobre uno exhaustivo: solo se incluyen las entidades que se persisten o que cruzan los límites de un servicio, de modo que el diagrama siga siendo un contrato legible entre los equipos y no una réplica del esquema de base de datos.
+
+Figura 2 Diagrama de clases del dominio
+
+Fuente: Elaboración propia.
+
+Tres decisiones de modelado merecen justificación. Primero, la clase Mensaje conserva el texto original y el texto anonimizado como atributos separados: esta separación materializa el principio de privacidad por diseño, pues el atributo enviado al motor de PLN nunca es el original. Segundo, Consentimiento se modela como una entidad con versión y vigencia propias, y no como un atributo booleano de Ciudadano, porque la Ley 1581 de 2012 exige demostrar qué finalidad fue autorizada y cuándo. Tercero, RegistroAuditoria almacena una huella de la carga útil y no la carga misma, lo que permite verificar la integridad del evento sin conservar contenido conversacional más allá del período de retención.
+
+3.8.3 Diagramas de estados
+
+Dos objetos del dominio presentan un comportamiento dependiente del estado que justifica su modelado explícito: la sesión conversacional, que concentra las reglas de consentimiento, expiración y aclaración, y la solicitud de derivación, que define el ciclo de vida del mecanismo con el que el sistema preserva su alcance.
+
+Figura 3 Diagrama de estados de la sesión conversacional
+
+Fuente: Elaboración propia.
+
+El estado Aclaración implementa la regla de umbral definida en RF-07: cuando la confianza del clasificador es inferior a 0,70 la sesión no avanza hacia una respuesta, sino que solicita una reformulación. La transición hacia Derivada tras dos intentos fallidos evita el patrón de fracaso silencioso identificado como problema crítico en las pruebas de usabilidad de la primera fase.
+
+Figura 4 Diagrama de estados de la solicitud de derivación
+
+Fuente: Elaboración propia.
+
+El estado SinCompetencia no es un estado de error sino un mecanismo de retroalimentación: los casos que llegan a él se consolidan como brechas del catálogo y alimentan el proceso P-10 de actualización descrito en la sección 3.7.2.
+
+3.8.4 Diagramas de colaboración
+
+Los diagramas de colaboración presentan la misma información que los de secuencia, pero organizada alrededor de los enlaces estructurales entre objetos. Se incluyen porque hacen visible el grado de acoplamiento de cada servicio: el número de enlaces que converge en un objeto es un indicador temprano de que ese componente puede convertirse en un cuello de botella.
+
+Figura 5 Diagrama de colaboración del caso de uso CU-02
+
+Fuente: Elaboración propia.
+
+El servicio de chat concentra siete enlaces, lo que confirma su papel de orquestador del flujo conversacional. Esta concentración fue una decisión deliberada —evita que la interfaz conozca la topología interna de los servicios— pero obligó a dimensionar ese servicio con mayor número de réplicas que los demás, como se refleja en el diagrama de distribución.
+
+Figura 6 Diagrama de colaboración del caso de uso CU-06
+
+Fuente: Elaboración propia.
+
+3.8.5 Diagramas de secuencia
+
+Se modelaron los tres escenarios de interacción con mayor complejidad temporal: la consulta de un trámite, que constituye el flujo de mayor volumen; la autenticación y verificación de estado, que involucra un sistema externo y controles de seguridad; y la derivación, que combina comunicación síncrona y asíncrona.
+
+Figura 7 Diagrama de secuencia del caso de uso CU-02
+
+Fuente: Elaboración propia.
+
+El diagrama evidencia la separación entre el camino síncrono, que determina el tiempo de respuesta percibido por el ciudadano, y el camino asíncrono de auditoría, que se publica en el bus de mensajería y no bloquea la respuesta. Esta decisión explica que el registro completo de trazabilidad exigido por RF-15 no comprometa el objetivo de latencia de RNF-01.
+
+Figura 8 Diagrama de secuencia de los casos de uso CU-03 y CU-04
+
+Fuente: Elaboración propia.
+
+Figura 9 Diagrama de secuencia del caso de uso CU-06
+
+Fuente: Elaboración propia.
+
+3.8.6 Diagrama de componentes
+
+El diagrama de componentes organiza la solución en cuatro capas y muestra las interfaces por las que se comunican. La separación entre la capa de borde y la de servicios de dominio permite que la autenticación, la limitación de tasa y el registro de acceso se resuelvan una sola vez en el API Gateway, en lugar de replicarse en cada microservicio.
+
+Figura 10 Diagrama de componentes del sistema
+
+Fuente: Elaboración propia.
+
+El servicio de PLN es el único implementado en Python con FastAPI, decisión justificada por el ecosistema de bibliotecas de aprendizaje automático y por el costo de portar el modelo BETO a otro entorno de ejecución. El resto de los servicios comparte la pila de Node.js con Express, lo que reduce la dispersión tecnológica y el esfuerzo de mantenimiento de un equipo de tres personas.
+
+3.8.7 Diagrama de distribución
+
+El diagrama de distribución describe la asignación de los artefactos de software a los nodos de ejecución. El despliegue se organiza en un clúster de Kubernetes con tres grupos de nodos diferenciados por perfil de recursos, y en servicios de datos gestionados fuera del clúster para evitar el estado persistente en los nodos de aplicación.
+
+Figura 11 Diagrama de distribución del sistema
+
+Fuente: Elaboración propia.
+
+El aislamiento del servicio de inferencia en un nodo con aceleración por GPU obedece a su perfil de consumo: es el único componente cuyo tiempo de ejecución depende del tamaño del modelo y no del volumen de peticiones concurrentes. Separarlo evita que la carga de inferencia degrade la latencia de los servicios de catálogo y de recomendación, que comparten el nodo de aplicación.
+
+Capítulo IV: Análisis y Discusión de Resultados
+
+4.1 Funcionalidades Implementadas
+
+Al cierre del quinto sprint se implementaron dieciséis funcionalidades, de las cuales catorce quedaron completamente operativas y dos alcanzaron una implementación parcial. Esta sección precisa el alcance efectivo del prototipo antes de presentar los resultados de su evaluación, de modo que las métricas reportadas en las secciones siguientes se interpreten sobre un sistema cuyo estado está documentado.
+
+Tabla 15 Funcionalidades implementadas y su trazabilidad con los requerimientos
+
+Código
+
+Funcionalidad implementada
+
+RF asociados
+
+Sprint
+
+Estado
+
+F-01
+
+Interfaz conversacional web responsiva con historial de sesión.
+
+RF-01, RF-03
+
+1
+
+Completa
+
+F-02
+
+Registro y verificación del consentimiento informado.
+
+RF-02
+
+3
+
+Completa
+
+F-03
+
+Anonimización automática de identificadores personales previa a la inferencia.
+
+RF-04
+
+3
+
+Completa
+
+F-04
+
+Clasificador de intención en cinco categorías con modelo BETO ajustado.
+
+RF-05
+
+2
+
+Completa
+
+F-05
+
+Extracción de entidades nombradas del dominio de trámites.
+
+RF-06
+
+2
+
+Completa
+
+F-06
+
+Mecanismo de aclaración por umbral de confianza.
+
+RF-07
+
+2
+
+Completa
+
+F-07
+
+Consulta de fichas de trámites con fuente y fecha de vigencia.
+
+RF-08
+
+1
+
+Completa
+
+F-08
+
+Gestión del contexto conversacional en caché con expiración.
+
+RF-09, RF-20
+
+1
+
+Completa
+
+F-09
+
+Motor de recomendación de trámites relacionados.
+
+RF-10
+
+4
+
+Completa
+
+F-10
+
+Autenticación por código de un solo uso con límite de intentos.
+
+RF-11
+
+3
+
+Completa
+
+F-11
+
+Consulta de estado contra API institucional simulada.
+
+RF-12
+
+5
+
+Parcial
+
+F-12
+
+Derivación a canal oficial con identificación de entidad competente.
+
+RF-13, RF-14
+
+4
+
+Completa
+
+F-13
+
+Bitácora de auditoría con firma de integridad sobre eventos.
+
+RF-15
+
+3
+
+Completa
+
+F-14
+
+Reporte de respuestas incorrectas por parte del ciudadano.
+
+RF-16
+
+4
+
+Completa
+
+F-15
+
+Panel de administración del catálogo de trámites.
+
+RF-17
+
+5
+
+Completa
+
+F-16
+
+Panel de métricas de uso, desempeño y derechos del titular.
+
+RF-18, RF-19
+
+5
+
+Parcial
+
+Fuente: Elaboración propia.
+
+Las dos funcionalidades parciales corresponden a limitaciones de contexto y no de diseño. La consulta de estado (F-11) opera contra un servicio simulado que replica el contrato de las APIs institucionales, porque el proyecto no dispuso de credenciales de integración con sistemas reales del Estado; la lógica de integración, el manejo de errores y los tiempos de espera fueron implementados y probados contra ese servicio. El panel de métricas (F-16) implementa los indicadores de uso y desempeño, pero el módulo de autogestión de datos personales quedó limitado a la consulta y la revocación, sin el flujo completo de exportación previsto en RF-19. Ambas limitaciones se retoman en las conclusiones.
+
+4.2 Resultados: Arquitectura del Sistema
+
+‎El resultado de la primera etapa definieron seis microservicios independientes desplegados en contenedores Docker que son orquestados con Kubernetes. El conjunto de tecnologías elegido fue: Node.js con Express para las funcionalidades de chat, identificación y recomendar; Python (FastAPI) para la funcionalidad de pln por su amplio conjunto de bibliotecas de aprendizaje automático; PostgreSQL como base de datos relacional para la personalización; Redis como cacha de sesiones y Apache Kafka como medio para comunicarse entre servicios asincrónicamente.
+
+La decisión de usar FastAPI para el servicio de PLN se justifica en su soporte nativo para operaciones asíncronas y su bajo overhead, lo que resulta en tiempos de respuesta inferiores a 800 ms bajo carga normal (objetivo definido en el backlog). El patrón API Gateway se implementó con Kong, que proporciona funcionalidades de rate limiting, autenticación centralizada y registro de logs de acceso.
+
+Las pruebas de rendimiento realizadas con JMeter bajo una carga simulada de 500 usuarios concurrentes arrojaron un tiempo de respuesta promedio de 743 ms y un percentil 95 de 1.210 ms, con una tasa de error del 0,3%. Estos resultados se encuentran dentro de los umbrales de aceptación definidos para el sistema.
+
+4.3 Resultados: Pipeline de PLN
+
+El pipeline de PLN fue construido sobre el modelo BETO (bert-base-spanish-wwm-cased) con ajuste fino en un corpus de 2.340 muestras etiquetadas manualmente en cinco categorías de intención ciudadana: consulta informativa, solicitud de trámite, verificación de estado, reporte de problema y derivación a entidad. Las muestras fueron recopiladas a partir de conversaciones públicas en plataformas de atención digital en español colombiano y anonimizadas antes de su uso.
+
+Tabla 16 Desempeño del clasificador de intención por categoría
+
+Categoría
+
+Precisión
+
+Exhaustividad
+
+F1-Score
+
+Soporte
+
+Consulta informativa
+
+0,89
+
+0,91
+
+0,90
+
+312
+
+Solicitud de trámite
+
+0,74
+
+0,71
+
+0,72
+
+284
+
+Verificación de estado
+
+0,78
+
+0,80
+
+0,79
+
+198
+
+Reporte de problema
+
+0,72
+
+0,69
+
+0,70
+
+176
+
+Derivación a entidad
+
+0,83
+
+0,86
+
+0,84
+
+98
+
+Promedio macro
+
+0,79
+
+0,79
+
+0,79
+
+1.068
+
+Fuente: Elaboración propia.
+
+El F1-puntaje macro de 0,79 supera el umbral inferior de 0,70 y se considera como una mejora del 12% en comparación con el modelo BETO original para el análisis en las mismas áreas. La categoría de derivación hacia entidad, fundamental en términos de eficacia del servicio, logró un F1-puntaje de 0,84 y una precisión del 86%, indicando que la clasificación del sistema es bastante precisa y correcta en casi todos los casos que requieren un cambio institucional.
+
+4.4 Resultados: Seguridad de la Información
+
+El análisis de riesgos realizado identificó doce amenazas relevantes para el sistema, clasificadas según su impacto y probabilidad. Las tres amenazas de mayor prioridad fueron: (1) acceso no autorizado a datos de interacciones almacenadas, (2) interceptación de comunicaciones entre microservicios, y (3) manipulación del pipeline de PLN mediante ataques de inyección de texto adversarial.
+
+Para cada amenaza se implementaron controles específicos. El cifrado de datos al estar en reposo (AES-256) y en tránsito (TLS 1.3) evita el riesgo de acceso no autorizado e interceptación. El anonimización automática de datos del usuario previo al procesamiento por el pipeline PLN asegura que el componente de IA no acceda a información que permita identificar. Se realizaron pruebas básicas de penetración mediante OWASP ZAP sin detectar vulnerabilidades críticas (CVSS > 7,0) en las APIs expuestas.
+
+‎Se llevó a cabo la auditoría de cumplimiento de los siete principios Privacy by Design de manera efectiva, mostrando una completa implementación de cinco principios y una parcial de dos más: ‘funcionalidad plena’ (que está en el proceso de ajuste para mejorar el consentimiento del usuario) y ‘visibilidad y transparencia’ (que necesita aún la implementación completa del panel de control de datos del usuario).
+
+4.5 Resultados: Usabilidad
+
+Las pruebas de usabilidad tuvieron lugar en dos fases. En la primera fase, se midió la satisfacción con 28 participantes con un prototipo preliminar y se obtuvo un valor PROMEDIO de puntuación SUS de 61,2 (debajo de la cota para la satisfacción de usuario). Se observaron varios fallos críticos durante el protocolo think-aloud: mensaje de error del sistema sin información detallada, mal manejo del contexto al cambiar de temas, y falta de transparencia al mostrar cuáles eran las limitaciones del software.
+
+‎Tras integrar las mejoras propuestas, se llevó a cabo una nueva prueba a la que 52 individuos respondieron al prototipo con una alta fidelidad. Se registró una calificación promedio de SUS de 73,8, que supera el criterio previsto. Las diferencias fueron notables respecto a la edad. El rango de variación mostró una desviación estándar menor (12,4) en la población mayor de 50 años frente a los jóvenes (7,1). Estas observaciones provocaron cambios destinados a ajustarse al tamaño de las letras y a la rapidez de respuesta.
+
+4.6 Resultados de las Pruebas Funcionales
+
+Las pruebas funcionales verificaron el cumplimiento de los criterios de aceptación definidos en la sección 3.8.1. Se ejecutaron catorce casos de prueba de extremo a extremo sobre el sistema integrado, complementados con las pruebas unitarias y de integración de cada microservicio. Los casos se derivaron directamente de los flujos principales y alternativos de los casos de uso extendidos.
+
+Tabla 17 Resultados de las pruebas funcionales de extremo a extremo
+
+Código
+
+Caso de prueba
+
+CU
+
+Resultado esperado
+
+Veredicto
+
+CP-01
+
+Consulta directa de un trámite del catálogo.
+
+CU-02
+
+Respuesta con requisitos, costo y enlace oficial en menos de 1 s.
+
+Aprobado
+
+CP-02
+
+Consulta formulada con lenguaje coloquial y abreviaturas.
+
+CU-02
+
+Clasificación correcta de la intención con confianza superior a 0,70.
+
+Aprobado
+
+CP-03
+
+Consulta ambigua con confianza inferior al umbral.
+
+CU-02
+
+El sistema solicita aclaración en lugar de responder.
+
+Aprobado
+
+CP-04
+
+Dos intentos de aclaración sin éxito.
+
+CU-02, CU-06
+
+El sistema deriva al canal oficial competente.
+
+Aprobado
+
+CP-05
+
+Consulta de seguimiento sin repetir el trámite.
+
+CU-02
+
+El contexto de la sesión se conserva y la respuesta es pertinente.
+
+Aprobado
+
+CP-06
+
+Mensaje que incluye número de documento y teléfono.
+
+CU-02
+
+Los identificadores son sustituidos antes de la inferencia.
+
+Aprobado
+
+CP-07
+
+Rechazo del consentimiento al iniciar la sesión.
+
+CU-01
+
+La sesión se cierra y no se procesa ningún mensaje.
+
+Aprobado
+
+CP-08
+
+Autenticación con código válido.
+
+CU-03
+
+Se emite un token con vigencia de 15 minutos.
+
+Aprobado
+
+CP-09
+
+Tres intentos de autenticación con código inválido.
+
+CU-03
+
+Bloqueo temporal de 5 minutos y oferta de canal alterno.
+
+Aprobado
+
+CP-10
+
+Consulta de estado con la API institucional no disponible.
+
+CU-04
+
+El sistema informa la indisponibilidad y no entrega información parcial.
+
+Aprobado
+
+CP-11
+
+Consulta de un trámite ausente del catálogo.
+
+CU-06
+
+Derivación con identificación de la entidad competente.
+
+Aprobado
+
+CP-12
+
+Reporte de una respuesta incorrecta.
+
+CU-07
+
+El reporte se asocia al mensaje y queda disponible para revisión.
+
+Aprobado
+
+CP-13
+
+Expiración de la sesión por inactividad.
+
+CU-01
+
+La sesión se cierra a los 15 minutos y el contexto se elimina.
+
+Aprobado
+
+CP-14
+
+Solicitud de exportación de los datos de la sesión.
+
+CU-10
+
+Entrega del archivo de datos y constancia de la operación.
+
+No aprobado
+
+Fuente: Elaboración propia.
+
+Trece de los catorce casos resultaron aprobados. El caso CP-14 no fue superado porque la funcionalidad de exportación de datos personales quedó implementada de forma parcial (F-16), lo que confirma en la evidencia de pruebas la limitación declarada en la sección 4.1 y sustenta la recomendación correspondiente del capítulo de conclusiones.
+
+En cuanto a las pruebas automatizadas, se ejecutaron 214 pruebas unitarias y 46 pruebas de integración con Jest y pytest. La cobertura global alcanzó el 84 %, por encima del umbral del 80 % definido en RNF-12.
+
+Tabla 18 Cobertura de pruebas automatizadas por microservicio
+
+Microservicio
+
+Pruebas unitarias
+
+Pruebas de integración
+
+Cobertura
+
+ms-chat
+
+52
+
+12
+
+86 %
+
+ms-pln
+
+41
+
+8
+
+82 %
+
+ms-catalogo
+
+38
+
+10
+
+88 %
+
+ms-auth
+
+35
+
+9
+
+84 %
+
+ms-recomendacion
+
+26
+
+4
+
+79 %
+
+ms-auditoria
+
+22
+
+3
+
+83 %
+
+Total
+
+214
+
+46
+
+84 %
+
+Fuente: Elaboración propia.
+
+El servicio de recomendación es el único que quedó por debajo del umbral, con un 79 % de cobertura. La causa es la dificultad de construir casos deterministas para la función de puntaje de pertinencia, cuyo resultado depende del contexto acumulado de la sesión. Esta brecha se documentó como deuda técnica del proyecto.
+
+4.7 Análisis e Interpretación de los Resultados
+
+Los resultados presentados en las secciones anteriores se interpretan aquí frente a los objetivos específicos formulados en el capítulo I y frente a las características de calidad de la norma ISO/IEC 25010, con el fin de establecer en qué medida el sistema construido responde a la pregunta de investigación.
+
+Tabla 19 Cumplimiento de los objetivos específicos según la evidencia recolectada
+
+Objetivo específico
+
+Evidencia
+
+Resultado obtenido
+
+Cumplimiento
+
+Definir y documentar la arquitectura de microservicios.
+
+Sección 3.8, figuras 10 y 11; pruebas de carga con JMeter.
+
+Seis servicios desplegados de forma independiente; 743 ms promedio y 0,3 % de error con 500 usuarios concurrentes.
+
+Cumplido
+
+Diseñar y desarrollar un pipeline de PLN ajustado al español colombiano.
+
+Sección 4.3; corpus de 2.340 muestras etiquetadas.
+
+F1-score macro de 0,79, superior al umbral de 0,70 definido y al desempeño del modelo genérico.
+
+Cumplido
+
+Aplicar Privacy by Design y controles ISO/IEC 27001.
+
+Sección 4.4; auditoría de los siete principios y análisis con OWASP ZAP.
+
+Cinco principios implementados por completo y dos de forma parcial; sin vulnerabilidades con CVSS superior a 7,0.
+
+Cumplido parcialmente
+
+Evaluar la usabilidad con usuarios reales mediante ISO 9241-11 y SUS.
+
+Sección 4.5; dos rondas de pruebas con 28 y 52 participantes.
+
+Puntuación SUS de 73,8 en la segunda ronda, por encima del umbral de 68 definido en RNF-10.
+
+Cumplido
+
+Verificar el desempeño del modelo frente a métricas técnicas.
+
+Sección 4.3, tabla 16; matriz de confusión por categoría.
+
+Precisión, exhaustividad y F1 reportados por categoría; brecha identificada en dos categorías con superposición semántica.
+
+Cumplido
+
+Fuente: Elaboración propia.
+
+La lectura conjunta de los resultados permite tres interpretaciones. La primera es que las cuatro dimensiones de calidad no se comportaron de forma independiente: la decisión de anonimizar el texto antes de la inferencia, adoptada por razones de privacidad, redujo la información disponible para el clasificador en las consultas que incluían identificadores del trámite, y explica parte del desempeño más bajo observado en la categoría de verificación de estado. La calidad del sistema, por tanto, no es la suma de cuatro atributos evaluados por separado, sino el resultado de compensaciones explícitas entre ellos.
+
+La segunda interpretación se refiere al valor diagnóstico de la evaluación iterativa. El incremento de 61,2 a 73,8 puntos en la escala SUS no provino de cambios en la capacidad del modelo, que se mantuvo estable entre las dos rondas, sino de ajustes en la comunicación del sistema: mensajes de error informativos, declaración explícita de los límites de alcance y mejor manejo del cambio de tema. Esto sugiere que, en sistemas conversacionales aplicados a servicios públicos, la percepción de calidad depende tanto de la gestión de las expectativas como del desempeño del clasificador.
+
+La tercera interpretación tiene que ver con los límites de la evidencia obtenida. Las métricas de desempeño se midieron en un entorno controlado, con un catálogo acotado de trámites y una API institucional simulada; la muestra de usabilidad fue no probabilística y de tamaño reducido, lo que impide generalizar los resultados a la población de usuarios de servicios ciudadanos. Los hallazgos deben leerse, en consecuencia, como evidencia de viabilidad técnica del modelo de referencia propuesto y no como una medición de su desempeño en operación real.
+
+4.8 Discusión
+
+Los resultados del pipeline de PLN muestran avances impresionantes, pero ponen de manifiesto los obstáculos inherentes al procesamiento de textos regionales limitados dentro de un mismo idioma. El principal desafío que limita la performance en categorías como solicitud de trámite y reporte de problema (con F1 de 0,72 y 0,70 respectivamente) radica en el problema de la superposición semántica: las palabras que ciudadanos utilizan para referirse a estas categorías tienen muchas sinónimas en común, lo que hace complicada la clasificación incluso para los anotadores humanos. Una mayor cantidad de datos y la inclusión de datos adicionales como los metadatos conversacionales (el turno de la interacción, el historial previo o las entidades consultadas) podrían hacer mejoras en la precisión en futuras etapas. 
+
+El incremento de la calificación de usuario medida por SUS, entre las dos rondas, ilustra el papel del desarrollo del usuario centrado: los puntos de uso menos relevantes no suelen verse durante las pruebas de prototipo; sin embargo, estos se revelan claramente cuando los usuarios interactúan con el sistema bajo condiciones más reales.
+
+Desde la visión de la arquitectura, la implementación del patrón de microservicios mostró beneficios durante la fase de integración: se pudo reemplazar la modelación de PLN (Product Life Cycle) y alterar el flujo del servicio de recomendaciones sin interrumpir otros elementos del sistema. Pero esto supone un aumento de complejidad operativa que, si el equipo de desarrollo es reducido, podría resultar innecesario; para desarrollos similares con menor cantidad de recursos, una arquitectura modular monolítica sería una opción viable en etapas iniciales.
+
+4.9 Conclusiones y Recomendaciones
+
+El proyecto demuestra que es posible construir un sistema conversacional inteligente basado en microservicios y procesamiento de lenguaje natural que cumpla simultáneamente con criterios de calidad en las cuatro dimensiones técnicas abordadas: arquitectura, PLN, seguridad y usabilidad. Los resultados son alentadores y ofrecen un punto de partida documentado para futuras iteraciones y proyectos similares.
+
+Las recomendaciones principales son las siguientes:
+
+El corpus de entrenamiento del pipeline de PLN se amplía al menos a 10,000 muestras en español colombiano para que mejore el F1-score en las categorías de la más alta ambigüedad semántica.
+
+‎Elaborar la implementación de los dos principios de Privacy by Design aún pendientes: consentimiento personalizado y panel del usuario para manejo de datos.
+
+‎Desarrollar una versión de la interfaz destinada a personas mayores de 50 años, con tamaños de fuente más grandes, mensajes menores y un ritmo de comunicación más suave. Explorar la incorporación de señales conversacionales contextuales (historial de la sesión, velocidad de respuesta del usuario, longitud de los mensajes) como variables adicionales del clasificador de PLN.
+
+Articular el módulo de recomendaciones con las APIs institucionales del DAFP y el portal Gov.co para garantizar la vigencia y pertinencia de la información ofrecida sobre trámites y servicios ciudadanos.
+
+Capítulo V: Referencias
+
+Brooke, J. (1996). SUS: A ‘quick and dirty’ usability scale. En P. W. Jordan, B. Thomas, B. A. Weerdmeester, & A. L. McClelland (Eds.), Usability Evaluation in Industry (pp. 189-194). Taylor & Francis.
+
+Canete, J., Chaperon, G., Fuentes, R., & Perez, J. (2020). Spanish pre-trained BERT model and evaluation data. En Proceedings of the Practical ML for Developing Countries Workshop, ICLR 2020.
+
+Cavoukian, A. (2009). Privacy by Design: The 7 Foundational Principles. Information and Privacy Commissioner of Ontario, Canada.
+
+Gutiérrez-Fandiño, A., Armengol-Estapé, J., Pèmper, M., Llop-Palau, J., González-Agirre, A., Villegas, M., & Krallinger, M. (2022). MarIA: Spanish language models. Procesamiento del Lenguaje Natural, 68, 39-60.
+
+International Organization for Standardization. (2011). ISO/IEC 25010: Systems and software engineering – Systems and software Quality Requirements and Evaluation (SQuaRE) – System and software quality models. ISO.
+
+International Organization for Standardization. (2018). ISO/IEC 27001: Information technology – Security techniques – Information security management systems – Requirements. ISO.
+
+International Organization for Standardization. (2018). ISO 9241-11: Ergonomics of human-system interaction – Part 11: Usability: Definitions and concepts. ISO.
+
+Jiang, J., Hassan Awadallah, A., Jones, R., Ozertem, U., Zitouni, I., Gurunath Kulkarni, R., & Khan, O. Z. (2022). Automatic online evaluation of intelligent assistants. En Proceedings of the 24th International Conference on World Wide Web (pp. 506-516). ACM.
+
+Mauro, N., Zema, T., & Mazzei, A. (2017). Microservices architectures: A systematic mapping study. En Proceedings of ICSA 2017. IEEE.
+
+Departamento Administrativo de la Función Pública. (2022). Informe de racionalización de trámites y gobierno digital en Colombia. Recuperado de https://www.funcionpublica.gov.co
+
+Moore, R. J., & Arar, R. (2019). Conversational UX Design: A Practitioner’s Guide to the Natural Conversation Framework. ACM Books.
+
+Ministerio de Tecnologías de la Información y las Comunicaciones de Colombia. (2023). Política de gobierno digital: Avances y retos en la transformación digital del Estado colombiano. Recuperado de https://www.mintic.gov.co
+
+Richardson, C. (2018). Microservices Patterns: With examples in Java. Manning Publications.
+
+Presidencia de la República de Colombia. (2022). Decreto 1474 de 2022: Por el cual se expiden disposiciones sobre gobierno digital y transformación digital del Estado. Diario Oficial. Recuperado de https://www.suin-juriscol.gov.co
+
+UNESCO. (2021). Recomendación sobre la ética de la inteligencia artificial. Organización de las Naciones Unidas para la Educación, la Ciencia y la Cultura. Recuperado de https://unesdoc.unesco.org
+
+Administración Federal de Ingresos Públicos de Argentina. (2019). Asistente virtual AFIP: Implementación y resultados del primer año. Recuperado de https://www.afip.gob.ar Recuperado de https://woebot.io

@@ -1,0 +1,146 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conversation-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: conversation-service }
+  template:
+    metadata: { labels: { app: conversation-service } }
+    spec:
+      containers:
+        - name: conversation
+          image: ciudadano-ai/conversation-service:latest
+          ports: [{ containerPort: 3001 }]
+          envFrom: [{ configMapRef: { name: ciudadano-config } }, { secretRef: { name: ciudadano-secrets } }]
+          readinessProbe: { httpGet: { path: /ready, port: 3001 }, initialDelaySeconds: 5 }
+          livenessProbe: { httpGet: { path: /health, port: 3001 }, initialDelaySeconds: 10 }
+          resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conversation-service
+spec:
+  selector: { app: conversation-service }
+  ports: [{ port: 3001, targetPort: 3001 }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlp-service
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: nlp-service } }
+  template:
+    metadata: { labels: { app: nlp-service } }
+    spec:
+      containers:
+        - name: nlp
+          image: ciudadano-ai/nlp-service:latest
+          ports: [{ containerPort: 8001 }]
+          readinessProbe: { httpGet: { path: /ready, port: 8001 }, initialDelaySeconds: 10 }
+          livenessProbe: { httpGet: { path: /health, port: 8001 }, initialDelaySeconds: 15 }
+          resources: { requests: { cpu: 250m, memory: 512Mi }, limits: { cpu: 1, memory: 2Gi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: nlp-service }
+spec: { selector: { app: nlp-service }, ports: [{ port: 8001, targetPort: 8001 }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: profile-service
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: profile-service } }
+  template:
+    metadata: { labels: { app: profile-service } }
+    spec:
+      containers:
+        - name: profile
+          image: ciudadano-ai/profile-service:latest
+          ports: [{ containerPort: 3002 }]
+          envFrom: [{ configMapRef: { name: ciudadano-config } }, { secretRef: { name: ciudadano-secrets } }]
+          readinessProbe: { httpGet: { path: /ready, port: 3002 } }
+          livenessProbe: { httpGet: { path: /health, port: 3002 } }
+          resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: profile-service }
+spec: { selector: { app: profile-service }, ports: [{ port: 3002, targetPort: 3002 }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendation-service
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: recommendation-service } }
+  template:
+    metadata: { labels: { app: recommendation-service } }
+    spec:
+      containers:
+        - name: recommendation
+          image: ciudadano-ai/recommendation-service:latest
+          ports: [{ containerPort: 3003 }]
+          envFrom: [{ configMapRef: { name: ciudadano-config } }, { secretRef: { name: ciudadano-secrets } }]
+          readinessProbe: { httpGet: { path: /ready, port: 3003 } }
+          livenessProbe: { httpGet: { path: /health, port: 3003 } }
+          resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: recommendation-service }
+spec: { selector: { app: recommendation-service }, ports: [{ port: 3003, targetPort: 3003 }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: auth-service } }
+  template:
+    metadata: { labels: { app: auth-service } }
+    spec:
+      containers:
+        - name: auth
+          image: ciudadano-ai/auth-service:latest
+          ports: [{ containerPort: 3004 }]
+          envFrom: [{ configMapRef: { name: ciudadano-config } }, { secretRef: { name: ciudadano-secrets } }]
+          readinessProbe: { httpGet: { path: /ready, port: 3004 } }
+          livenessProbe: { httpGet: { path: /health, port: 3004 } }
+          resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: auth-service }
+spec: { selector: { app: auth-service }, ports: [{ port: 3004, targetPort: 3004 }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit-service
+spec:
+  replicas: 2
+  selector: { matchLabels: { app: audit-service } }
+  template:
+    metadata: { labels: { app: audit-service } }
+    spec:
+      containers:
+        - name: audit
+          image: ciudadano-ai/audit-service:latest
+          ports: [{ containerPort: 3005 }]
+          envFrom: [{ configMapRef: { name: ciudadano-config } }, { secretRef: { name: ciudadano-secrets } }]
+          readinessProbe: { httpGet: { path: /ready, port: 3005 } }
+          livenessProbe: { httpGet: { path: /health, port: 3005 } }
+          resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: 500m, memory: 512Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: audit-service }
+spec: { selector: { app: audit-service }, ports: [{ port: 3005, targetPort: 3005 }] }

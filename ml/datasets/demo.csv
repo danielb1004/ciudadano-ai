@@ -1,0 +1,11 @@
+text,intent
+"¿Qué requisitos tiene el trámite?",CONSULTA_INFORMATIVA
+"Necesito información sobre el Sisbén",CONSULTA_INFORMATIVA
+"¿Cómo puedo sacar un duplicado de cédula?",SOLICITUD_TRAMITE
+"Quiero renovar mi documento",SOLICITUD_TRAMITE
+"¿Cómo va mi solicitud?",VERIFICACION_ESTADO
+"Quiero revisar el estado del radicado",VERIFICACION_ESTADO
+"Tengo un problema con la página",REPORTE_PROBLEMA
+"No funciona el formulario",REPORTE_PROBLEMA
+"¿A qué entidad debo acudir?",DERIVACION_ENTIDAD
+"Necesito saber dónde queda la oficina",DERIVACION_ENTIDAD

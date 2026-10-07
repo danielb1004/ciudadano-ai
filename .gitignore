@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+__pycache__/
+.pytest_cache/
+*.pyc
+ml/models/*.joblib
+research/evidence/*.json
+testing/zap/*.json
+testing/zap/*.html

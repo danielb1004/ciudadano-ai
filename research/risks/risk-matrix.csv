@@ -1,0 +1,5 @@
+risk,likelihood,impact,control,owner,evidence,acceptance
+"Texto sensible enviado al PLN",medium,high,"Anonimización previa, límites y pruebas adversariales",security,"testing/e2e","zero sensitive fields"
+"Fuente desactualizada",medium,high,"verified_at obligatorio y borradores no publicables",catalog,"audit events","no unverified result"
+"Caída de dependencia",medium,high,"timeout, retry, circuit breaker, fallback, DLQ",platform,"testing/resilience","safe response"
+"Acceso administrativo indebido",low,critical,"JWT, RBAC, rate limit, audit, revocation",security,"ZAP + audit","no critical/high"
