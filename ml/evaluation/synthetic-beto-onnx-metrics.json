@@ -1,0 +1,9 @@
+{
+  "academic": false,
+  "corpus": "synthetic-v1",
+  "runtime": "onnx-fp32",
+  "samples": 346,
+  "accuracy": 0.8930635838150289,
+  "f1Macro": 0.8835859094705472,
+  "elapsedSeconds": 18.518656599975657
+}

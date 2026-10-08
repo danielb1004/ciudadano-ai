@@ -1,0 +1,4 @@
+-r requirements.txt
+numpy>=2.2,<3
+tokenizers>=0.23.1,<0.24
+onnxruntime>=1.30,<2

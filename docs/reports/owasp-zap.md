@@ -1,3 +1,5 @@
-# Informe OWASP ZAP (plantilla)
+# Estado OWASP ZAP
 
-Ejecutar `testing/zap/baseline.sh` y `testing/zap/api-scan.sh`; añadir autenticación sólo con credenciales de prueba y nunca en logs. Conservar JSON/HTML, versión de ZAP, fecha, target, hallazgo, severidad/CVSS, endpoint, evidencia y corrección. Aceptación: cero vulnerabilidades altas/críticas con CVSS > 7.0.
+Pendiente de ejecución en staging. El escaneo API usa docs/api/openapi.yaml desde disco, no una ruta /openapi.json inexistente. api-scan.sh usa modo pasivo; configurar contexto y JWT por rol para evaluación activa autenticada.
+
+Guardar versión, fecha, commit, objetivo, JSON/HTML, permisos, alertas, severidad y corrección. npm/pip audit sin hallazgos no equivale a un ZAP aprobado. Objetivo del Word: sin vulnerabilidades con CVSS >7; validar también imágenes, configuración y dependencias de entrenamiento instaladas.

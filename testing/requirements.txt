@@ -1,0 +1,7 @@
+-r ../services/nlp-service/requirements.txt
+pytest>=8,<10
+httpx>=0.28,<1
+scikit-learn>=1.5,<2
+pandas>=2.2,<3
+PyYAML>=6,<7
+pip-audit>=2.9,<3

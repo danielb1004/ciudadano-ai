@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlp-service
+spec:
+  template:
+    spec:
+      nodeSelector:
+        workload: nlp-gpu
+      tolerations:
+      - key: workload
+        operator: Equal
+        value: nlp-gpu
+        effect: NoSchedule
+      containers:
+      - name: nlp
+        resources:
+          requests:
+            nvidia.com/gpu: 1
+          limits:
+            nvidia.com/gpu: 1

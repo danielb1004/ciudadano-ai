@@ -1,0 +1,26 @@
+timeStamp,elapsed,label,responseCode,responseMessage,threadName,dataType,success,failureMessage,bytes,sentBytes,grpThreads,allThreads,URL,Latency,IdleTime,Connect
+1791435705956,386,profile,201,Created,Citizens 1-1,text,true,,2451,189,3,3,http://127.0.0.1:18081/api/v1/profiles,370,0,122
+1791435705956,386,profile,201,Created,Citizens 1-3,text,true,,2451,189,3,3,http://127.0.0.1:18081/api/v1/profiles,373,0,121
+1791435705956,386,profile,201,Created,Citizens 1-2,text,true,,2451,189,3,3,http://127.0.0.1:18081/api/v1/profiles,370,0,121
+1791435706595,123,consent,201,Created,Citizens 1-2,text,true,,1956,650,3,3,http://127.0.0.1:18081/api/v1/profiles/5952c02d-5e51-40fa-bfb8-b89f4e13cb1d/consents,123,0,0
+1791435706596,126,consent,201,Created,Citizens 1-3,text,true,,1957,650,3,3,http://127.0.0.1:18081/api/v1/profiles/cd09e5a1-8bae-4128-8b7e-7ae775f5fa1f/consents,126,0,0
+1791435706597,126,consent,201,Created,Citizens 1-1,text,true,,1957,650,3,3,http://127.0.0.1:18081/api/v1/profiles/5b91f2b3-45d8-4313-99cb-ca2a0a7021cd/consents,126,0,0
+1791435706749,146,conversation,201,Created,Citizens 1-1,text,true,,1975,545,4,4,http://127.0.0.1:18081/api/v1/conversations,146,0,0
+1791435706749,162,conversation,201,Created,Citizens 1-2,text,true,,1975,545,4,4,http://127.0.0.1:18081/api/v1/conversations,162,0,0
+1791435706750,163,conversation,201,Created,Citizens 1-3,text,true,,1975,545,4,4,http://127.0.0.1:18081/api/v1/conversations,163,0,0
+1791435706776,230,profile,201,Created,Citizens 1-4,text,true,,2450,189,4,4,http://127.0.0.1:18081/api/v1/profiles,230,0,2
+1791435707008,118,consent,201,Created,Citizens 1-4,text,true,,1956,650,4,4,http://127.0.0.1:18081/api/v1/profiles/14cdbb72-800c-4733-afd0-92eac03b3a65/consents,118,0,0
+1791435707128,123,conversation,201,Created,Citizens 1-4,text,true,,1975,545,4,4,http://127.0.0.1:18081/api/v1/conversations,123,0,0
+1791435707776,229,profile,201,Created,Citizens 1-5,text,true,,2450,189,5,5,http://127.0.0.1:18081/api/v1/profiles,229,0,2
+1791435708006,117,consent,201,Created,Citizens 1-5,text,true,,1956,650,5,5,http://127.0.0.1:18081/api/v1/profiles/86f39fa2-4fbc-48b7-a1bd-19e639e0cc9e/consents,117,0,0
+1791435708125,128,conversation,201,Created,Citizens 1-5,text,true,,1975,545,5,5,http://127.0.0.1:18081/api/v1/conversations,128,0,0
+1791435708923,320,message,200,OK,Citizens 1-3,text,true,,4389,641,5,5,http://127.0.0.1:18081/api/v1/conversations/9d23e118-2bcc-4f6d-83b5-e416666ff77f/messages,320,0,0
+1791435708923,346,message,200,OK,Citizens 1-1,text,true,,4389,641,5,5,http://127.0.0.1:18081/api/v1/conversations/29ab01a9-d181-4075-ac19-864680dc97fe/messages,346,0,0
+1791435708923,426,message,200,OK,Citizens 1-2,text,true,,4389,641,5,5,http://127.0.0.1:18081/api/v1/conversations/544c8dcd-247f-46b5-8138-1b09741b65cd/messages,426,0,0
+1791435709265,189,message,200,OK,Citizens 1-4,text,true,,4388,641,5,5,http://127.0.0.1:18081/api/v1/conversations/8e1c8942-6867-4d76-9fa6-72885b3a975c/messages,189,0,0
+1791435710263,192,message,200,OK,Citizens 1-5,text,true,,4388,641,5,5,http://127.0.0.1:18081/api/v1/conversations/9ab5b8ae-cfb9-437f-97fe-1a653a0115be/messages,192,0,0
+1791435711264,235,message,200,OK,Citizens 1-3,text,true,,4388,641,5,5,http://127.0.0.1:18081/api/v1/conversations/9d23e118-2bcc-4f6d-83b5-e416666ff77f/messages,235,0,0
+1791435711278,303,message,200,OK,Citizens 1-1,text,true,,4388,641,4,4,http://127.0.0.1:18081/api/v1/conversations/29ab01a9-d181-4075-ac19-864680dc97fe/messages,303,0,0
+1791435711357,289,message,200,OK,Citizens 1-2,text,true,,4389,641,3,3,http://127.0.0.1:18081/api/v1/conversations/544c8dcd-247f-46b5-8138-1b09741b65cd/messages,289,0,0
+1791435711466,232,message,200,OK,Citizens 1-4,text,true,,4388,641,2,2,http://127.0.0.1:18081/api/v1/conversations/8e1c8942-6867-4d76-9fa6-72885b3a975c/messages,232,0,0
+1791435712472,199,message,200,OK,Citizens 1-5,text,true,,4387,641,1,1,http://127.0.0.1:18081/api/v1/conversations/9ab5b8ae-cfb9-437f-97fe-1a653a0115be/messages,199,0,0

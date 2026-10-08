@@ -1,0 +1,462 @@
+# Remote academic deployment with trained BETO and persistent infrastructure.
+x-node-env:
+  NODE_ENV: development
+  NLP_URL: http://nlp:8001
+  CATALOG_URL: http://catalog:3002
+  RECOMMENDATION_URL: http://recommendation:3003
+  CONVERSATION_URL: http://conversation:3001
+  AUTH_URL: http://auth:3004
+  AUDIT_URL: http://audit:3005
+  REDIS_URL: redis://redis:6379
+  KAFKA_BROKERS: kafka:9092
+  POSTGRES_HOST: postgres
+  POSTGRES_USER: ciudadano
+  POSTGRES_DB: ciudadano_ai
+  TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+    - kong
+    volumes:
+    - ./infrastructure/cloud/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test:
+      - CMD
+      - wget
+      - -q
+      - --spider
+      - http://127.0.0.1/
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ciudadano
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Ejecuta npm run setup}
+      POSTGRES_DB: ciudadano_ai
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+    - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U ciudadano
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  redis:
+    image: redis:7-alpine
+    command:
+    - redis-server
+    - --appendonly
+    - 'yes'
+    - --maxmemory-policy
+    - allkeys-lru
+    volumes:
+    - redisdata:/data
+    healthcheck:
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  kafka:
+    image: apache/kafka:3.9.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_HEAP_OPTS: -Xms256m -Xmx512m
+    volumes:
+    - kafkadata:/tmp/kraft-combined-logs
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - /opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092
+        >/dev/null 2>&1
+      interval: 15s
+      timeout: 10s
+      start_period: 60s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  kong:
+    image: kong:3.8
+    environment:
+      KONG_DATABASE: 'off'
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 'off'
+      KONG_TRUSTED_IPS: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      KONG_REAL_IP_HEADER: X-Forwarded-For
+      KONG_REAL_IP_RECURSIVE: 'on'
+    volumes:
+    - ./infrastructure/cloud/kong.yml:/kong/kong.yml:ro
+    depends_on:
+    - redis
+    healthcheck:
+      test:
+      - CMD
+      - kong
+      - health
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  nlp:
+    build:
+      context: .
+      dockerfile: services/nlp-service/Dockerfile.onnx
+    environment:
+      NODE_ENV: production
+      NLP_BACKEND: beto
+      BETO_RUNTIME: onnx
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?}
+      BETO_MODEL_PATH: /models/beto-synthetic-v1
+      MODEL_VERSION: beto-synthetic-v1-onnx-fp32
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:?}
+      NLP_CPU_THREADS: '2'
+      HF_HUB_OFFLINE: '1'
+    volumes:
+    - ./ml/models:/models:ro
+    healthcheck:
+      test:
+      - CMD
+      - python
+      - -c
+      - import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/ready',
+        timeout=3)
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  conversation:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: conversation-service
+    env_file:
+    - .env.cloud
+    environment:
+      NODE_ENV: production
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3001
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      DEPLOYMENT_MODE: academic
+      INSTITUTIONAL_MODE: mock
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Create .env.cloud}
+      LOG_LEVEL: warn
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      recommendation:
+        condition: service_started
+      nlp:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - node
+      - -e
+      - fetch('http://127.0.0.1:3001/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  catalog:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: catalog-service
+    env_file:
+    - .env.cloud
+    environment:
+      NODE_ENV: production
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3002
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      DEPLOYMENT_MODE: academic
+      INSTITUTIONAL_MODE: mock
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Create .env.cloud}
+      LOG_LEVEL: warn
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - node
+      - -e
+      - fetch('http://127.0.0.1:3002/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  recommendation:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: recommendation-service
+    env_file:
+    - .env.cloud
+    environment:
+      NODE_ENV: production
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3003
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      DEPLOYMENT_MODE: academic
+      INSTITUTIONAL_MODE: mock
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Create .env.cloud}
+      LOG_LEVEL: warn
+    depends_on:
+      catalog:
+        condition: service_started
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - node
+      - -e
+      - fetch('http://127.0.0.1:3003/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  auth:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: auth-service
+    env_file:
+    - .env.cloud
+    environment:
+      NODE_ENV: production
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3004
+      INSTITUTIONAL_MODE: mock
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      DEPLOYMENT_MODE: academic
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Create .env.cloud}
+      LOG_LEVEL: warn
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - node
+      - -e
+      - fetch('http://127.0.0.1:3004/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  audit:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: audit-service
+    env_file:
+    - .env.cloud
+    environment:
+      NODE_ENV: production
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3005
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      DEPLOYMENT_MODE: academic
+      INSTITUTIONAL_MODE: mock
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Create .env.cloud}
+      LOG_LEVEL: warn
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    healthcheck:
+      test:
+      - CMD
+      - node
+      - -e
+      - fetch('http://127.0.0.1:3005/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 12
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+  caddy:
+    image: caddy:2-alpine
+    ports:
+    - 80:80
+    - 443:443
+    - 443:443/udp
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?Create .env.cloud}
+    volumes:
+    - ./infrastructure/cloud/Caddyfile:/etc/caddy/Caddyfile:ro
+    - caddydata:/data
+    - caddyconfig:/config
+    depends_on:
+      frontend:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+volumes:
+  pgdata: {}
+  redisdata: {}
+  kafkadata: {}
+  caddydata: {}
+  caddyconfig: {}

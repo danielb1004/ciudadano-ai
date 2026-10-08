@@ -1,0 +1,12 @@
+{$SITE_ADDRESS} {
+    tls {
+        protocols tls1.3
+    }
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        -Server
+    }
+    reverse_proxy frontend:80 {
+        header_up X-Forwarded-For {remote_host}
+    }
+}

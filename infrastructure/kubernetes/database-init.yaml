@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-init
+data:
+  init.sql: 'CREATE SCHEMA IF NOT EXISTS conversation;
+
+    CREATE SCHEMA IF NOT EXISTS profiles;
+
+    CREATE SCHEMA IF NOT EXISTS recommendations;
+
+    CREATE SCHEMA IF NOT EXISTS auth;
+
+    CREATE SCHEMA IF NOT EXISTS audit;
+
+    CREATE TABLE IF NOT EXISTS audit.events (event_id UUID PRIMARY KEY, event_type
+    TEXT NOT NULL, event_version TEXT NOT NULL, occurred_at TIMESTAMPTZ NOT NULL,
+    correlation_id UUID NOT NULL, conversation_id UUID, producer TEXT NOT NULL, payload
+    JSONB NOT NULL, hash TEXT NOT NULL, previous_hash TEXT);
+
+    CREATE INDEX IF NOT EXISTS audit_events_conversation_idx ON audit.events(conversation_id);
+
+    CREATE INDEX IF NOT EXISTS audit_events_type_idx ON audit.events(event_type);
+
+    CREATE TABLE IF NOT EXISTS recommendations.procedures (id UUID PRIMARY KEY, title
+    TEXT NOT NULL, body TEXT NOT NULL, search_vector TSVECTOR GENERATED ALWAYS AS
+    (to_tsvector(''spanish'', title || '' '' || body)) STORED, source_urls JSONB NOT
+    NULL, verified_at DATE, published BOOLEAN NOT NULL DEFAULT FALSE);
+
+    CREATE INDEX IF NOT EXISTS procedures_search_idx ON recommendations.procedures
+    USING GIN(search_vector);
+
+    CREATE TABLE IF NOT EXISTS profiles.citizen_profiles (id UUID PRIMARY KEY, anonymous
+    BOOLEAN NOT NULL DEFAULT TRUE, preferences JSONB NOT NULL DEFAULT ''{}'', tech_experience
+    TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), deleted_at TIMESTAMPTZ);
+
+    CREATE TABLE IF NOT EXISTS profiles.consents (id UUID PRIMARY KEY, profile_id
+    UUID NOT NULL, purpose TEXT NOT NULL, version TEXT NOT NULL, granted BOOLEAN NOT
+    NULL, created_at TIMESTAMPTZ NOT NULL, revoked_at TIMESTAMPTZ);
+
+    CREATE TABLE IF NOT EXISTS conversation.sessions (id UUID PRIMARY KEY, anonymous_user_id
+    UUID, state JSONB NOT NULL, expires_at TIMESTAMPTZ NOT NULL);
+
+    CREATE TABLE IF NOT EXISTS auth.admins (id UUID PRIMARY KEY, email TEXT UNIQUE
+    NOT NULL, password_hash TEXT NOT NULL, roles JSONB NOT NULL, permissions JSONB
+    NOT NULL, revoked BOOLEAN NOT NULL DEFAULT FALSE);
+
+
+    CREATE SCHEMA IF NOT EXISTS catalog;
+
+    CREATE TABLE IF NOT EXISTS conversation.app_state (namespace TEXT NOT NULL, key
+    TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS conversation_state_expiry_idx ON conversation.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS profiles.app_state (namespace TEXT NOT NULL, key TEXT
+    NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS profiles_state_expiry_idx ON profiles.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS catalog.app_state (namespace TEXT NOT NULL, key TEXT
+    NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS catalog_state_expiry_idx ON catalog.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS recommendations.app_state (namespace TEXT NOT NULL,
+    key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY
+    KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS recommendations_state_expiry_idx ON recommendations.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS auth.app_state (namespace TEXT NOT NULL, key TEXT NOT
+    NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS auth_state_expiry_idx ON auth.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS audit.app_state (namespace TEXT NOT NULL, key TEXT
+    NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS audit_state_expiry_idx ON audit.app_state(expires_at);
+
+    '

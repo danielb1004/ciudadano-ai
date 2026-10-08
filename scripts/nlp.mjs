@@ -1,0 +1,12 @@
+import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
+if(existsSync(path.join(root,".env")))process.loadEnvFile(path.join(root,".env"));
+const python=process.env.PYTHON_EXECUTABLE??path.join(root,process.platform==="win32"?".venv/Scripts/python.exe":".venv/bin/python");
+if(!existsSync(python))throw new Error("Crea .venv e instala requirements.txt; consulta README.");
+const child=spawn(python,["-m","uvicorn","app.main:app","--host",process.env.NODE_ENV==="production"?"0.0.0.0":"127.0.0.1","--port","8001",...(process.argv.includes("--reload")?["--reload"]:[])],{cwd:path.join(root,"services/nlp-service"),stdio:"inherit",windowsHide:true});
+child.on("exit",code=>{process.exitCode=code??0;});
+child.on("error",error=>{console.error(error.message);process.exitCode=1;});
+process.on("SIGINT",()=>child.kill());process.on("SIGTERM",()=>child.kill());

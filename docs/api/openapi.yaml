@@ -1,27 +1,1237 @@
 openapi: 3.0.3
-info: { title: Ciudadano AI API, version: 1.0.0, description: Orientación ciudadana; no reemplaza canales oficiales. }
-servers: [{ url: "http://localhost:8000" }]
+info:
+  title: Ciudadano AI
+  version: 2.0.0
+  description: 'Prototipo academico. Profile: datos propios. Citizen: seguimiento
+    OTP. Admin: permisos. Las rutas /internal no se publican.'
+servers:
+- url: http://localhost:8000
 paths:
-  /api/v1/conversations: { post: { summary: Crear conversación, responses: { '201': { description: Creada } } } }
-  /api/v1/conversations/{id}/messages: { post: { summary: Enviar mensaje, parameters: [{ in: path, name: id, required: true, schema: { type: string, format: uuid } }], requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Message' } } } }, responses: { '200': { description: Orientación } } } }
-  /api/v1/classify: { post: { summary: Clasificar intención, requestBody: { required: true, content: { application/json: { schema: { $ref: '#/components/schemas/Text' } } } }, responses: { '200': { description: Clasificación } } } }
-  /api/v1/profiles: { post: { summary: Crear perfil con privacidad predeterminada, responses: { '201': { description: Creado } } } }
-  /api/v1/profiles/{id}: { get: { summary: Consultar perfil }, patch: { summary: Actualizar preferencias }, delete: { summary: Eliminar perfil } }
-  /api/v1/profiles/{id}/consents: { get: { summary: Consultar consentimientos }, post: { summary: Otorgar consentimiento } }
-  /api/v1/profiles/{id}/consents/{consentId}: { delete: { summary: Revocar consentimiento } }
-  /api/v1/recommendations: { post: { summary: Obtener recomendaciones verificadas, responses: { '200': { description: Resultados } } } }
-  /api/v1/procedures/search: { get: { summary: Buscar trámites por texto } }
-  /api/v1/procedures/{id}: { get: { summary: Consultar trámite publicado } }
-  /api/v1/entities: { get: { summary: Listar entidades } }
-  /api/v1/auth/login: { post: { summary: Iniciar sesión administrativa, responses: { '200': { description: Tokens }, '401': { description: No autorizado } } } }
-  /api/v1/auth/refresh: { post: { summary: Rotar refresh token } }
-  /api/v1/auth/logout: { post: { summary: Revocar sesión } }
-  /api/v1/auth/me: { get: { summary: Consultar identidad, security: [{ bearerAuth: [] }] } }
-  /api/v1/audit/events: { get: { summary: Consultar auditoría autorizada, security: [{ bearerAuth: [] }], responses: { '200': { description: Eventos } } } }
-  /api/v1/audit/conversations/{id}: { get: { summary: Consultar trazabilidad de conversación, security: [{ bearerAuth: [] }] } }
-  /api/v1/audit/security: { get: { summary: Consultar eventos de seguridad, security: [{ bearerAuth: [] }] } }
+  /api/v1/profiles:
+    post:
+      summary: Perfil sin consentimiento
+      responses:
+        '201':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences: &id001
+                  type: object
+                  properties:
+                    fontScale:
+                      type: number
+                      minimum: 0.8
+                      maximum: 2
+                    highContrast:
+                      type: boolean
+                    speechEnabled:
+                      type: boolean
+                    concise:
+                      type: boolean
+                  required: []
+              required: []
+  /api/v1/profiles/{id}:
+    get:
+      summary: Consultar o eliminar datos propios
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    delete:
+      summary: Consultar o eliminar datos propios
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    patch:
+      summary: Actualizar preferencias propias
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                preferences: *id001
+              required: []
+  /api/v1/profiles/{id}/consents:
+    get:
+      summary: Decisiones y versiones de consentimiento
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    post:
+      summary: Otorgar o revocar consentimiento
+      responses:
+        '201':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                purpose:
+                  type: string
+                  enum:
+                  - conversation_context
+                  - usability_research
+                  - analytics
+                version:
+                  type: string
+                  enum:
+                  - '1.0'
+                granted:
+                  type: boolean
+              required:
+              - purpose
+              - version
+              - granted
+  /api/v1/profiles/{id}/consents/{consentId}:
+    delete:
+      summary: Revocar y purgar contexto
+      responses:
+        '204':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      - in: path
+        name: consentId
+        required: true
+        schema:
+          type: string
+  /api/v1/profiles/{id}/export:
+    get:
+      summary: Exportar perfil, sesiones y feedback con comprobante
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+  /api/v1/profiles/{id}/data:
+    delete:
+      summary: Purgar todos los datos del perfil
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+  /api/v1/conversations:
+    post:
+      summary: Crear sesion con consentimiento vigente
+      responses:
+        '201':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: {}
+              required: []
+  /api/v1/conversations/{conversationId}:
+    get:
+      summary: Consultar o eliminar sesion propia
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: conversationId
+        required: true
+        schema:
+          type: string
+    delete:
+      summary: Consultar o eliminar sesion propia
+      responses:
+        '204':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: conversationId
+        required: true
+        schema:
+          type: string
+  /api/v1/conversations/{conversationId}/messages:
+    post:
+      summary: Procesar mensaje; 410 si sesion expirada
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: conversationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  minLength: 1
+                  maxLength: 500
+              required:
+              - message
+  /api/v1/conversations/{conversationId}/feedback:
+    post:
+      summary: Reportar respuesta existente
+      responses:
+        '202':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: conversationId
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messageId:
+                  type: string
+                  format: uuid
+                rating:
+                  type: string
+                  enum:
+                  - positive
+                  - negative
+                  - helpful
+                  - unhelpful
+                comment:
+                  type: string
+                  maxLength: 500
+              required:
+              - messageId
+              - rating
+  /api/v1/conversations/metrics/summary:
+    get:
+      summary: Resumen administrativo autorizado
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+  /api/v1/conversations/feedback/review:
+    get:
+      summary: Resumen administrativo autorizado
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+  /api/v1/procedures:
+    get:
+      summary: Catalogo publico; all=true exige catalog_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+    post:
+      summary: Crear o actualizar ficha versionada; catalog_write
+      responses:
+        '201':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Procedure'
+  /api/v1/procedures/search:
+    get:
+      summary: Catalogo publico; all=true exige catalog_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+  /api/v1/procedures/{id}:
+    get:
+      summary: Catalogo publico; all=true exige catalog_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    put:
+      summary: Crear o actualizar ficha versionada; catalog_write
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Procedure'
+    delete:
+      summary: Desactivar y preservar versiones; catalog_write
+      responses:
+        '204':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+  /api/v1/entities:
+    get:
+      summary: Catalogo publico; all=true exige catalog_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+  /api/v1/categories:
+    get:
+      summary: Catalogo publico; all=true exige catalog_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+  /api/v1/procedures/{id}/versions:
+    get:
+      summary: Historial; catalog_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+  /api/v1/recommendations:
+    post:
+      summary: Maximo tres fichas publicadas
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  minLength: 1
+                  maxLength: 1500
+                intent:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                entities:
+                  type: object
+              required:
+              - query
+  /api/v1/auth/login:
+    post:
+      summary: Login administrativo
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+              required:
+              - email
+              - password
+  /api/v1/auth/refresh:
+    post:
+      summary: Rotar o revocar refresh token
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+              required:
+              - refreshToken
+  /api/v1/auth/logout:
+    post:
+      summary: Rotar o revocar refresh token
+      responses:
+        '204':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refreshToken:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+              required:
+              - refreshToken
+  /api/v1/auth/me:
+    get:
+      summary: Identidad del token
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+  /api/v1/auth/admins:
+    get:
+      summary: Administradores; users_manage
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+    post:
+      summary: Crear administrador; users_manage
+      responses:
+        '201':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 12
+                  maxLength: 200
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 100
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 100
+              required:
+              - email
+              - password
+              - name
+              - roles
+              - permissions
+  /api/v1/auth/otp/request:
+    post:
+      summary: OTP 5 minutos; mock solo local
+      responses:
+        '201':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                contact:
+                  type: string
+                  format: email
+                  maxLength: 160
+              required:
+              - contact
+  /api/v1/auth/otp/verify:
+    post:
+      summary: Tres intentos; JWT ciudadano 15 minutos
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                challengeId:
+                  type: string
+                  format: uuid
+                code:
+                  type: string
+                  pattern: ^\d{6}$
+              required:
+              - challengeId
+              - code
+  /api/v1/requests/status:
+    post:
+      summary: Estado propio; citizen JWT y consentimiento
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                radicado:
+                  type: string
+                  pattern: ^[A-Za-z0-9-]{3,50}$
+              required:
+              - radicado
+  /api/v1/audit/events:
+    get:
+      summary: Auditoria; audit_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+  /api/v1/audit/security:
+    get:
+      summary: Auditoria; audit_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+  /api/v1/audit/stats:
+    get:
+      summary: Auditoria; audit_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+  /api/v1/audit/verify-integrity:
+    get:
+      summary: Auditoria; audit_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+  /api/v1/audit/conversations/{id}:
+    get:
+      summary: Auditoria; audit_read
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+  /api/v1/models/current:
+    get:
+      summary: Backend explicito y metricas disponibles
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+  /api/v1/models/metrics:
+    get:
+      summary: Backend explicito y metricas disponibles
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+  /api/v1/classify:
+    post:
+      summary: Clasificar con backend declarado
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  minLength: 1
+                  maxLength: 1500
+              required:
+              - text
+  /api/v1/extract-entities:
+    post:
+      summary: Extraer entidades
+      responses:
+        '200':
+          description: Operacion completada
+        '400':
+          description: Entrada invalida
+        '401':
+          description: Token ausente o invalido
+        '403':
+          description: Permiso, titularidad o consentimiento insuficiente
+        '429':
+          description: Limite de tasa o intentos
+        '503':
+          description: Dependencia no disponible
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  minLength: 1
+                  maxLength: 1500
+              required:
+              - text
+  /api/v1/profiles/token/refresh:
+    post:
+      summary: Renovar JWT profile 15 minutos con cookie HttpOnly del perfil vigente
+      responses:
+        '200':
+          description: Token renovado
+        '401':
+          description: Credencial o perfil expirados
 components:
-  securitySchemes: { bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT } }
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
-    Text: { type: object, required: [text], properties: { text: { type: string, minLength: 1, maxLength: 2000 } } }
-    Message: { allOf: [{ $ref: '#/components/schemas/Text' }] }
+    Procedure:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 80
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        entity:
+          type: string
+          minLength: 1
+          maxLength: 200
+        description:
+          type: string
+          minLength: 1
+          maxLength: 4000
+        category:
+          type: string
+          minLength: 1
+          maxLength: 100
+        cost:
+          type: string
+          minLength: 1
+          maxLength: 500
+        estimatedTime:
+          type: string
+          minLength: 1
+          maxLength: 500
+        hours:
+          type: string
+          minLength: 1
+          maxLength: 500
+        requirements:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+        steps:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+        channels:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+        sourceUrls:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            format: uri
+            description: HTTPS .gov.co
+        verifiedAt:
+          type: string
+          format: date
+        published:
+          type: boolean
+      required:
+      - id
+      - title
+      - entity
+      - description
+      - cost
+      - estimatedTime
+      - hours
+      - sourceUrls
+      - verifiedAt

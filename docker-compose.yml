@@ -1,42 +1,226 @@
+x-node-env:
+  NODE_ENV: development
+  NLP_URL: http://nlp:8001
+  CATALOG_URL: http://catalog:3002
+  RECOMMENDATION_URL: http://recommendation:3003
+  CONVERSATION_URL: http://conversation:3001
+  AUTH_URL: http://auth:3004
+  AUDIT_URL: http://audit:3005
+  REDIS_URL: redis://redis:6379
+  KAFKA_BROKERS: kafka:9092
+  POSTGRES_HOST: postgres
+  POSTGRES_USER: ciudadano
+  POSTGRES_DB: ciudadano_ai
+  TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
 services:
   frontend:
-    build: ./frontend
-    ports: ["5173:80"]
-    depends_on: [kong]
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+    - 127.0.0.1:5173:80
+    depends_on:
+    - kong
   postgres:
     image: postgres:16-alpine
-    environment: { POSTGRES_USER: ciudadano, POSTGRES_PASSWORD: change-me-in-secret-store, POSTGRES_DB: ciudadano_ai }
-    ports: ["5432:5432"]
-    volumes: ["pgdata:/var/lib/postgresql/data", "./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro"]
-    healthcheck: { test: ["CMD-SHELL", "pg_isready -U ciudadano"], interval: 5s, timeout: 3s, retries: 10 }
+    environment:
+      POSTGRES_USER: ciudadano
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Ejecuta npm run setup}
+      POSTGRES_DB: ciudadano_ai
+    volumes:
+    - pgdata:/var/lib/postgresql/data
+    - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U ciudadano
+      interval: 5s
+      timeout: 3s
+      retries: 10
   redis:
     image: redis:7-alpine
-    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "allkeys-lru"]
-    ports: ["6379:6379"]
+    command:
+    - redis-server
+    - --appendonly
+    - 'yes'
+    - --maxmemory-policy
+    - allkeys-lru
+    volumes:
+    - redisdata:/data
   kafka:
-    image: bitnami/kafka:3.8
-    environment: { KAFKA_CFG_NODE_ID: 1, KAFKA_CFG_PROCESS_ROLES: "broker,controller", KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093", KAFKA_CFG_LISTENERS: "PLAINTEXT://:9092,CONTROLLER://:9093", KAFKA_CFG_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092", KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER, ALLOW_PLAINTEXT_LISTENER: "yes" }
-    ports: ["9092:9092"]
+    image: apache/kafka:3.9.0
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+    volumes:
+    - kafkadata:/tmp/kraft-combined-logs
   kong:
     image: kong:3.8
-    environment: { KONG_DATABASE: "off", KONG_DECLARATIVE_CONFIG: /kong/kong.yml, KONG_PROXY_LISTEN: "0.0.0.0:8000", KONG_ADMIN_LISTEN: "0.0.0.0:8001" }
-    volumes: ["./infrastructure/kong/kong.yml:/kong/kong.yml:ro"]
-    ports: ["8000:8000"]
+    environment:
+      KONG_DATABASE: 'off'
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 'off'
+      KONG_TRUSTED_IPS: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      KONG_REAL_IP_HEADER: X-Forwarded-For
+      KONG_REAL_IP_RECURSIVE: 'on'
+    volumes:
+    - ./infrastructure/kong/kong.yml:/kong/kong.yml:ro
+    ports:
+    - 127.0.0.1:8000:8000
+    depends_on:
+    - redis
   nlp:
-    build: ./services/nlp-service
+    build:
+      context: .
+      dockerfile: services/nlp-service/Dockerfile
+    environment:
+      NODE_ENV: development
+      NLP_BACKEND: rules
+      PUBLIC_ORIGIN: http://localhost:5173
+      BETO_MODEL_PATH: /models/beto-intents-v1
+    volumes:
+    - ./ml/models:/models:ro
   conversation:
-    build: { context: ., dockerfile: infrastructure/docker/node-service.Dockerfile, args: { SERVICE_NAME: conversation-service } }
-    environment: { SERVICE_NAME: conversation-service, PORT: 3001, NLP_URL: "http://nlp:8001", PROFILE_URL: "http://profile:3002", RECOMMENDATION_URL: "http://recommendation:3003", REDIS_URL: "redis://redis:6379", KAFKA_BROKERS: "kafka:9092", POSTGRES_HOST: postgres, POSTGRES_USER: ciudadano, POSTGRES_PASSWORD: change-me-in-secret-store, POSTGRES_DB: ciudadano_ai }
-  profile:
-    build: { context: ., dockerfile: infrastructure/docker/node-service.Dockerfile, args: { SERVICE_NAME: profile-service } }
-    environment: { SERVICE_NAME: profile-service, PORT: 3002, KAFKA_BROKERS: "kafka:9092", POSTGRES_HOST: postgres, POSTGRES_USER: ciudadano, POSTGRES_PASSWORD: change-me-in-secret-store, POSTGRES_DB: ciudadano_ai }
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: conversation-service
+    env_file: .env
+    environment:
+      NODE_ENV: development
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3001
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth:
+        condition: service_started
+      recommendation:
+        condition: service_started
+  catalog:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: catalog-service
+    env_file: .env
+    environment:
+      NODE_ENV: development
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3002
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+    depends_on:
+      postgres:
+        condition: service_healthy
   recommendation:
-    build: { context: ., dockerfile: infrastructure/docker/node-service.Dockerfile, args: { SERVICE_NAME: recommendation-service } }
-    environment: { SERVICE_NAME: recommendation-service, PORT: 3003, KAFKA_BROKERS: "kafka:9092", POSTGRES_HOST: postgres, POSTGRES_USER: ciudadano, POSTGRES_PASSWORD: change-me-in-secret-store, POSTGRES_DB: ciudadano_ai }
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: recommendation-service
+    env_file: .env
+    environment:
+      NODE_ENV: development
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3003
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+    depends_on:
+      catalog:
+        condition: service_started
   auth:
-    build: { context: ., dockerfile: infrastructure/docker/node-service.Dockerfile, args: { SERVICE_NAME: auth-service } }
-    environment: { SERVICE_NAME: auth-service, PORT: 3004, JWT_SECRET: change-me-in-secret-store, KAFKA_BROKERS: "kafka:9092", POSTGRES_HOST: postgres, POSTGRES_USER: ciudadano, POSTGRES_PASSWORD: change-me-in-secret-store, POSTGRES_DB: ciudadano_ai }
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: auth-service
+    env_file: .env
+    environment:
+      NODE_ENV: development
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3004
+      INSTITUTIONAL_MODE: mock
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+    depends_on:
+      postgres:
+        condition: service_healthy
   audit:
-    build: { context: ., dockerfile: infrastructure/docker/node-service.Dockerfile, args: { SERVICE_NAME: audit-service } }
-    environment: { SERVICE_NAME: audit-service, PORT: 3005, KAFKA_BROKERS: "kafka:9092", POSTGRES_HOST: postgres, POSTGRES_USER: ciudadano, POSTGRES_PASSWORD: change-me-in-secret-store, POSTGRES_DB: ciudadano_ai }
-volumes: { pgdata: {} }
+    build:
+      context: .
+      dockerfile: infrastructure/docker/node-service.Dockerfile
+      args:
+        SERVICE_NAME: audit-service
+    env_file: .env
+    environment:
+      NODE_ENV: development
+      NLP_URL: http://nlp:8001
+      CATALOG_URL: http://catalog:3002
+      RECOMMENDATION_URL: http://recommendation:3003
+      CONVERSATION_URL: http://conversation:3001
+      AUTH_URL: http://auth:3004
+      AUDIT_URL: http://audit:3005
+      REDIS_URL: redis://redis:6379
+      KAFKA_BROKERS: kafka:9092
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ciudadano
+      POSTGRES_DB: ciudadano_ai
+      PORT: 3005
+      TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  pgdata: {}
+  redisdata: {}
+  kafkadata: {}

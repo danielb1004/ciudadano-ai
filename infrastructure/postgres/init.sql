@@ -12,3 +12,21 @@ CREATE TABLE IF NOT EXISTS profiles.citizen_profiles (id UUID PRIMARY KEY, anony
 CREATE TABLE IF NOT EXISTS profiles.consents (id UUID PRIMARY KEY, profile_id UUID NOT NULL, purpose TEXT NOT NULL, version TEXT NOT NULL, granted BOOLEAN NOT NULL, created_at TIMESTAMPTZ NOT NULL, revoked_at TIMESTAMPTZ);
 CREATE TABLE IF NOT EXISTS conversation.sessions (id UUID PRIMARY KEY, anonymous_user_id UUID, state JSONB NOT NULL, expires_at TIMESTAMPTZ NOT NULL);
 CREATE TABLE IF NOT EXISTS auth.admins (id UUID PRIMARY KEY, email TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, roles JSONB NOT NULL, permissions JSONB NOT NULL, revoked BOOLEAN NOT NULL DEFAULT FALSE);
+
+CREATE SCHEMA IF NOT EXISTS catalog;
+CREATE TABLE IF NOT EXISTS conversation.app_state (namespace TEXT NOT NULL, key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+CREATE INDEX IF NOT EXISTS conversation_state_expiry_idx ON conversation.app_state(expires_at);
+CREATE TABLE IF NOT EXISTS profiles.app_state (namespace TEXT NOT NULL, key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+CREATE INDEX IF NOT EXISTS profiles_state_expiry_idx ON profiles.app_state(expires_at);
+CREATE TABLE IF NOT EXISTS catalog.app_state (namespace TEXT NOT NULL, key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+CREATE INDEX IF NOT EXISTS catalog_state_expiry_idx ON catalog.app_state(expires_at);
+CREATE TABLE IF NOT EXISTS recommendations.app_state (namespace TEXT NOT NULL, key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+CREATE INDEX IF NOT EXISTS recommendations_state_expiry_idx ON recommendations.app_state(expires_at);
+CREATE TABLE IF NOT EXISTS auth.app_state (namespace TEXT NOT NULL, key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+CREATE INDEX IF NOT EXISTS auth_state_expiry_idx ON auth.app_state(expires_at);
+CREATE TABLE IF NOT EXISTS audit.app_state (namespace TEXT NOT NULL, key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+CREATE INDEX IF NOT EXISTS audit_state_expiry_idx ON audit.app_state(expires_at);
+
+CREATE SCHEMA IF NOT EXISTS recommendation;
+CREATE TABLE IF NOT EXISTS recommendation.app_state (namespace TEXT NOT NULL, key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+CREATE INDEX IF NOT EXISTS recommendation_state_expiry_idx ON recommendation.app_state(expires_at);

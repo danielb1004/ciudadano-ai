@@ -6,3 +6,16 @@ data:
   NODE_ENV: production
   MODEL_VERSION: beto-intents-v1
   REDIS_URL: redis://redis:6379
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: ciudadano_ai
+  POSTGRES_USER: ciudadano
+  KAFKA_BROKERS: kafka:9092
+  NLP_URL: http://nlp-service:8001
+  CATALOG_URL: http://catalog-service:3002
+  RECOMMENDATION_URL: http://recommendation-service:3003
+  CONVERSATION_URL: http://conversation-service:3001
+  AUTH_URL: http://auth-service:3004
+  AUDIT_URL: http://audit-service:3005
+  PUBLIC_ORIGIN: https://ciudadano.example
+  INSTITUTIONAL_MODE: institutional
+  TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16

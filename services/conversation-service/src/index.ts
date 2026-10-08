@@ -1,299 +1,146 @@
-import express from "express";
 import { randomUUID } from "node:crypto";
-import { Annotation, END, START, StateGraph } from "@langchain/langgraph";
-import { anonymize, cacheJson, CircuitBreaker, ConversationState, createBaseApp, logger, makeEvent, publishEvent, readJson, Recommendation } from "@ciudadano-ai/shared";
 import { z } from "zod";
+import { Store, anonymize, createBaseApp, asyncRoute, errorHandler, requireOwner, requireAccess, internalAccess, internalHeaders, logger, makeEvent, publishEvent, Recommendation, cacheJson, redis, CircuitBreaker } from "@ciudadano-ai/shared";
+type Message = { id: string; role: "user" | "assistant"; content: string; createdAt: string; };
+type Session = { id: string; profileId: string; messages: Message[]; selected?: Recommendation; clarificationCount: number; expiresAt: number; createdAt: string; };
+type Feedback = { id: string; profileId: string; conversationId: string; messageId: string; rating: string; comment: string; createdAt: string; };
+export const sessions = new Store<Session>("conversation", "sessions");
+export const feedback = new Store<Feedback>("conversation", "feedback");
+export const app = createBaseApp("conversation-service");
+const notice = "Este sistema orienta y no reemplaza los canales oficiales.";
+const counts = new Store<{ sessions: number; messages: number; referrals: number; totalLatencyMs: number; intents: { [key: string]: number } }>("conversation", "metrics");
+const initialCounts = () => ({ sessions: 0, messages: 0, referrals: 0, totalLatencyMs: 0, intents: {} as { [key: string]: number } });
+const profileId = (res: any): string => res.locals.claims.profileId ?? res.locals.claims.sub;
+async function hasConsent(id: string) {
+  const response = await fetch((process.env.AUTH_URL ?? "http://localhost:3004") + "/internal/profiles/" + id + "/consent", { headers: internalHeaders(), signal: AbortSignal.timeout(3000) });
+  if (!response.ok) throw new Error("Consent service unavailable"); return Boolean((await response.json() as { granted: boolean }).granted);
+}
+async function eraseSession(id: string) {
+  await sessions.mutate(id, async () => ({ result: undefined })); if (redis) await redis.del("conversation:" + id);
+  for (const item of await feedback.list()) if (item.value.conversationId === id) await feedback.remove(item.key);
+}
+async function recordMetric(intent: string, referral: boolean, latency: number) {
+  await counts.mutate("summary", async old => { const v = old ?? initialCounts(); v.messages++; v.intents[intent] = (v.intents[intent] ?? 0) + 1; if (referral) v.referrals++; v.totalLatencyMs += latency; return { value: v, ttlSeconds: 30 * 86400, result: undefined }; });
+}
+const nlpBreaker = new CircuitBreaker(), recommendationBreaker = new CircuitBreaker();
+type Nlp = { intent: string; confidence: number; entities: { [key: string]: unknown } };
+export async function processMessage(session: Session, text: string) {
+  const safe = anonymize(text).replace(/[<>]/g, ""), followup = /^(y\b|¿?(cuánto|cuanto|qué requisitos|que requisitos|cuáles|cuales|cómo|como|cuándo|cuando)|los requisitos|el costo|el precio)/i.test(safe) && !/(cédula|cedula|pasaporte|rut|sisben|sisbén|licencia|pensión|pension)/i.test(safe);
+  const contextual = followup && session.selected ? safe + " sobre " + session.selected.title : safe;
+  let nlp: Nlp, unavailable = false;
+  try {
+    const response = await nlpBreaker.execute(() => fetch((process.env.NLP_URL ?? "http://localhost:8001") + "/api/v1/classify", { method: "POST", headers: internalHeaders(), body: JSON.stringify({ text: contextual }), signal: AbortSignal.timeout(3000) }).then(response => { if (!response.ok) throw new Error("NLP unavailable"); return response; }), () => { throw new Error("NLP circuit open"); });
+    if (!response.ok) throw new Error("NLP unavailable"); nlp = await response.json() as Nlp;
+    if (!Number.isFinite(nlp.confidence) || nlp.confidence < 0 || nlp.confidence > 1) throw new Error("Invalid confidence");
+  } catch { nlp = { intent: "UNAVAILABLE", confidence: 0, entities: {} }; unavailable = true; }
 
-const sessions = new Map<string, ConversationState>();
-const feedbackStore = new Map<string, Array<{ id: string; rating: string; comment?: string; createdAt: string }>>();
-const nlpBreaker = new CircuitBreaker(3, 15_000);
-
-const messageSchema = z.object({
-  message: z.string().min(1).max(2000),
-  anonymousUserId: z.string().uuid().optional()
-});
-
-const feedbackSchema = z.object({
-  rating: z.enum(["positive", "negative", "helpful", "unhelpful"]),
-  comment: z.string().max(500).optional(),
-  messageIndex: z.number().int().nonnegative().optional()
-});
-
-const conversationAnnotation = Annotation.Root({
-  conversationId: Annotation<string>(),
-  anonymousUserId: Annotation<string | undefined>(),
-  messages: Annotation<any[]>({ reducer: (_a, b) => b ?? _a, default: () => [] }),
-  currentMessage: Annotation<string>({ reducer: (_a, b) => b ?? _a, default: () => "" }),
-  sanitizedMessage: Annotation<string>({ reducer: (_a, b) => b ?? _a, default: () => "" }),
-  intent: Annotation<string | undefined>(),
-  confidence: Annotation<number | undefined>(),
-  entities: Annotation<Record<string, unknown>>({ reducer: (_a, b) => b ?? _a, default: () => ({}) }),
-  missingInformation: Annotation<string[]>({ reducer: (_a, b) => b ?? _a, default: () => [] }),
-  profile: Annotation<any>(),
-  recommendations: Annotation<Recommendation[]>({ reducer: (_a, b) => b ?? _a, default: () => [] }),
-  selectedRecommendation: Annotation<Recommendation | undefined>(),
-  requiresClarification: Annotation<boolean>({ reducer: (_a, b) => b ?? _a, default: () => false }),
-  requiresReferral: Annotation<boolean>({ reducer: (_a, b) => b ?? _a, default: () => false }),
-  sourceUrls: Annotation<string[]>({ reducer: (_a, b) => b ?? _a, default: () => [] }),
-  response: Annotation<string | undefined>(),
-  errors: Annotation<any[]>({ reducer: (_a, b) => b ?? _a, default: () => [] })
-});
-type GraphState = typeof conversationAnnotation.State;
-
-const safeCall = async <T>(url: string, init: RequestInit, fallback: T): Promise<T> =>
-  nlpBreaker.execute(async () => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 1500);
-    try {
-      const response = await fetch(url, { ...init, signal: controller.signal });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return (await response.json()) as T;
-    } finally {
-      clearTimeout(timer);
-    }
-  }, () => fallback);
-
-const graph = new StateGraph(conversationAnnotation)
-  .addNode("receive_message", async (s: GraphState) => {
-    await publishEvent(
-      makeEvent("conversation.message.received", "conversation-service", { messageLength: s.currentMessage.length }, s.conversationId, s.conversationId)
-    );
-    return {};
-  })
-  .addNode("sanitize_message", async (s) => ({
-    sanitizedMessage: anonymize(s.currentMessage).replace(/[<>]/g, "")
-  }))
-  .addNode("load_context", async (s) => ({
-    messages: (await readJson<ConversationState>(`conversation:${s.conversationId}`))?.messages ?? sessions.get(s.conversationId)?.messages ?? []
-  }))
-  .addNode("classify_intent", async (s) =>
-    safeCall<{ intent: string; confidence: number; entities: Record<string, unknown> }>(
-      `${process.env.NLP_URL ?? "http://localhost:8001"}/api/v1/classify`,
-      { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: s.sanitizedMessage }) },
-      { intent: "CONSULTA_INFORMATIVA", confidence: 0.45, entities: {} }
-    )
-  )
-  .addNode("extract_entities", async (s) => ({ entities: s.entities ?? {} }))
-  .addNode("evaluate_confidence", async (s) => ({ requiresClarification: (s.confidence ?? 0) < 0.50 }))
-  .addNode("request_clarification", async () => ({
-    response: "Quiero ayudarte con precisión. ¿Podrías indicarme con más detalle qué trámite, entidad o documento necesitas consultar?",
-    requiresClarification: true
-  }))
-  .addNode("load_profile", async (s) => {
-    const id = s.anonymousUserId;
-    if (!id) return {};
-    const profile = await safeCall(`${process.env.PROFILE_URL ?? "http://localhost:3002"}/api/v1/profiles/${id}`, {}, undefined);
-    return profile ? { profile } : {};
-  })
-  .addNode("get_recommendations", async (s) =>
-    safeCall<{ recommendations: Recommendation[] }>(
-      `${process.env.RECOMMENDATION_URL ?? "http://localhost:3003"}/api/v1/recommendations`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ intent: s.intent, entities: s.entities, query: s.sanitizedMessage })
-      },
-      { recommendations: [] }
-    )
-  )
-  .addNode("validate_response", async (s) => {
-    const recommendations = s.recommendations ?? [];
-    const sourceUrls = recommendations.flatMap((r) => r.sourceUrls ?? []);
-    if (recommendations.length > 0) {
-      const top = recommendations[0];
-      const stepsText = top.steps?.length ? ` Pasos clave: ${top.steps.slice(0, 2).join(", ")}.` : "";
-      return {
-        sourceUrls,
-        requiresReferral: false,
-        response: `Orientación oficial encontrada: ${top.title} (${top.entity}). ${top.description}${stepsText} Consulta los requisitos completos en los enlaces oficiales verificados a continuación.`
-      };
-    }
-    return {
-      sourceUrls,
-      requiresReferral: true,
-      response: "No encontré un trámite oficial específico que coincida exactamente con tu consulta. Te sugiero verificar el nombre del trámite o acudir directamente al portal oficial de la entidad correspondiente."
-    };
-  })
-  .addNode("save_context", async (s) => {
-    const next: ConversationState = {
-      ...s,
-      messages: [
-        ...(s.messages ?? []),
-        { role: "user", content: s.sanitizedMessage, createdAt: new Date().toISOString() },
-        ...(s.response ? [{ role: "assistant" as const, content: s.response, createdAt: new Date().toISOString() }] : [])
-      ]
-    };
-    sessions.set(s.conversationId, next);
-    await cacheJson(`conversation:${s.conversationId}`, next, 900);
-    return {};
-  })
-  .addNode("publish_events", async (s) => {
-    await publishEvent(
-      makeEvent(
-        "conversation.intent.classified",
-        "conversation-service",
-        { intent: s.intent, confidence: s.confidence, recommendationCount: s.recommendations?.length ?? 0 },
-        s.conversationId,
-        s.conversationId
-      )
-    );
-    return {};
-  })
-  .addNode("return_response", async () => ({}))
-  .addEdge(START, "receive_message")
-  .addEdge("receive_message", "sanitize_message")
-  .addEdge("sanitize_message", "load_context")
-  .addEdge("load_context", "classify_intent")
-  .addEdge("classify_intent", "extract_entities")
-  .addEdge("extract_entities", "evaluate_confidence")
-  .addConditionalEdges("evaluate_confidence", (s) => (s.requiresClarification ? "clarification" : "valid"), {
-    clarification: "request_clarification",
-    valid: "load_profile"
-  })
-  .addEdge("request_clarification", "save_context")
-  .addEdge("load_profile", "get_recommendations")
-  .addEdge("get_recommendations", "validate_response")
-  .addEdge("validate_response", "save_context")
-  .addEdge("save_context", "publish_events")
-  .addEdge("publish_events", "return_response")
-  .addEdge("return_response", END)
-  .compile();
-
-const app = createBaseApp("conversation-service");
-
-// Iniciar nueva conversación
-app.post("/api/v1/conversations", (_req, res) => {
-  const id = randomUUID();
-  sessions.set(id, {
-    conversationId: id,
-    messages: [],
-    currentMessage: "",
-    sanitizedMessage: "",
-    entities: {},
-    missingInformation: [],
-    recommendations: [],
-    requiresClarification: false,
-    requiresReferral: false,
-    sourceUrls: [],
-    errors: []
-  });
-  res.status(201).json({ conversationId: id });
-});
-
-// Enviar mensaje en una conversación
-app.post("/api/v1/conversations/:id/messages", (req, res, next) => {
-  const parsed = messageSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Escribe un mensaje válido." } });
-
-  void graph
-    .invoke({
-      conversationId: req.params.id,
-      currentMessage: parsed.data.message,
-      anonymousUserId: parsed.data.anonymousUserId,
-      messages: [],
-      sanitizedMessage: "",
-      entities: {},
-      missingInformation: [],
-      recommendations: [],
-      requiresClarification: false,
-      requiresReferral: false,
-      sourceUrls: [],
-      errors: []
-    })
-    .then((result) =>
-      res.json({
-        conversationId: req.params.id,
-        response: result.response,
-        intent: result.intent,
-        confidence: result.confidence,
-        recommendations: result.recommendations,
-        requiresClarification: result.requiresClarification,
-        requiresReferral: result.requiresReferral,
-        sources: result.sourceUrls
-      })
-    )
-    .catch(next);
-});
-
-// Obtener estado de la conversación
-app.get("/api/v1/conversations/:id", (req, res) => {
-  const session = sessions.get(req.params.id);
-  if (!session) return res.status(404).json({ error: { code: "NOT_FOUND", message: "Conversación no encontrada." } });
-  res.json({
-    conversationId: session.conversationId,
-    messages: session.messages,
-    recommendations: session.recommendations,
-    requiresReferral: session.requiresReferral
-  });
-});
-
-// Eliminar conversación (privacidad)
-app.delete("/api/v1/conversations/:id", async (req, res) => {
-  sessions.delete(req.params.id);
-  feedbackStore.delete(req.params.id);
-  await publishEvent(makeEvent("conversation.deleted", "conversation-service", {}, req.params.id, req.params.id));
-  res.status(204).send();
-});
-
-// Registrar feedback ciudadano
-app.post("/api/v1/conversations/:id/feedback", (req, res) => {
-  const parsed = feedbackSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Formato de feedback inválido." } });
-  }
-
-  const feedbackId = randomUUID();
-  const entry = {
-    id: feedbackId,
-    rating: parsed.data.rating,
-    comment: parsed.data.comment,
-    createdAt: new Date().toISOString()
+  let response = "", requiresClarification = false, requiresReferral = false, authenticationRequired = false, recommendations: Recommendation[] = [], sources: string[] = [], options: string[] = [];
+  const referral = (entity?: Recommendation) => {
+    requiresReferral = true; sources = entity?.sourceUrls ?? ["https://www.gov.co/"];
+    return "Canal oficial: " + (entity?.entity ?? "Portal GOV.CO, directorio de entidades") + ". " + (entity?.channels.join(", ") || "https://www.gov.co/") + ". Horario: " + (entity?.hours ?? "Consulta el horario de la entidad en su portal.") + " " + sources.join(" ");
   };
-
-  const list = feedbackStore.get(req.params.id) ?? [];
-  list.push(entry);
-  feedbackStore.set(req.params.id, list);
-
-  void publishEvent(
-    makeEvent(
-      "conversation.feedback.submitted",
-      "conversation-service",
-      {
-        conversationId: req.params.id,
-        feedbackId,
-        rating: parsed.data.rating,
-        commentLength: parsed.data.comment?.length ?? 0
-      },
-      req.params.id,
-      req.params.id
-    )
-  );
-
-  res.status(202).json({
-    accepted: true,
-    feedbackId,
-    correlationId: res.locals.correlationId
+  if (unavailable) { response = "El servicio de lenguaje no está disponible. Puedes intentar de nuevo o acudir al canal oficial. " + referral(session.selected); }
+  else if (nlp.confidence < 0.70) {
+    session.clarificationCount++;
+    if (session.clarificationCount >= 2) response = "Tras dos intentos de aclaración, te recomiendo el canal oficial. " + referral(session.selected);
+    else { requiresClarification = true; options = ["¿Buscas requisitos de un trámite?", "¿Necesitas consultar el estado de una solicitud?"]; response = "Necesito una aclaración para orientarte con precisión. Indica el trámite y la entidad. " + options.join(" "); }
+  } else if (nlp.intent === "VERIFICACION_ESTADO") {
+    session.clarificationCount = 0; authenticationRequired = true;
+    response = "Para consultar una solicitud propia, verifica tu identidad con un código de un solo uso e indica el radicado en el formulario de seguimiento. El código vence en cinco minutos y el acceso dura quince minutos.";
+  } else {
+    session.clarificationCount = 0;
+    try {
+      const result = await recommendationBreaker.execute(() => fetch((process.env.RECOMMENDATION_URL ?? "http://localhost:3003") + "/api/v1/recommendations", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ query: contextual, intent: nlp.intent, entities: nlp.entities }), signal: AbortSignal.timeout(3500) }).then(response => { if (!response.ok) throw new Error("Catalog unavailable"); return response; }), () => { throw new Error("Catalog circuit open"); });
+      if (!result.ok) throw new Error("Catalog unavailable");
+      const body = await result.json() as { recommendations: Recommendation[]; fromCache?: boolean; synchronizedAt?: string };
+      recommendations = body.recommendations.slice(0,3);
+      const top = recommendations[0];
+      if (!top) response = "La consulta excede el catálogo disponible. " + referral(session.selected);
+      else if (nlp.intent === "DERIVACION_ENTIDAD") response = referral(top);
+      else {
+        session.selected = top; sources = [...new Set(recommendations.flatMap(p => p.sourceUrls))];
+        response = top.title + " — " + top.entity + ".\nRequisitos: " + top.requirements.join("; ") +
+          "\nCosto: " + top.cost + "\nTiempo estimado: " + top.estimatedTime +
+          "\nCanal: " + top.channels.join("; ") + "\nFuente actualizada: " + top.verifiedAt + ". " + top.sourceUrls.join(" ");
+        if (top.stale) response += "\nLa ficha supera 90 días desde su revisión. Verifica su vigencia en la fuente oficial.";
+        if (body.fromCache) response += "\nInformación en caché. Última sincronización: " + body.synchronizedAt;
+      }
+    } catch { response = "El catálogo no está disponible. " + referral(session.selected); }
+  }
+  response += "\n" + notice;
+  const now = new Date().toISOString(), user: Message = { id: randomUUID(), role: "user", content: safe, createdAt: now }, assistant: Message = { id: randomUUID(), role: "assistant", content: response, createdAt: now };
+  session.messages.push(user, assistant); session.expiresAt = Date.now() + 900000;
+  // Bound context so a long session cannot exhaust process memory or Redis.
+  session.messages = session.messages.slice(-200);
+  return { session, messageId: assistant.id, response, intent: nlp.intent, confidence: nlp.confidence, entities: nlp.entities, recommendations, requiresClarification, requiresReferral, sources, clarificationOptions: options, authenticationRequired };
+}
+app.post("/api/v1/conversations", requireOwner, asyncRoute(async (_req, res) => {
+  const owner = profileId(res);
+  if (!await hasConsent(owner)) return res.status(403).json({ error: { code: "CONSENT_REQUIRED", message: "Debes aceptar el tratamiento de datos antes de iniciar la conversación." } });
+  const id = randomUUID(), now = new Date().toISOString();
+  const session: Session = { id, profileId: owner, messages: [], clarificationCount: 0, expiresAt: Date.now() + 900000, createdAt: now };
+  await sessions.set(id, session, 900); await cacheJson("conversation:" + id, session, 900);
+  await counts.mutate("summary", async old => { const v = old ?? initialCounts(); v.sessions++; return { value: v, result: undefined }; });
+  await publishEvent(makeEvent("conversation.started", "conversation-service", { profileId: owner }, res.locals.correlationId, id));
+  res.status(201).json({ conversationId: id, expiresAt: new Date(session.expiresAt).toISOString(), notice });
+}));
+app.get("/api/v1/conversations/metrics/summary", requireAccess("admin", "audit_read"), asyncRoute(async (_req, res) => {
+  const summary = await counts.get("summary") ?? initialCounts(), activeSessions = (await sessions.list()).length;
+  res.json({ activeSessions, totalSessions: summary.sessions, totalMessages: summary.messages, totalFeedback: (await feedback.list()).length, intentDistribution: summary.intents, referralRate: summary.messages ? summary.referrals / summary.messages : 0, meanLatencyMs: summary.messages ? summary.totalLatencyMs / summary.messages : null, timestamp: new Date().toISOString() });
+}));
+const sessionAccess = async (id: string, owner: string) => {
+  const session = await sessions.get(id); if (!session) return { status: 410, error: "La sesión expiró tras quince minutos sin actividad. Inicia una nueva conversación." };
+  if (session.profileId !== owner) return { status: 403, error: "No puedes acceder a una sesión de otro ciudadano." };
+  return { status: 200, session };
+};
+const conversationAuth = requireOwner;
+app.post("/api/v1/conversations/:conversationId/messages", conversationAuth, asyncRoute(async (req, res) => {
+  const parsed = z.object({ message: z.string().trim().min(1).max(500) }).safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ error: { code: "VALIDATION_ERROR", message: "Escribe entre 1 y 500 caracteres." } });
+  const owner = profileId(res), id = req.params.conversationId, access = await sessionAccess(id, owner);
+  if (!access.session) return res.status(access.status).json({ error: { code: access.status === 410 ? "SESSION_EXPIRED" : "FORBIDDEN", message: access.error } });
+  if (!await hasConsent(owner)) { await eraseSession(id); return res.status(403).json({ error: { code: "CONSENT_REQUIRED", message: "Tu consentimiento fue revocado. No se procesó el mensaje." } }); }
+  const started = performance.now();
+  const result = await sessions.mutate<Awaited<ReturnType<typeof processMessage>> | undefined>(id, async current => {
+    if (!current || current.profileId !== owner) return { result: undefined };
+    const result = await processMessage(current, parsed.data.message);
+    if (!await hasConsent(owner)) return { result: undefined };
+    await cacheJson("conversation:" + id, result.session, 900);
+    return { value: result.session, ttlSeconds: 900, result };
   });
-});
-
-// Estadísticas de uso conversacional (Admin)
-app.get("/api/v1/conversations/metrics/summary", (_req, res) => {
-  const allSessions = [...sessions.values()];
-  const totalMessages = allSessions.reduce((acc, s) => acc + (s.messages?.length ?? 0), 0);
-  const totalFeedback = [...feedbackStore.values()].reduce((acc, list) => acc + list.length, 0);
-
-  res.json({
-    activeSessions: allSessions.length,
-    totalMessages,
-    totalFeedback,
-    timestamp: new Date().toISOString()
-  });
-});
-
+  if (!result) return res.status(410).json({ error: { code: "SESSION_EXPIRED", message: "Sesión expirada." } });
+  await recordMetric(result.intent, result.requiresReferral, performance.now() - started);
+  await publishEvent(makeEvent("conversation.intent.classified", "conversation-service", { intent: result.intent, confidence: result.confidence, requiresReferral: result.requiresReferral }, res.locals.correlationId, id));
+  const { session, ...body } = result; res.json({ conversationId: id, expiresAt: new Date(session.expiresAt).toISOString(), ...body });
+}));
+app.get("/api/v1/conversations/:conversationId", conversationAuth, asyncRoute(async (req, res) => {
+  const access = await sessionAccess(req.params.conversationId, profileId(res));
+  if (!access.session) return res.status(access.status).json({ error: { code: access.status === 410 ? "SESSION_EXPIRED" : "FORBIDDEN", message: access.error } });
+  res.json({ conversationId: access.session.id, messages: access.session.messages, expiresAt: new Date(access.session.expiresAt).toISOString() });
+}));
+app.delete("/api/v1/conversations/:conversationId", conversationAuth, asyncRoute(async (req, res) => {
+  const access = await sessionAccess(req.params.conversationId, profileId(res));
+  if (access.status === 403) return res.status(403).json({ error: { code: "FORBIDDEN", message: access.error } });
+  await eraseSession(req.params.conversationId); await publishEvent(makeEvent("conversation.deleted", "conversation-service", {}, res.locals.correlationId, req.params.conversationId)); res.status(204).send();
+}));
+app.post("/api/v1/conversations/:conversationId/feedback", conversationAuth, asyncRoute(async (req, res) => {
+  const access = await sessionAccess(req.params.conversationId, profileId(res));
+  if (!access.session) return res.status(access.status).json({ error: { code: "SESSION_EXPIRED", message: access.error } });
+  const parsed = z.object({ rating: z.enum(["positive","negative","helpful","unhelpful"]), messageId: z.string().uuid(), comment: z.string().max(500).default("") }).safeParse(req.body);
+  if (!parsed.success || !access.session.messages.some(m => m.role === "assistant" && m.id === parsed.data?.messageId)) return res.status(400).json({ error: { code: "INVALID_FEEDBACK", message: "Selecciona una respuesta existente." } });
+  const entry: Feedback = { id: randomUUID(), profileId: profileId(res), conversationId: req.params.conversationId, ...parsed.data, comment: anonymize(parsed.data.comment), createdAt: new Date().toISOString() };
+  await feedback.set(entry.id, entry); await publishEvent(makeEvent("conversation.feedback.submitted", "conversation-service", { feedbackId: entry.id, messageId: entry.messageId, rating: entry.rating }, res.locals.correlationId, entry.conversationId));
+  res.status(202).json({ accepted: true, feedbackId: entry.id });
+}));
+app.get("/api/v1/conversations/feedback/review", requireAccess("admin", "ml_manage"), asyncRoute(async (_req, res) => res.json({ reports: (await feedback.list()).map(x => x.value), purpose: "Revisión humana antes de ampliar el corpus." })));
+app.get("/internal/profiles/:id/data", internalAccess, asyncRoute(async (req, res) => res.json({ sessions: (await sessions.list()).filter(x => x.value.profileId === req.params.id).map(x => x.value), feedback: (await feedback.list()).filter(x => x.value.profileId === req.params.id).map(x => x.value) })));
+app.delete("/internal/profiles/:id/data", internalAccess, asyncRoute(async (req, res) => {
+  for (const item of await sessions.list()) if (item.value.profileId === req.params.id) await eraseSession(item.key);
+  for (const item of await feedback.list()) if (item.value.profileId === req.params.id) await feedback.remove(item.key);
+  res.json({ success: true });
+}));
+app.use(errorHandler);
+const cleanup = setInterval(() => { void Promise.all([sessions.cleanup(), feedback.cleanup(), counts.cleanup()]).catch(error => logger.error({ err: error }, "retention cleanup failed")); }, 60000); cleanup.unref();
 if (!process.env.VITEST && process.env.NODE_ENV !== "test") {
-  const port = Number(process.env.PORT ?? 3001);
-  const server = app.listen(port, () => logger.info({ port }, "conversation-service listening"));
-  const shutdown = () => server.close(() => process.exit(0));
-  process.once("SIGTERM", shutdown);
-  process.once("SIGINT", shutdown);
+  const server = app.listen(Number(process.env.PORT ?? 3001)); process.once("SIGTERM", () => server.close()); process.once("SIGINT", () => server.close());
 }

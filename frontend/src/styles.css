@@ -1,6 +1,5 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 @layer base {
   body {
@@ -66,3 +65,7 @@
 .animate-pulse-glow {
   animation: pulseGlow 2.5s infinite;
 }
+
+html.high-contrast body, html.high-contrast section, html.high-contrast main, html.high-contrast div, html.high-contrast header, html.high-contrast footer, html.high-contrast input, html.high-contrast textarea { background-color: #000 !important; color: #fff !important; border-color: #fff !important; }
+html.high-contrast a, html.high-contrast button { color: #ffff00 !important; background-color: #000 !important; border: 1px solid #ffff00; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }

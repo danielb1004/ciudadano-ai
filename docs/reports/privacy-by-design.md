@@ -1,11 +1,11 @@
-# Privacy by Design
+# Privacidad implementada
 
-1. Proactivo: amenazas, anonimización y controles se diseñan antes de procesar.
-2. Predeterminado: consulta anónima, sin cuenta y sin texto sensible.
-3. Incorporado: consentimiento granular, TTL, borrado y logs redactados son parte del flujo.
-4. Funcionalidad plena: privacidad no impide orientar; usa fuentes y fallbacks seguros.
-5. Extremo a extremo: TLS 1.3 en infraestructura, secretos fuera de Git y minimización en cada frontera.
-6. Visibilidad: interfaz explica alcance, fuentes, finalidad, retención y derivación.
-7. Respeto: el ciudadano consulta, descarga, revoca y elimina sus datos.
+Perfil anónimo creado sin consentimiento del chat. El chat y OTP exigen finalidad conversation_context vigente; investigación y analítica tienen decisiones separadas. Cada decisión conserva UUID, finalidad, versión, fecha y revocación.
 
-La aplicación implementa minimización, consentimiento y derechos. Certificados, KMS/AES-256 en reposo, backups, firewall, monitoreo y gestión del proveedor deben demostrarse por ambiente.
+La consulta se anonimiza antes de PLN. Se conserva el texto anonimizado, no el original; no se garantiza detectar toda información personal expresada en lenguaje libre. La interfaz recomienda evitarla.
+
+JWT de acceso 15 minutos. Credencial de renovación separada en cookie HttpOnly/SameSite; huellas de credenciales almacenadas. Sesiones: 15 minutos sin actividad; perfiles y feedback: 30 días. Limpieza y borrado incluyen sesiones, feedback, consentimientos y renovaciones. Exportación real y comprobantes disponibles.
+
+PostgreSQL y contexto Redis cifrados AES-256-GCM con claves externas. La auditoría conserva metadatos mínimos y huellas, con retención propia de 365 días de base; no guarda consultas, correos, OTP ni contraseñas.
+
+TLS, permisos de base, almacenamiento de backups, rotación de claves y borrado de copias requieren configuración/verificación operativa. No se afirma certificación legal o ISO.

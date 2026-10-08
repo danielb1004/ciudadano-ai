@@ -4,14 +4,9 @@ import { BrowserRouter, Link, Route, Routes, useNavigate, useLocation } from "re
 import axios from "axios";
 import "./styles.css";
 
-// Configuración de API Base
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
-const api = axios.create({ baseURL: API_BASE });
-const authApi = axios.create({ baseURL: "http://localhost:3004" });
-const recommendationApi = axios.create({ baseURL: "http://localhost:3003" });
-const profileApi = axios.create({ baseURL: "http://localhost:3002" });
-const auditApi = axios.create({ baseURL: "http://localhost:3005" });
-const nlpApi = axios.create({ baseURL: "http://localhost:8001" });
+import { api, authApi, catalogApi as recommendationApi, profileApi, auditApi, nlpApi, ensureProfile, apiError } from "./api";
+import { AccessibleDialog } from "./AccessibleDialog";
+import { RequestStatus } from "./RequestStatus";
 
 // Tipos
 type RecommendationItem = {
@@ -27,6 +22,7 @@ type RecommendationItem = {
   verifiedAt: string;
   published: boolean;
   score?: number;
+  cost?: string; estimatedTime?: string; hours?: string; version?: number; stale?: boolean;
 };
 
 type ChatMessage = {
@@ -51,7 +47,7 @@ type ConsentState = {
 function getOrCreateAnonymousId(): string {
   let id = localStorage.getItem("ciudadano_anon_id");
   if (!id) {
-    id = "anon-" + Math.random().toString(36).substring(2, 9) + "-" + Date.now().toString(36);
+    id = crypto.randomUUID();
     localStorage.setItem("ciudadano_anon_id", id);
   }
   return id;
@@ -75,6 +71,8 @@ function Shell({ children }: { children: React.ReactNode }) {
     localStorage.setItem("ciudadano_font_scale", String(fontScale));
     localStorage.setItem("ciudadano_high_contrast", String(highContrast));
     localStorage.setItem("ciudadano_speech_active", String(speechActive));
+    document.documentElement.style.fontSize = `${fontScale * 16}px`;
+    document.documentElement.classList.toggle("high-contrast", highContrast);
   }, [fontScale, highContrast, speechActive]);
 
   const navLinks = [
@@ -92,6 +90,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       }`}
       style={{ fontSize: `${fontScale}rem` }}
     >
+      <a href="#contenido-principal" className="sr-only focus:not-sr-only focus:p-3">Saltar al contenido principal</a>
       {/* Bandera de Colombia decorativa superior */}
       <div className="h-1.5 w-full flex">
         <div className="bg-colombia-yellow flex-[2]"></div>
@@ -109,9 +108,9 @@ function Shell({ children }: { children: React.ReactNode }) {
               </div>
               <div>
                 <span className="text-xl font-bold tracking-tight block font-heading">
-                  Ciudadano <span className="text-brand-600">AI</span>
+                  Ciudadano <span className="text-brand-700">AI</span>
                 </span>
-                <span className="text-xs text-slate-500 font-medium block">Guía Oficial de Trámites Colombia</span>
+                <span className="text-xs text-slate-600 font-medium block">Orientación de Trámites Colombia</span>
               </div>
             </Link>
 
@@ -150,7 +149,7 @@ function Shell({ children }: { children: React.ReactNode }) {
                 >
                   A-
                 </button>
-                <span className="text-slate-400">|</span>
+                <span className="text-slate-600">|</span>
                 <button
                   type="button"
                   onClick={() => setFontScale((prev) => Math.min(1.35, prev + 0.05))}
@@ -170,7 +169,7 @@ function Shell({ children }: { children: React.ReactNode }) {
                 <button
                   type="button"
                   onClick={() => setSpeechActive(!speechActive)}
-                  className={`px-2 py-1 rounded font-medium ${speechActive ? "bg-brand-600 text-white" : "hover:bg-white text-slate-700"}`}
+                  className={`px-2 py-1 rounded font-medium ${speechActive ? "bg-brand-700 text-white" : "hover:bg-white text-slate-700"}`}
                   title="Lectura por voz activada"
                 >
                   🔊
@@ -180,6 +179,8 @@ function Shell({ children }: { children: React.ReactNode }) {
               {/* Botón Móvil */}
               <button
                 type="button"
+                aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+                aria-expanded={menuOpen}
                 onClick={() => setMenuOpen(!menuOpen)}
                 className="md:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
               >
@@ -207,15 +208,15 @@ function Shell({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Contenido Principal */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
+      <main id="contenido-principal" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
 
       {/* Footer Oficial */}
-      <footer className="border-t border-slate-200 bg-white mt-auto text-xs text-slate-500 py-6">
+      <footer className="border-t border-slate-200 bg-white mt-auto text-xs text-slate-600 py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span className="font-bold text-slate-700">Ciudadano AI Colombia</span>
             <span>•</span>
-            <span>Orientación oficial verificada con entidades públicas</span>
+            <span>Prototipo académico con enlaces a fuentes oficiales</span>
           </div>
           <div className="flex items-center gap-4">
             <Link to="/privacidad" className="hover:underline">
@@ -225,7 +226,7 @@ function Shell({ children }: { children: React.ReactNode }) {
               Directorio de Trámites
             </Link>
             <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">
-              TLS 1.3 / ISO 27001
+              Prototipo académico
             </span>
           </div>
         </div>
@@ -249,7 +250,7 @@ function Home() {
       .then((res) => {
         setQuickProcedures(res.data.procedures?.slice(0, 6) ?? []);
       })
-      .catch(() => {});
+      .catch(() => setQuickProcedures([]));
   }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -332,10 +333,10 @@ function Home() {
         <section className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-bold font-heading text-slate-900">Trámites Oficiales Verificados</h2>
+              <h2 className="text-2xl sm:text-3xl font-bold font-heading text-slate-900">Catálogo de trámites y canales oficiales</h2>
               <p className="text-slate-600 text-sm">Información directa y actualizada de entidades del Estado.</p>
             </div>
-            <Link to="/tramites" className="text-sm font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+            <Link to="/tramites" className="text-sm font-bold text-brand-700 hover:text-brand-700 flex items-center gap-1">
               Ver todos ({quickProcedures.length}+) →
             </Link>
           </div>
@@ -351,14 +352,14 @@ function Home() {
                     <span className="font-semibold px-2.5 py-1 rounded-full bg-brand-50 text-brand-700 border border-brand-100">
                       {proc.category ?? "General"}
                     </span>
-                    <span className="text-slate-400 font-medium">Verificado {proc.verifiedAt}</span>
+                    <span className="text-slate-600 font-medium">Verificado {proc.verifiedAt}</span>
                   </div>
 
-                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition-colors">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-brand-700 transition-colors">
                     {proc.title}
                   </h3>
 
-                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{proc.entity}</p>
+                  <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">{proc.entity}</p>
 
                   <p className="text-sm text-slate-600 line-clamp-2">{proc.description}</p>
                 </div>
@@ -376,7 +377,7 @@ function Home() {
                       href={proc.sourceUrls[0]}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-slate-400 hover:text-slate-600 underline"
+                      className="text-xs text-slate-600 hover:text-slate-600 underline"
                     >
                       Sitio gov.co
                     </a>
@@ -421,13 +422,36 @@ function Home() {
 // -------------------------------------------------------------
 function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
-    const saved = localStorage.getItem("ciudadano_chat_history");
-    return saved ? JSON.parse(saved) : [];
+    const saved = sessionStorage.getItem("ciudadano_chat_history");
+    try { return saved ? JSON.parse(saved) : []; } catch { return []; }
   });
   const [conversationId, setConversationId] = useState<string>(() => {
     return localStorage.getItem("ciudadano_conv_id") ?? "";
   });
   const [inputMessage, setInputMessage] = useState("");
+  const [consented, setConsented] = useState(false);
+  const [consentLoaded, setConsentLoaded] = useState(false);
+  const [consentError, setConsentError] = useState("");
+  const [consentSaving, setConsentSaving] = useState(false);
+  const consentRef = useRef<HTMLElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [expiresAt, setExpiresAt] = useState(0);
+  useEffect(() => { void ensureProfile().then(id => profileApi.get(`/api/v1/profiles/${id}/consents`)).then(res => {
+    const decisions = (res.data.consents ?? []).filter((c: any) => c.purpose === "conversation_context");
+    setConsented(decisions[decisions.length - 1]?.granted === true);
+  }).catch(error => setConsentError(apiError(error))).finally(() => setConsentLoaded(true)); }, []);
+  useEffect(() => {
+    if (!expiresAt) return;
+    const timer = window.setTimeout(() => { setConversationId(""); setMessages([]); localStorage.removeItem("ciudadano_conv_id"); sessionStorage.removeItem("ciudadano_chat_history"); }, Math.max(0, expiresAt - Date.now()));
+    return () => window.clearTimeout(timer);
+  }, [expiresAt]);
+  const grantConsent = async () => {
+    if (consentSaving) return;
+    setConsentSaving(true);
+    try { const id = await ensureProfile(); await profileApi.post(`/api/v1/profiles/${id}/consents`, { purpose: "conversation_context", version: "1.0", granted: true }); setConsented(true); setConsentError(""); inputRef.current?.focus(); }
+    catch(error) { setConsentError(apiError(error)); }
+    finally { setConsentSaving(false); }
+  };
   const [busy, setBusy] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [selectedProcedure, setSelectedProcedure] = useState<RecommendationItem | null>(null);
@@ -435,8 +459,8 @@ function Chat() {
   const location = useLocation();
 
   useEffect(() => {
-    localStorage.setItem("ciudadano_chat_history", JSON.stringify(messages));
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    sessionStorage.setItem("ciudadano_chat_history", JSON.stringify(messages));
+    if (messages.length > 0) messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages]);
 
   // Si viene con parámetro ?q= en la URL
@@ -444,9 +468,9 @@ function Chat() {
     const params = new URLSearchParams(location.search);
     const q = params.get("q");
     if (q && messages.length === 0) {
-      void sendMessage(q);
+      if (consented) void sendMessage(q);
     }
-  }, [location.search]);
+  }, [location.search, consented]);
 
   // Síntesis de voz (Text-to-Speech)
   const speakText = (text: string) => {
@@ -486,13 +510,19 @@ function Chat() {
 
   const sendMessage = async (textToSend: string) => {
     const text = textToSend.trim();
-    if (!text || busy) return;
+    if (!text || busy || text.length > 500) return;
+    if (!consented) {
+      setInputMessage(text);
+      consentRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      consentRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+      return;
+    }
 
     const userMsgId = "msg-" + Date.now();
     const userMsg: ChatMessage = {
       id: userMsgId,
       role: "user",
-      content: text,
+      content: text.replace(/(?:\+?57[ .-]?)?3(?:[ .-]?\d){9}\b/g, "[TELÉFONO]").replace(/\b\d{6,12}\b/g, "[IDENTIFICADOR]").replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, "[CORREO]"),
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     };
 
@@ -501,9 +531,11 @@ function Chat() {
     setBusy(true);
 
     try {
+      await ensureProfile();
       let currentConvId = conversationId;
       if (!currentConvId) {
-        const initRes = await api.post("/api/v1/conversations");
+        const initRes = await api.post("/api/v1/conversations", {});
+        setExpiresAt(Date.parse(initRes.data.expiresAt));
         currentConvId = initRes.data.conversationId;
         setConversationId(currentConvId);
         localStorage.setItem("ciudadano_conv_id", currentConvId);
@@ -515,7 +547,7 @@ function Chat() {
       });
 
       const assistantMsg: ChatMessage = {
-        id: "msg-asst-" + Date.now(),
+        id: res.data.messageId ?? "msg-asst-" + Date.now(),
         role: "assistant",
         content: res.data.response ?? "No encontré información para tu consulta.",
         intent: res.data.intent,
@@ -526,18 +558,21 @@ function Chat() {
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
+      setExpiresAt(Date.parse(res.data.expiresAt));
 
       // Si la lectura por voz está activa, hablar la respuesta
       if (localStorage.getItem("ciudadano_speech_active") === "true") {
         speakText(assistantMsg.content);
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.response?.data?.error?.code === "SESSION_EXPIRED") { setConversationId(""); localStorage.removeItem("ciudadano_conv_id"); }
+      if (err.response?.data?.error?.code === "CONSENT_REQUIRED") setConsented(false);
       setMessages((prev) => [
         ...prev,
         {
           id: "msg-err-" + Date.now(),
           role: "assistant",
-          content: "Hubo una interrupción en el servicio de orientación. Puedes intentar de nuevo o acudir a los canales oficiales.",
+          content: apiError(err),
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         }
       ]);
@@ -555,6 +590,7 @@ function Chat() {
       try {
         await api.post(`/api/v1/conversations/${conversationId}/feedback`, {
           rating: rating === "positive" ? "helpful" : "unhelpful",
+          messageId,
           comment: `Feedback registrado por el ciudadano: ${rating}`
         });
       } catch {}
@@ -563,9 +599,10 @@ function Chat() {
 
   const clearChat = () => {
     if (window.confirm("¿Deseas reiniciar la conversación y borrar el historial local?")) {
+      if (conversationId) void api.delete(`/api/v1/conversations/${conversationId}`).catch(() => {});
       setMessages([]);
       setConversationId("");
-      localStorage.removeItem("ciudadano_chat_history");
+      sessionStorage.removeItem("ciudadano_chat_history");
       localStorage.removeItem("ciudadano_conv_id");
     }
   };
@@ -581,7 +618,7 @@ function Chat() {
             </div>
             <div>
               <h1 className="text-xl font-bold font-heading text-slate-900">Orientador Virtual Ciudadano</h1>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-600">
                 Escribe tu consulta en tus propias palabras • Anonimización activa
               </p>
             </div>
@@ -599,11 +636,12 @@ function Chat() {
             )}
             <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 font-semibold flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              En línea
+              Sesión de orientación
             </span>
           </div>
         </div>
 
+        <RequestStatus />
         {/* Área de Mensajes */}
         <div
           className="bg-white rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm min-h-[420px] max-h-[600px] overflow-y-auto space-y-5"
@@ -613,7 +651,7 @@ function Chat() {
             <div className="py-12 text-center space-y-4 max-w-md mx-auto">
               <div className="text-4xl">🇨🇴</div>
               <h2 className="text-lg font-bold text-slate-800 font-heading">¿Cómo puedo orientarte hoy?</h2>
-              <p className="text-xs text-slate-500 leading-relaxed">
+              <p className="text-xs text-slate-600 leading-relaxed">
                 Puedes preguntarme sobre requisitos de cédula, subsidios del Sisbén, pasaportes, historia laboral o problemas con trámites públicos.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 text-left">
@@ -686,7 +724,7 @@ function Chat() {
                                   href={rec.sourceUrls[0]}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white"
+                                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-700 hover:bg-brand-700 text-white"
                                 >
                                   Ir a gov.co ↗
                                 </a>
@@ -700,15 +738,15 @@ function Chat() {
 
                   {/* Fuentes oficiales */}
                   {msg.sources && msg.sources.length > 0 && (
-                    <div className="mt-3 pt-2 text-xs text-slate-500 border-t border-slate-200/50 flex flex-wrap gap-2 items-center">
-                      <span className="font-semibold">Fuentes verificadas:</span>
+                    <div className="mt-3 pt-2 text-xs text-slate-600 border-t border-slate-200/50 flex flex-wrap gap-2 items-center">
+                      <span className="font-semibold">Fuentes oficiales:</span>
                       {msg.sources.map((s, idx) => (
                         <a
                           key={idx}
                           href={s}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline text-brand-600 hover:text-brand-800"
+                          className="underline text-brand-700 hover:text-brand-800"
                         >
                           Enlace oficial {idx + 1}
                         </a>
@@ -719,7 +757,7 @@ function Chat() {
 
                 {/* Acciones de Mensaje del Asistente */}
                 {msg.role === "assistant" && (
-                  <div className="flex items-center gap-2 text-xs text-slate-400 pl-2">
+                  <div className="flex items-center gap-2 text-xs text-slate-600 pl-2">
                     <button
                       type="button"
                       onClick={() => speakText(msg.content)}
@@ -755,7 +793,7 @@ function Chat() {
             ))
           )}
           {busy && (
-            <div className="flex items-center gap-2 text-slate-500 text-xs p-3 bg-slate-50 rounded-2xl w-fit">
+            <div className="flex items-center gap-2 text-slate-600 text-xs p-3 bg-slate-50 rounded-2xl w-fit">
               <div className="w-2 h-2 rounded-full bg-brand-500 animate-bounce"></div>
               <div className="w-2 h-2 rounded-full bg-brand-500 animate-bounce [animation-delay:0.2s]"></div>
               <div className="w-2 h-2 rounded-full bg-brand-500 animate-bounce [animation-delay:0.4s]"></div>
@@ -764,6 +802,15 @@ function Chat() {
           )}
           <div ref={messagesEndRef} />
         </div>
+
+        {!consented && <section ref={consentRef} className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3" aria-labelledby="consent-title">
+          <h2 id="consent-title" className="font-bold">Consentimiento para iniciar la conversación</h2>
+          <p className="text-sm">Este prototipo académico orienta sobre trámites y no reemplaza a las entidades públicas. Procesaremos tu consulta anonimizada para mantener el contexto durante la sesión. La sesión se elimina tras quince minutos sin actividad; el perfil y sus preferencias caducan a los treinta días. La investigación y las estadísticas requieren consentimientos separados en el centro de privacidad.</p>
+          <p className="text-sm">Puedes revocar tu consentimiento y consultar, exportar o eliminar tus datos en cualquier momento.</p>
+          <div className="flex flex-wrap gap-3"><button disabled={!consentLoaded || consentSaving} type="button" onClick={() => void grantConsent()} className="bg-brand-700 text-white rounded-lg px-4 py-2">{consentSaving ? "Guardando consentimiento…" : !consentLoaded ? "Cargando preferencias…" : "Acepto e inicio la conversación"}</button><Link to="/tramites" className="underline p-2">No acepto; consultar catálogo público</Link></div>
+          <p id="chat-consent-hint" className="text-sm font-semibold">Puedes escribir tu consulta. Para enviarla, pulsa «Acepto e inicio la conversación».</p>
+          {consentError && <p role="alert">{consentError}</p>}
+        </section>}
 
         {/* Input Form */}
         <form
@@ -787,18 +834,22 @@ function Chat() {
           </button>
 
           <input
+            ref={inputRef}
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
+            aria-label="Consulta sobre trámites"
+            aria-describedby={!consented ? "chat-consent-hint" : undefined}
+            maxLength={500}
             placeholder="Escribe tu consulta sobre trámites aquí..."
             disabled={busy}
-            className="flex-1 bg-transparent px-3 py-2 text-sm sm:text-base focus:outline-none placeholder-slate-400"
+            className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm sm:text-base focus:outline-none placeholder-slate-400"
           />
 
           <button
             type="submit"
-            disabled={busy || !inputMessage.trim()}
-            className="px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white font-bold text-sm transition-all shadow-sm"
+            disabled={busy || !consented || !inputMessage.trim()}
+            className="px-5 py-3 rounded-xl bg-brand-700 hover:bg-brand-500 disabled:opacity-40 text-white font-bold text-sm transition-all shadow-sm"
           >
             {busy ? "..." : "Enviar"}
           </button>
@@ -806,7 +857,7 @@ function Chat() {
 
         {/* Modal de Detalle de Trámite */}
         {selectedProcedure && (
-          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <AccessibleDialog label="Detalles del tramite" onClose={() => setSelectedProcedure(null)}>
             <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl">
               <div className="flex items-start justify-between">
                 <div>
@@ -820,7 +871,7 @@ function Chat() {
                 <button
                   type="button"
                   onClick={() => setSelectedProcedure(null)}
-                  className="p-2 rounded-full hover:bg-slate-100 text-slate-500 font-bold text-lg"
+                  className="p-2 rounded-full hover:bg-slate-100 text-slate-600 font-bold text-lg"
                 >
                   ✕
                 </button>
@@ -847,7 +898,7 @@ function Chat() {
                 <ol className="space-y-2">
                   {selectedProcedure.steps.map((st, i) => (
                     <li key={i} className="text-sm text-slate-700 flex items-start gap-3 bg-slate-50 p-3 rounded-xl">
-                      <span className="w-5 h-5 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                      <span className="w-5 h-5 rounded-full bg-brand-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
                         {i + 1}
                       </span>
                       <span>{st}</span>
@@ -869,14 +920,14 @@ function Chat() {
                     href={selectedProcedure.sourceUrls[0]}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold shadow-md"
+                    className="px-6 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-700 text-white text-sm font-bold shadow-md"
                   >
                     Ir al Trámite Oficial (.gov.co) ↗
                   </a>
                 )}
               </div>
             </div>
-          </div>
+          </AccessibleDialog>
         )}
       </div>
     </Shell>
@@ -916,10 +967,10 @@ function ProceduresDirectory() {
       <div className="space-y-8">
         <div className="max-w-2xl space-y-3">
           <h1 className="text-3xl sm:text-4xl font-extrabold font-heading text-slate-900">
-            Directorio Oficial de Trámites
+            Directorio de Trámites
           </h1>
           <p className="text-slate-600 text-base">
-            Explora el catálogo verificado con los requisitos y canales oficiales de las entidades públicas de Colombia.
+            Explora el catálogo de orientación con requisitos y canales oficiales de las entidades públicas de Colombia.
           </p>
         </div>
 
@@ -929,6 +980,7 @@ function ProceduresDirectory() {
             type="text"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
+            aria-label="Buscar trámites"
             placeholder="Buscar por trámite, entidad o palabra clave..."
             className="w-full sm:max-w-md px-4 py-3 rounded-2xl border border-slate-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-sm"
           />
@@ -941,7 +993,7 @@ function ProceduresDirectory() {
                 onClick={() => setCategoryFilter(cat)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                   categoryFilter === cat
-                    ? "bg-brand-600 text-white shadow-sm"
+                    ? "bg-brand-700 text-white shadow-sm"
                     : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
                 }`}
               >
@@ -963,10 +1015,10 @@ function ProceduresDirectory() {
                   <span className="font-bold px-2 py-0.5 rounded bg-brand-50 text-brand-700">
                     {proc.category ?? "General"}
                   </span>
-                  <span className="text-slate-400">Verificado</span>
+                  <span className="text-slate-600">Verificado</span>
                 </div>
                 <h3 className="font-bold text-base text-slate-900">{proc.title}</h3>
-                <p className="text-xs font-semibold text-slate-500">{proc.entity}</p>
+                <p className="text-xs font-semibold text-slate-600">{proc.entity}</p>
                 <p className="text-xs text-slate-600 line-clamp-3">{proc.description}</p>
               </div>
 
@@ -983,7 +1035,7 @@ function ProceduresDirectory() {
                     href={proc.sourceUrls[0]}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-slate-400 hover:text-slate-600 underline"
+                    className="text-slate-600 hover:text-slate-600 underline"
                   >
                     gov.co ↗
                   </a>
@@ -995,7 +1047,7 @@ function ProceduresDirectory() {
 
         {/* Modal de Detalle */}
         {selected && (
-          <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <AccessibleDialog label="Detalles del tramite" onClose={() => setSelected(null)}>
             <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl">
               <div className="flex items-start justify-between">
                 <div>
@@ -1007,7 +1059,7 @@ function ProceduresDirectory() {
                 <button
                   type="button"
                   onClick={() => setSelected(null)}
-                  className="p-2 rounded-full hover:bg-slate-100 text-slate-500 font-bold"
+                  className="p-2 rounded-full hover:bg-slate-100 text-slate-600 font-bold"
                 >
                   ✕
                 </button>
@@ -1032,7 +1084,7 @@ function ProceduresDirectory() {
                 <ol className="space-y-2">
                   {selected.steps.map((s, i) => (
                     <li key={i} className="text-sm text-slate-700 flex items-start gap-3 bg-slate-50 p-3 rounded-xl">
-                      <span className="w-5 h-5 rounded-full bg-brand-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                      <span className="w-5 h-5 rounded-full bg-brand-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
                         {i + 1}
                       </span>
                       <span>{s}</span>
@@ -1054,14 +1106,14 @@ function ProceduresDirectory() {
                     href={selected.sourceUrls[0]}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold"
+                    className="px-6 py-2.5 rounded-xl bg-brand-700 hover:bg-brand-700 text-white text-sm font-bold"
                   >
                     Portal Oficial (.gov.co) ↗
                   </a>
                 )}
               </div>
             </div>
-          </div>
+          </AccessibleDialog>
         )}
       </div>
     </Shell>
@@ -1074,7 +1126,7 @@ function ProceduresDirectory() {
 function Privacy() {
   const [anonId, setAnonId] = useState("");
   const [consents, setConsents] = useState<ConsentState>({
-    conversation_context: true,
+    conversation_context: false,
     analytics: false,
     usability_research: false
   });
@@ -1082,15 +1134,15 @@ function Privacy() {
   const [statusMsg, setStatusMsg] = useState("");
 
   useEffect(() => {
-    const id = getOrCreateAnonymousId();
+    void ensureProfile().then(id => {
     setAnonId(id);
 
-    profileApi
+    return profileApi
       .get(`/api/v1/profiles/${id}/consents`)
       .then((res) => {
         const list: Array<{ purpose: string; granted: boolean }> = res.data.consents ?? [];
         const next: ConsentState = {
-          conversation_context: true,
+          conversation_context: false,
           analytics: false,
           usability_research: false
         };
@@ -1101,12 +1153,13 @@ function Privacy() {
         }
         setConsents(next);
       })
-      .catch(() => {});
+      .catch(error => setStatusMsg(apiError(error)));
+    }).catch(error => setStatusMsg(apiError(error)));
   }, []);
 
   const toggleConsent = async (purpose: keyof ConsentState) => {
     const nextVal = !consents[purpose];
-    setConsents((prev) => ({ ...prev, [purpose]: nextVal }));
+
 
     try {
       await profileApi.post(`/api/v1/profiles/${anonId}/consents`, {
@@ -1114,6 +1167,7 @@ function Privacy() {
         granted: nextVal,
         version: "1.0"
       });
+      setConsents((prev) => ({ ...prev, [purpose]: nextVal }));
       setStatusMsg(`Consentimiento '${purpose}' actualizado a: ${nextVal ? "Aceptado" : "Revocado"}`);
       setTimeout(() => setStatusMsg(""), 3000);
     } catch {
@@ -1123,7 +1177,8 @@ function Privacy() {
 
   const handleDownloadDossier = async () => {
     try {
-      const res = await profileApi.get(`/api/v1/profiles/${anonId}/export`);
+      const id = await ensureProfile();
+      const res = await profileApi.get(`/api/v1/profiles/${id}/export`);
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(res.data, null, 2));
       const downloadAnchor = document.createElement("a");
       downloadAnchor.setAttribute("href", dataStr);
@@ -1145,23 +1200,25 @@ function Privacy() {
     ) {
       try {
         await profileApi.delete(`/api/v1/profiles/${anonId}/data`);
-        localStorage.clear();
-        setAnonId(getOrCreateAnonymousId());
+        for (const key of Object.keys(localStorage)) if (key.startsWith("ciudadano_")) localStorage.removeItem(key);
+        for (const key of Object.keys(sessionStorage)) if (key.startsWith("ciudadano_")) sessionStorage.removeItem(key);
+        setAnonId(await ensureProfile());
         setConsents({ conversation_context: false, analytics: false, usability_research: false });
         setDossier(null);
-        alert("Tus datos han sido eliminados de acuerdo a la Ley 1581 de Habeas Data.");
+        setStatusMsg("Datos eliminados. Conserva el comprobante de la operación.");
       } catch {
-        alert("Error al procesar la solicitud de eliminación.");
+        setStatusMsg("Error al procesar la solicitud de eliminación.");
       }
     }
   };
 
   const handleViewDossier = async () => {
     try {
-      const res = await profileApi.get(`/api/v1/profiles/${anonId}/export`);
+      const id = await ensureProfile();
+      const res = await profileApi.get(`/api/v1/profiles/${id}/export`);
       setDossier(res.data);
-    } catch {
-      setStatusMsg("Perfil no encontrado.");
+    } catch (error) {
+      setStatusMsg(apiError(error));
     }
   };
 
@@ -1173,8 +1230,7 @@ function Privacy() {
             Centro de Privacidad y Control Ciudadano
           </h1>
           <p className="text-slate-600 text-base leading-relaxed">
-            En cumplimiento de la Ley Estatutaria 1581 de 2012 (Habeas Data) y estándares internacionales ISO 27001 / ISO
-            25010, tú tienes control absoluto sobre tus datos en todo momento.
+            Puedes consultar, exportar o eliminar tus datos y revocar cada consentimiento desde este centro.
           </p>
         </div>
 
@@ -1187,7 +1243,7 @@ function Privacy() {
         {/* Tarjeta de Identificador Anónimo */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tu identificador de sesión</span>
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Tu identificador de sesión</span>
             <span className="text-xs px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 font-mono">
               ID Anónimo
             </span>
@@ -1197,45 +1253,48 @@ function Privacy() {
             {anonId}
           </div>
 
-          <p className="text-xs text-slate-500">
-            Este identificador es efímero y se genera en tu navegador. No está asociado a tu cédula, nombre, IP ni correo electrónico.
+          <p className="text-xs text-slate-600">
+            El servidor genera un identificador aleatorio para tu perfil. El perfil caduca a los treinta días; las conversaciones, tras quince minutos sin actividad. La identidad para seguimiento requiere una verificación aparte.
           </p>
         </div>
 
         {/* Acciones de Derechos Ciudadanos */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <button
+            disabled={!anonId}
             type="button"
             onClick={handleViewDossier}
             className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-brand-400 shadow-sm text-left space-y-2 group transition-all"
           >
             <div className="text-2xl">🔍</div>
-            <h3 className="font-bold text-base text-slate-900 group-hover:text-brand-600 font-heading">
+            <h3 className="font-bold text-base text-slate-900 group-hover:text-brand-700 font-heading">
               1. Consultar datos
             </h3>
-            <p className="text-xs text-slate-500">Ver en pantalla la información y consentimientos activos.</p>
+            <p className="text-xs text-slate-600">Ver en pantalla la información y consentimientos activos.</p>
           </button>
 
           <button
+            disabled={!anonId}
             type="button"
             onClick={handleDownloadDossier}
             className="bg-white p-6 rounded-2xl border border-slate-200 hover:border-brand-400 shadow-sm text-left space-y-2 group transition-all"
           >
             <div className="text-2xl">📥</div>
-            <h3 className="font-bold text-base text-slate-900 group-hover:text-brand-600 font-heading">
+            <h3 className="font-bold text-base text-slate-900 group-hover:text-brand-700 font-heading">
               2. Descargar copia
             </h3>
-            <p className="text-xs text-slate-500">Descargar expediente completo en formato estándar JSON.</p>
+            <p className="text-xs text-slate-600">Descargar expediente completo en formato estándar JSON.</p>
           </button>
 
           <button
+            disabled={!anonId}
             type="button"
             onClick={handlePurgeData}
             className="bg-white p-6 rounded-2xl border border-rose-200 hover:border-rose-400 shadow-sm text-left space-y-2 group transition-all"
           >
             <div className="text-2xl">🗑️</div>
             <h3 className="font-bold text-base text-rose-600 font-heading">3. Eliminar todo</h3>
-            <p className="text-xs text-slate-500">Borrado definitivo y revocación de cualquier registro.</p>
+            <p className="text-xs text-slate-600">Borrado definitivo y revocación de cualquier registro.</p>
           </button>
         </div>
 
@@ -1245,9 +1304,10 @@ function Privacy() {
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-lg font-heading text-brand-300">Expediente de Datos Anonimizados</h3>
               <button
+            disabled={!anonId}
                 type="button"
                 onClick={() => setDossier(null)}
-                className="text-slate-400 hover:text-white text-sm"
+                className="text-slate-600 hover:text-white text-sm"
               >
                 Cerrar ✕
               </button>
@@ -1262,7 +1322,7 @@ function Privacy() {
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
           <div className="space-y-1">
             <h3 className="text-xl font-bold font-heading text-slate-900">Consentimiento Granular</h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               Puedes autorizar o revocar cada finalidad de forma independiente.
             </p>
           </div>
@@ -1293,15 +1353,16 @@ function Privacy() {
                 >
                   <div className="space-y-1">
                     <h4 className="font-bold text-sm text-slate-900">{c.title}</h4>
-                    <p className="text-xs text-slate-500">{c.desc}</p>
+                    <p className="text-xs text-slate-600">{c.desc}</p>
                   </div>
 
                   <button
+            disabled={!anonId}
                     type="button"
                     onClick={() => toggleConsent(c.id as keyof ConsentState)}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       active
-                        ? "bg-brand-600 text-white shadow-sm"
+                        ? "bg-brand-700 text-white shadow-sm"
                         : "bg-slate-200 text-slate-700 hover:bg-slate-300"
                     }`}
                   >
@@ -1321,13 +1382,13 @@ function Privacy() {
 // COMPONENTE 5: PANEL DE ADMINISTRACIÓN
 // -------------------------------------------------------------
 function Admin() {
-  const [token, setToken] = useState<string>(() => localStorage.getItem("ciudadano_jwt") ?? "");
+  const [token, setToken] = useState<string>(() => sessionStorage.getItem("ciudadano_jwt") ?? "");
   const [user, setUser] = useState<any>(() => {
     const saved = localStorage.getItem("ciudadano_admin_user");
     return saved ? JSON.parse(saved) : null;
   });
   const [email, setEmail] = useState("admin@ciudadano.gov.co");
-  const [password, setPassword] = useState("AdminCiudadano2026!");
+  const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
   const [activeTab, setActiveTab] = useState<"metrics" | "procedures" | "audit" | "nlp">("metrics");
 
@@ -1367,7 +1428,8 @@ function Admin() {
       const res = await authApi.post("/api/v1/auth/login", { email, password });
       setToken(res.data.accessToken);
       setUser(res.data.user);
-      localStorage.setItem("ciudadano_jwt", res.data.accessToken);
+      sessionStorage.setItem("ciudadano_jwt", res.data.accessToken);
+      sessionStorage.setItem("ciudadano_admin_refresh", res.data.refreshToken);
       localStorage.setItem("ciudadano_admin_user", JSON.stringify(res.data.user));
     } catch (err: any) {
       setLoginError(err.response?.data?.error?.message ?? "Error de autenticación. Verifica las credenciales.");
@@ -1375,9 +1437,12 @@ function Admin() {
   };
 
   const handleLogout = () => {
+    const refreshToken=sessionStorage.getItem("ciudadano_admin_refresh");
+    if (refreshToken) void authApi.post("/api/v1/auth/logout",{refreshToken}).catch(()=>{});
+    sessionStorage.removeItem("ciudadano_admin_refresh");
     setToken("");
     setUser(null);
-    localStorage.removeItem("ciudadano_jwt");
+    sessionStorage.removeItem("ciudadano_jwt");
     localStorage.removeItem("ciudadano_admin_user");
   };
 
@@ -1389,7 +1454,7 @@ function Admin() {
         auditApi.get("/api/v1/audit/stats"),
         nlpApi.get("/api/v1/models/current"),
         nlpApi.get("/api/v1/models/metrics"),
-        api.get("/api/v1/conversations/metrics/summary").catch(() => ({ data: { activeSessions: 1, totalMessages: 2 } }))
+        api.get("/api/v1/conversations/metrics/summary")
       ]);
 
       setProcedures(procRes.data.procedures ?? []);
@@ -1401,7 +1466,7 @@ function Admin() {
         conversations: convRes.data,
         proceduresCount: procRes.data.procedures?.length ?? 0
       });
-    } catch {}
+    } catch (error) { setLoginError(apiError(error)); }
   };
 
   const handleVerifyIntegrity = async () => {
@@ -1419,7 +1484,7 @@ function Admin() {
     }
 
     try {
-      await recommendationApi.post("/api/v1/procedures", {
+      await recommendationApi.request({ method: newProc.version ? "put" : "post", url: newProc.version ? `/api/v1/procedures/${newProc.id}` : "/api/v1/procedures", data: {
         ...newProc,
         requirements: Array.isArray(newProc.requirements)
           ? newProc.requirements
@@ -1430,9 +1495,10 @@ function Admin() {
         sourceUrls: Array.isArray(newProc.sourceUrls)
           ? newProc.sourceUrls
           : String(newProc.sourceUrls ?? "").split("\n").filter(Boolean),
-        channels: ["Portal Web Oficial"],
-        published: true
-      });
+        channels: newProc.channels?.length ? newProc.channels : ["Portal Web Oficial"],
+        cost: newProc.cost, estimatedTime: newProc.estimatedTime, hours: newProc.hours, verifiedAt: newProc.verifiedAt,
+        published: newProc.published ?? true
+      } });
       setShowProcModal(false);
       await loadAdminData();
       alert("Trámite creado exitosamente.");
@@ -1442,7 +1508,7 @@ function Admin() {
   };
 
   const handleDeleteProcedure = async (id: string) => {
-    if (window.confirm("¿Seguro que deseas eliminar este trámite?")) {
+    if (window.confirm("¿Deseas desactivar este trámite conservando sus versiones?")) {
       try {
         await recommendationApi.delete(`/api/v1/procedures/${id}`);
         await loadAdminData();
@@ -1459,7 +1525,7 @@ function Admin() {
               🔐
             </div>
             <h1 className="text-2xl font-bold font-heading text-slate-900">Portal de Administración</h1>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-600">
               Acceso restringido para gestores de catálogo, auditores e ingenieros de IA.
             </p>
           </div>
@@ -1501,7 +1567,7 @@ function Admin() {
 
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-sm shadow-md transition-all"
+              className="w-full py-3.5 rounded-xl bg-brand-700 hover:bg-brand-500 text-white font-bold text-sm shadow-md transition-all"
             >
               Iniciar Sesión con JWT
             </button>
@@ -1513,7 +1579,7 @@ function Admin() {
                   setEmail("admin@ciudadano.gov.co");
                   setPassword("AdminCiudadano2026!");
                 }}
-                className="text-xs font-bold text-brand-600 hover:underline"
+                className="text-xs font-bold text-brand-700 hover:underline"
               >
                 Cargar credenciales de administrador demo
               </button>
@@ -1534,7 +1600,7 @@ function Admin() {
               Panel Administrativo • Ciudadano AI
             </span>
             <h1 className="text-2xl sm:text-3xl font-bold font-heading">{user?.name ?? "Administrador"}</h1>
-            <p className="text-xs text-slate-400 font-mono">{user?.email} • Roles: {user?.roles?.join(", ")}</p>
+            <p className="text-xs text-slate-600 font-mono">{user?.email} • Roles: {user?.roles?.join(", ")}</p>
           </div>
 
           <div className="flex items-center gap-2">
@@ -1569,7 +1635,7 @@ function Admin() {
               onClick={() => setActiveTab(tab.id as any)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeTab === tab.id
-                  ? "bg-brand-600 text-white shadow-sm"
+                  ? "bg-brand-700 text-white shadow-sm"
                   : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
               }`}
             >
@@ -1578,48 +1644,55 @@ function Admin() {
           ))}
         </div>
 
+        {loginError && <p role="alert" className="text-rose-800">{loginError}</p>}
         {/* PESTAÑA 1: RESUMEN Y MÉTRICAS */}
         {activeTab === "metrics" && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase">Trámites en Catálogo</span>
+                <span className="text-xs font-bold text-slate-600 uppercase">Trámites en Catálogo</span>
                 <p className="text-3xl font-extrabold font-heading text-slate-900">{procedures.length}</p>
-                <span className="text-xs text-emerald-600 font-semibold">100% verificados con .gov.co</span>
+                <span className="text-xs text-emerald-600 font-semibold">Fuentes HTTPS .gov.co; vigencia por revisar</span>
               </div>
 
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase">Eventos de Auditoría</span>
+                <span className="text-xs font-bold text-slate-600 uppercase">Eventos de Auditoría</span>
                 <p className="text-3xl font-extrabold font-heading text-slate-900">{stats?.audit?.totalEvents ?? 0}</p>
                 <span className="text-xs text-blue-600 font-semibold">Cadena criptográfica activa</span>
               </div>
 
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase">Precisión PLN (Evaluación)</span>
+                <span className="text-xs font-bold text-slate-600 uppercase">Precisión PLN (Evaluación)</span>
                 <p className="text-3xl font-extrabold font-heading text-emerald-600">
-                  {nlpMetrics?.evaluation?.accuracy ? `${(nlpMetrics.evaluation.accuracy * 100).toFixed(1)}%` : "93.3%"}
+                  {nlpMetrics?.evaluation?.accuracy ? `${(nlpMetrics.evaluation.accuracy * 100).toFixed(1)}%` : "Pendiente"}
                 </p>
-                <span className="text-xs text-slate-500 font-semibold">F1-Macro: 0.935</span>
+                <span className="text-xs text-slate-600 font-semibold">F1-Macro: {nlpMetrics?.evaluation?.f1Macro?.toFixed(3) ?? "Pendiente"}</span>
               </div>
 
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-                <span className="text-xs font-bold text-slate-400 uppercase">Tiempo Medio Inferencia</span>
+                <span className="text-xs font-bold text-slate-600 uppercase">Tiempo Medio Inferencia</span>
                 <p className="text-3xl font-extrabold font-heading text-slate-900">
                   {nlpMetrics?.evaluation?.inferenceTimeMs?.mean
                     ? `${nlpMetrics.evaluation.inferenceTimeMs.mean.toFixed(2)} ms`
-                    : "< 1 ms"}
+                    : "Pendiente"}
                 </p>
-                <span className="text-xs text-purple-600 font-semibold">Inferencia ultrarrápida</span>
+                <span className="text-xs text-purple-600 font-semibold">Medición registrada por evaluación</span>
               </div>
             </div>
 
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
+              {stats?.conversations && <section className="space-y-3" aria-labelledby="session-stats">
+                <h3 id="session-stats" className="font-bold">Actividad de orientación</h3>
+                <p>Sesiones: {stats.conversations.totalSessions} · Activas: {stats.conversations.activeSessions} · Mensajes: {stats.conversations.totalMessages}</p>
+                <p>Derivaciones: {(stats.conversations.referralRate * 100).toFixed(1)}% · Latencia media: {stats.conversations.meanLatencyMs === null ? "Sin mensajes" : stats.conversations.meanLatencyMs.toFixed(1) + " ms"}</p>
+                <ul>{Object.entries(stats.conversations.intentDistribution).map(([intent,count]) => <li key={intent}>{intent}: {String(count)}</li>)}</ul>
+              </section>}
               <h3 className="font-bold text-lg font-heading text-slate-900">Distribución de Eventos por Tipo</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {stats?.audit?.byType &&
                   Object.entries(stats.audit.byType).map(([key, val]: any) => (
                     <div key={key} className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                      <span className="text-xs font-mono text-slate-500 block truncate">{key}</span>
+                      <span className="text-xs font-mono text-slate-600 block truncate">{key}</span>
                       <span className="text-lg font-bold text-slate-900">{val}</span>
                     </div>
                   ))}
@@ -1649,7 +1722,7 @@ function Admin() {
                   });
                   setShowProcModal(true);
                 }}
-                className="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-sm"
+                className="px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-500 text-white font-bold text-xs shadow-sm"
               >
                 + Nuevo Trámite
               </button>
@@ -1677,15 +1750,17 @@ function Admin() {
                             {proc.category ?? "General"}
                           </span>
                         </td>
-                        <td className="p-4 text-slate-500">{proc.requirements?.length ?? 0} ítems</td>
+                        <td className="p-4 text-slate-600">{proc.requirements?.length ?? 0} ítems</td>
                         <td className="p-4">
                           <button
                             type="button"
                             onClick={() => handleDeleteProcedure(proc.id)}
                             className="text-rose-600 hover:text-rose-800 font-bold"
                           >
-                            Eliminar
+                            Desactivar
                           </button>
+                          <button type="button" className="ml-3 text-brand-700 underline" onClick={() => { setNewProc(proc); setShowProcModal(true); }}>Editar v{proc.version ?? 1}</button>
+                          <button type="button" className="ml-3 underline" onClick={async () => { try { const res = await recommendationApi.get(`/api/v1/procedures/${proc.id}/versions`); alert(res.data.versions.map((v: any) => `Versión ${v.version}: ${v.title} (${v.verifiedAt})`).join("\n")); } catch(error) { alert(apiError(error)); } }}>Versiones</button>
                         </td>
                       </tr>
                     ))}
@@ -1696,16 +1771,16 @@ function Admin() {
 
             {/* Modal para Crear Trámite */}
             {showProcModal && (
-              <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+              <AccessibleDialog label="Ficha de catalogo" onClose={() => setShowProcModal(false)}>
                 <form
                   onSubmit={handleSaveProcedure}
                   className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto"
                 >
-                  <h3 className="text-xl font-bold font-heading text-slate-900">Agregar Nuevo Trámite</h3>
+                  <h3 className="text-xl font-bold font-heading text-slate-900">{newProc.version ? "Editar ficha de trámite" : "Agregar nuevo trámite"}</h3>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Identificador Único</label>
-                    <input
+                    <label className="text-xs font-bold text-slate-700 uppercase" htmlFor="catalog-field-1">Identificador Único</label>
+                    <input id="catalog-field-1"
                       type="text"
                       value={newProc.id}
                       onChange={(e) => setNewProc({ ...newProc, id: e.target.value })}
@@ -1715,8 +1790,8 @@ function Admin() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Título del Trámite</label>
-                    <input
+                    <label className="text-xs font-bold text-slate-700 uppercase" htmlFor="catalog-field-2">Título del Trámite</label>
+                    <input id="catalog-field-2"
                       type="text"
                       value={newProc.title}
                       onChange={(e) => setNewProc({ ...newProc, title: e.target.value })}
@@ -1726,8 +1801,8 @@ function Admin() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Entidad Competente</label>
-                    <input
+                    <label className="text-xs font-bold text-slate-700 uppercase" htmlFor="catalog-field-3">Entidad Competente</label>
+                    <input id="catalog-field-3"
                       type="text"
                       value={newProc.entity}
                       onChange={(e) => setNewProc({ ...newProc, entity: e.target.value })}
@@ -1737,8 +1812,8 @@ function Admin() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Categoría</label>
-                    <input
+                    <label className="text-xs font-bold text-slate-700 uppercase" htmlFor="catalog-field-4">Categoría</label>
+                    <input id="catalog-field-4"
                       type="text"
                       value={newProc.category}
                       onChange={(e) => setNewProc({ ...newProc, category: e.target.value })}
@@ -1747,8 +1822,8 @@ function Admin() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Descripción y Orientación</label>
-                    <textarea
+                    <label className="text-xs font-bold text-slate-700 uppercase" htmlFor="catalog-field-5">Descripción y Orientación</label>
+                    <textarea id="catalog-field-5"
                       value={newProc.description}
                       onChange={(e) => setNewProc({ ...newProc, description: e.target.value })}
                       rows={2}
@@ -1757,8 +1832,9 @@ function Admin() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Requisitos (uno por línea)</label>
-                    <textarea
+                    <label className="text-xs font-bold text-slate-700 uppercase" htmlFor="catalog-field-6">Requisitos (uno por línea)</label>
+                    <textarea id="catalog-field-6"
+                      value={(newProc.requirements ?? []).join("\n")}
                       onChange={(e) => setNewProc({ ...newProc, requirements: e.target.value.split("\n") })}
                       rows={2}
                       className="w-full px-3 py-2 rounded-xl border text-xs font-mono"
@@ -1766,8 +1842,9 @@ function Admin() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">Pasos (uno por línea)</label>
-                    <textarea
+                    <label className="text-xs font-bold text-slate-700 uppercase" htmlFor="catalog-field-7">Pasos (uno por línea)</label>
+                    <textarea id="catalog-field-7"
+                      value={(newProc.steps ?? []).join("\n")}
                       onChange={(e) => setNewProc({ ...newProc, steps: e.target.value.split("\n") })}
                       rows={2}
                       className="w-full px-3 py-2 rounded-xl border text-xs font-mono"
@@ -1775,15 +1852,20 @@ function Admin() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase">URL Oficial (.gov.co)</label>
-                    <input
+                    <label className="text-xs font-bold text-slate-700 uppercase" htmlFor="catalog-field-8">URL Oficial (.gov.co o .mil.co)</label>
+                    <input id="catalog-field-8"
                       type="url"
+                      value={newProc.sourceUrls?.[0] ?? ""}
                       onChange={(e) => setNewProc({ ...newProc, sourceUrls: [e.target.value] })}
                       placeholder="https://www.entidad.gov.co/tramite"
                       className="w-full px-3 py-2 rounded-xl border text-xs"
                     />
                   </div>
 
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {([['cost','Costo o referencia a tarifa'],['estimatedTime','Tiempo estimado'],['hours','Horario del canal'],['verifiedAt','Fecha de revisión de la fuente']] as const).map(([field,label]) => <label className="block text-sm" key={field}>{label}<input required type={field === 'verifiedAt' ? 'date' : 'text'} value={String(newProc[field] ?? '')} onChange={e => setNewProc({ ...newProc, [field]: e.target.value })} className="block w-full border rounded-lg p-2" /></label>)}
+                    <label className="text-sm"><input type="checkbox" checked={newProc.published ?? true} onChange={e=>setNewProc({...newProc,published:e.target.checked})} /> Ficha publicada</label>
+                  </div>
                   <div className="flex items-center justify-end gap-2 pt-4">
                     <button
                       type="button"
@@ -1792,12 +1874,12 @@ function Admin() {
                     >
                       Cancelar
                     </button>
-                    <button type="submit" className="px-5 py-2 rounded-xl bg-brand-600 text-white font-bold text-xs">
+                    <button type="submit" className="px-5 py-2 rounded-xl bg-brand-700 text-white font-bold text-xs">
                       Guardar Trámite
                     </button>
                   </div>
                 </form>
-              </div>
+              </AccessibleDialog>
             )}
           </div>
         )}
@@ -1808,7 +1890,7 @@ function Admin() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-xl font-bold font-heading text-slate-900">Cadena Inmutable de Auditoría</h2>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-600">
                   Eventos sellados criptográficamente mediante algoritmo SHA-256 en cadena.
                 </p>
               </div>
@@ -1837,7 +1919,7 @@ function Admin() {
                       : `Alteración detectada en el bloque: ${auditIntegrity.brokenAt}`}
                   </span>
                 </div>
-                <span className="font-mono text-slate-400">{auditIntegrity.verifiedAt}</span>
+                <span className="font-mono text-slate-600">{auditIntegrity.verifiedAt}</span>
               </div>
             )}
 
@@ -1857,10 +1939,10 @@ function Admin() {
                       <tr key={evt.eventId} className="hover:bg-slate-50/80">
                         <td className="p-3 font-bold text-slate-900">{evt.eventType}</td>
                         <td className="p-3 text-slate-600">{evt.producer}</td>
-                        <td className="p-3 text-brand-600 font-mono text-[11px] truncate max-w-[200px]" title={evt.hash}>
+                        <td className="p-3 text-brand-700 font-mono text-[11px] truncate max-w-[200px]" title={evt.hash}>
                           {evt.hash?.substring(0, 16)}...
                         </td>
-                        <td className="p-3 text-slate-400">{evt.occurredAt}</td>
+                        <td className="p-3 text-slate-600">{evt.occurredAt}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -1874,7 +1956,7 @@ function Admin() {
         {activeTab === "nlp" && (
           <div className="space-y-6">
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-              <span className="text-xs font-bold text-brand-600 uppercase tracking-wider">
+              <span className="text-xs font-bold text-brand-700 uppercase tracking-wider">
                 Modelo de Clasificación Activo
               </span>
               <h2 className="text-2xl font-bold font-heading text-slate-900">
@@ -1883,16 +1965,16 @@ function Admin() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-xs">
                 <div className="p-3 bg-slate-50 rounded-xl">
-                  <span className="text-slate-400 block font-semibold">Arquitectura:</span>
-                  <span className="font-bold text-slate-800">{nlpModelInfo?.framework}</span>
+                  <span className="text-slate-600 block font-semibold">Arquitectura:</span>
+                  <span className="font-bold text-slate-800">{nlpModelInfo?.backend ?? "Pendiente"}</span>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl">
-                  <span className="text-slate-400 block font-semibold">Extracción de Características:</span>
-                  <span className="font-bold text-slate-800">{nlpModelInfo?.features}</span>
+                  <span className="text-slate-600 block font-semibold">Extracción de Características:</span>
+                  <span className="font-bold text-slate-800">{nlpModelInfo?.loaded ? "Modelo cargado" : "Sin checkpoint entrenado"}</span>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl">
-                  <span className="text-slate-400 block font-semibold">Corpus de Entrenamiento:</span>
-                  <span className="font-bold text-slate-800">{nlpModelInfo?.dataset}</span>
+                  <span className="text-slate-600 block font-semibold">Corpus de Entrenamiento:</span>
+                  <span className="font-bold text-slate-800">{nlpModelInfo?.academicResultsAvailable ? "Con evaluación disponible" : "Corpus académico pendiente"}</span>
                 </div>
               </div>
             </div>
@@ -1905,16 +1987,16 @@ function Admin() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {Object.entries(nlpMetrics.evaluation.perCategory ?? {})
-                    .filter(([k]) => !k.includes("avg"))
+                    .filter(([k, value]) => !k.includes("avg") && typeof value === "object" && value !== null)
                     .map(([intent, data]: any) => (
                       <div key={intent} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
                         <span className="font-bold text-xs text-slate-900 block truncate">{intent}</span>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Precisión:</span>
+                          <span className="text-slate-600">Precisión:</span>
                           <span className="font-bold text-emerald-600">{(data.precision * 100).toFixed(0)}%</span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-slate-500">Recall:</span>
+                          <span className="text-slate-600">Recall:</span>
                           <span className="font-bold text-emerald-600">{(data.recall * 100).toFixed(0)}%</span>
                         </div>
                         <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-200">
@@ -1936,7 +2018,7 @@ function Admin() {
 // -------------------------------------------------------------
 // ENRUTADOR PRINCIPAL
 // -------------------------------------------------------------
-function App() {
+export function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -1948,7 +2030,8 @@ function App() {
   );
 }
 
-createRoot(document.getElementById("root")!).render(
+const mount = document.getElementById("root");
+if (mount) createRoot(mount).render(
   <React.StrictMode>
     <BrowserRouter>
       <App />

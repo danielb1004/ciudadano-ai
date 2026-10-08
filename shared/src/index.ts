@@ -1,6 +1,6 @@
+import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
 import pino from "pino";
-import { Kafka, Producer } from "kafkajs";
 import { Redis } from "ioredis";
 import { z } from "zod";
 import { Pool } from "pg";
@@ -17,9 +17,9 @@ export const Intent = z.enum([
 export type Intent = z.infer<typeof Intent>;
 
 export interface ConversationMessage { role: "user" | "assistant" | "system"; content: string; createdAt: string; }
-export interface CitizenProfile { id: string; anonymous: boolean; preferences: { fontScale?: number; concise?: boolean }; techExperience?: string; consents: Consent[]; }
+export interface CitizenProfile { id: string; anonymous: boolean; preferences: { fontScale?: number; concise?: boolean; highContrast?: boolean; speechEnabled?: boolean }; techExperience?: string; consents: Consent[]; }
 export interface Consent { id: string; purpose: string; granted: boolean; version: string; createdAt: string; revokedAt?: string; }
-export interface Recommendation { id: string; title: string; entity: string; description: string; requirements: string[]; steps: string[]; channels: string[]; sourceUrls: string[]; verifiedAt: string; published: boolean; score?: number; }
+export interface Recommendation { id: string; title: string; entity: string; description: string; requirements: string[]; steps: string[]; channels: string[]; sourceUrls: string[]; verifiedAt: string; published: boolean; score?: number; category?: string; cost?: string; estimatedTime?: string; hours?: string; version?: number; stale?: boolean; }
 export interface WorkflowError { code: string; message: string; retryable: boolean; }
 export interface ConversationState {
   conversationId: string; anonymousUserId?: string; messages: ConversationMessage[]; currentMessage: string;
@@ -38,25 +38,20 @@ export const makeEvent = (eventType: string, producer: string, payload: Record<s
   eventId: randomUUID(), eventType, eventVersion: "1.0", occurredAt: new Date().toISOString(), correlationId, conversationId, producer, payload
 });
 
-let producer: Producer | undefined;
 export async function publishEvent(event: EventEnvelope): Promise<void> {
   eventSchema.parse(event);
-  const brokers = (process.env.KAFKA_BROKERS ?? "").split(",").filter(Boolean);
-  if (!brokers.length) { logger.info({ eventType: event.eventType, eventId: event.eventId }, "event buffered (Kafka not configured)"); return; }
-  producer ??= new Kafka({ clientId: `${event.producer}-client`, brokers }).producer();
-  const topic = event.eventType.replaceAll(".", "-");
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try { await producer.connect(); await producer.send({ topic, messages: [{ key: event.eventId, value: JSON.stringify(event) }] }); return; }
-    catch (error) { logger.warn({ err: error, eventType: event.eventType, attempt }, "event publish retry"); await new Promise((resolve) => setTimeout(resolve, 100 * 2 ** attempt)); }
-  }
-  try { await producer.send({ topic: `${topic}.DLQ`, messages: [{ key: event.eventId, value: JSON.stringify(event) }] }); } catch (error) { logger.error({ err: error, eventId: event.eventId }, "event DLQ unavailable"); }
+  if (process.env.KAFKA_BROKERS) { await (await import("./events.js")).enqueueEvent(event); return; }
+  if (process.env.AUDIT_URL && event.producer !== "audit-service") {
+    const response = await fetch(process.env.AUDIT_URL + "/internal/events", { method: "POST", headers: { "content-type": "application/json", "x-internal-key": process.env.INTERNAL_API_KEY ?? "" }, body: JSON.stringify(event), signal: AbortSignal.timeout(3000) });
+    if (!response.ok) throw new Error("Audit persistence unavailable");
+  } else logger.info({ eventType: event.eventType, eventId: event.eventId }, "event (local mode without audit collector)");
 }
 
 export const redis = process.env.REDIS_URL ? new Redis(process.env.REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 1 }) : undefined;
-export const postgres = process.env.POSTGRES_HOST ? new Pool({ host: process.env.POSTGRES_HOST, port: Number(process.env.POSTGRES_PORT ?? 5432), user: process.env.POSTGRES_USER, password: process.env.POSTGRES_PASSWORD, database: process.env.POSTGRES_DB }) : undefined;
+export const postgres = process.env.POSTGRES_HOST ? new Pool({ host: process.env.POSTGRES_HOST, port: Number(process.env.POSTGRES_PORT ?? 5432), user: process.env.POSTGRES_USER, password: process.env.POSTGRES_PASSWORD, database: process.env.POSTGRES_DB, ...(process.env.POSTGRES_SSL_CA ? { ssl: { rejectUnauthorized: true, ca: readFileSync(process.env.POSTGRES_SSL_CA, "utf8") } } : {}) }) : undefined;
 export async function query<T extends Record<string, unknown> = Record<string, unknown>>(text: string, values: unknown[] = []): Promise<T[]> { if (!postgres) return []; const result = await postgres.query<T>(text, values); return result.rows; }
-export async function cacheJson(key: string, value: unknown, ttlSeconds = 900): Promise<void> { if (!redis) return; await redis.set(key, JSON.stringify(value), "EX", ttlSeconds); }
-export async function readJson<T>(key: string): Promise<T | undefined> { if (!redis) return; const value = await redis.get(key); return value ? JSON.parse(value) as T : undefined; }
+export async function cacheJson(key: string, value: unknown, ttlSeconds = 900): Promise<void> { if (!redis) return; await redis.set(key, (await import("./store.js")).encode(value), "EX", ttlSeconds); }
+export async function readJson<T>(key: string): Promise<T | undefined> { if (!redis) return; const value = await redis.get(key); return value ? (await import("./store.js")).decode<T>(value) : undefined; }
 
 export class CircuitBreaker {
   private failures = 0; private openedAt = 0; private state: "CLOSED" | "OPEN" | "HALF_OPEN" = "CLOSED";
@@ -70,9 +65,15 @@ export class CircuitBreaker {
 }
 
 export const anonymize = (input: string) => input
+  .replace(/(?:\+?57[ .-]?)?3(?:[ .-]?\d){9}\b/g, "[PHONE_REDACTED]")
   .replace(/\b\d{6,12}\b/g, "[ID_REDACTED]")
   .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g, "[EMAIL_REDACTED]")
   .replace(/\+?57\s?3\d{9}/g, "[PHONE_REDACTED]");
 
 export const errorBody = (code: string, message: string, correlationId: string) => ({ error: { code, message, correlationId } });
 export * from "./http.js";
+
+export * from "./security.js";
+export * from "./store.js";
+
+export * from "./catalog.js";

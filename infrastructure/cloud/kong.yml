@@ -1,0 +1,56 @@
+_format_version: '3.0'
+services:
+- name: conversation
+  url: http://conversation:3001
+  routes:
+  - name: conversation-route
+    paths:
+    - /api/v1/conversations
+    strip_path: false
+- name: nlp
+  url: http://nlp:8001
+  routes:
+  - name: nlp-route
+    paths:
+    - /api/v1/models
+    strip_path: false
+- name: catalog
+  url: http://catalog:3002
+  routes:
+  - name: catalog-route
+    paths:
+    - /api/v1/procedures
+    - /api/v1/entities
+    - /api/v1/categories
+    - /api/v1/requests
+    strip_path: false
+- name: recommendation
+  url: http://recommendation:3003
+  routes:
+  - name: recommendation-route
+    paths:
+    - /api/v1/recommendations
+    strip_path: false
+- name: auth
+  url: http://auth:3004
+  routes:
+  - name: auth-route
+    paths:
+    - /api/v1/auth
+    - /api/v1/profiles
+    strip_path: false
+- name: audit
+  url: http://audit:3005
+  routes:
+  - name: audit-route
+    paths:
+    - /api/v1/audit
+    strip_path: false
+plugins:
+- name: correlation-id
+- name: rate-limiting
+  config:
+    minute: 60
+    policy: redis
+    redis_host: redis
+    redis_port: 6379

@@ -1,0 +1,1193 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ciudadano-ai
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ciudadano-config
+  namespace: ciudadano-ai
+data:
+  NODE_ENV: production
+  MODEL_VERSION: beto-synthetic-v1-onnx-fp32
+  REDIS_URL: redis://redis:6379
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: ciudadano_ai
+  POSTGRES_USER: ciudadano
+  KAFKA_BROKERS: kafka:9092
+  NLP_URL: http://nlp-service:8001
+  CATALOG_URL: http://catalog-service:3002
+  RECOMMENDATION_URL: http://recommendation-service:3003
+  CONVERSATION_URL: http://conversation-service:3001
+  AUTH_URL: http://auth-service:3004
+  AUDIT_URL: http://audit-service:3005
+  PUBLIC_ORIGIN: https://ciudadano-ai.3-142-230-27.sslip.io
+  INSTITUTIONAL_MODE: mock
+  TRUSTED_PROXIES: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+  DEPLOYMENT_MODE: academic
+  BETO_RUNTIME: onnx
+  NLP_CPU_THREADS: '2'
+  LOG_LEVEL: warn
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: conversation-service
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: conversation-service
+  template:
+    metadata:
+      labels:
+        app: conversation-service
+    spec:
+      containers:
+      - name: conversation
+        image: ciudadano-ai/conversation-service:aws-v1
+        ports:
+        - containerPort: 3001
+        envFrom:
+        - configMapRef:
+            name: ciudadano-config
+        - secretRef:
+            name: ciudadano-secrets
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3001
+          initialDelaySeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3001
+          initialDelaySeconds: 10
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        imagePullPolicy: IfNotPresent
+      initContainers:
+      - name: wait-postgres
+        image: ciudadano-ai/conversation-service:aws-v1
+        imagePullPolicy: IfNotPresent
+        command:
+        - node
+        - -e
+        - const net=require('node:net');function check(){const s=net.createConnection({host:'postgres',port:5432});s.setTimeout(2000);s.on('connect',()=>{s.destroy();process.exit(0)});s.on('timeout',()=>s.destroy(new
+          Error('timeout')));s.on('error',()=>{s.destroy();setTimeout(check,1000)})}check()
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: conversation-service
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: conversation-service
+  ports:
+  - port: 3001
+    targetPort: 3001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nlp-service
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nlp-service
+  template:
+    metadata:
+      labels:
+        app: nlp-service
+    spec:
+      containers:
+      - name: nlp
+        image: ciudadano-ai/nlp-service:aws-v2
+        ports:
+        - containerPort: 8001
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8001
+          initialDelaySeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8001
+          initialDelaySeconds: 15
+        resources:
+          requests:
+            cpu: 250m
+            memory: 512Mi
+          limits:
+            cpu: 1500m
+            memory: 2Gi
+        envFrom:
+        - configMapRef:
+            name: ciudadano-config
+        - secretRef:
+            name: ciudadano-secrets
+        env:
+        - name: NLP_BACKEND
+          value: beto
+        - name: BETO_MODEL_PATH
+          value: /models/beto-synthetic-v1
+        volumeMounts:
+        - name: models
+          mountPath: /models
+          readOnly: true
+        imagePullPolicy: IfNotPresent
+        startupProbe:
+          httpGet:
+            path: /ready
+            port: 8001
+          periodSeconds: 5
+          failureThreshold: 60
+      volumes:
+      - name: models
+        hostPath:
+          path: /home/ubuntu/ciudadano-ai/ml/models
+          type: Directory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nlp-service
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: nlp-service
+  ports:
+  - port: 8001
+    targetPort: 8001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-service
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: catalog-service
+  template:
+    metadata:
+      labels:
+        app: catalog-service
+    spec:
+      containers:
+      - name: catalog
+        image: ciudadano-ai/catalog-service:aws-v1
+        ports:
+        - containerPort: 3002
+        envFrom:
+        - configMapRef:
+            name: ciudadano-config
+        - secretRef:
+            name: ciudadano-secrets
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3002
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3002
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        imagePullPolicy: IfNotPresent
+      initContainers:
+      - name: wait-postgres
+        image: ciudadano-ai/catalog-service:aws-v1
+        imagePullPolicy: IfNotPresent
+        command:
+        - node
+        - -e
+        - const net=require('node:net');function check(){const s=net.createConnection({host:'postgres',port:5432});s.setTimeout(2000);s.on('connect',()=>{s.destroy();process.exit(0)});s.on('timeout',()=>s.destroy(new
+          Error('timeout')));s.on('error',()=>{s.destroy();setTimeout(check,1000)})}check()
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog-service
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: catalog-service
+  ports:
+  - port: 3002
+    targetPort: 3002
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendation-service
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recommendation-service
+  template:
+    metadata:
+      labels:
+        app: recommendation-service
+    spec:
+      containers:
+      - name: recommendation
+        image: ciudadano-ai/recommendation-service:aws-v1
+        ports:
+        - containerPort: 3003
+        envFrom:
+        - configMapRef:
+            name: ciudadano-config
+        - secretRef:
+            name: ciudadano-secrets
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3003
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3003
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        imagePullPolicy: IfNotPresent
+      initContainers:
+      - name: wait-postgres
+        image: ciudadano-ai/recommendation-service:aws-v1
+        imagePullPolicy: IfNotPresent
+        command:
+        - node
+        - -e
+        - const net=require('node:net');function check(){const s=net.createConnection({host:'postgres',port:5432});s.setTimeout(2000);s.on('connect',()=>{s.destroy();process.exit(0)});s.on('timeout',()=>s.destroy(new
+          Error('timeout')));s.on('error',()=>{s.destroy();setTimeout(check,1000)})}check()
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendation-service
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: recommendation-service
+  ports:
+  - port: 3003
+    targetPort: 3003
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth
+        image: ciudadano-ai/auth-service:aws-v1
+        ports:
+        - containerPort: 3004
+        envFrom:
+        - configMapRef:
+            name: ciudadano-config
+        - secretRef:
+            name: ciudadano-secrets
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3004
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3004
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        imagePullPolicy: IfNotPresent
+      initContainers:
+      - name: wait-postgres
+        image: ciudadano-ai/auth-service:aws-v1
+        imagePullPolicy: IfNotPresent
+        command:
+        - node
+        - -e
+        - const net=require('node:net');function check(){const s=net.createConnection({host:'postgres',port:5432});s.setTimeout(2000);s.on('connect',()=>{s.destroy();process.exit(0)});s.on('timeout',()=>s.destroy(new
+          Error('timeout')));s.on('error',()=>{s.destroy();setTimeout(check,1000)})}check()
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: auth-service
+  ports:
+  - port: 3004
+    targetPort: 3004
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: audit-service
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: audit-service
+  template:
+    metadata:
+      labels:
+        app: audit-service
+    spec:
+      containers:
+      - name: audit
+        image: ciudadano-ai/audit-service:aws-v1
+        ports:
+        - containerPort: 3005
+        envFrom:
+        - configMapRef:
+            name: ciudadano-config
+        - secretRef:
+            name: ciudadano-secrets
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3005
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3005
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        imagePullPolicy: IfNotPresent
+      initContainers:
+      - name: wait-postgres
+        image: ciudadano-ai/audit-service:aws-v1
+        imagePullPolicy: IfNotPresent
+        command:
+        - node
+        - -e
+        - const net=require('node:net');function check(){const s=net.createConnection({host:'postgres',port:5432});s.setTimeout(2000);s.on('connect',()=>{s.destroy();process.exit(0)});s.on('timeout',()=>s.destroy(new
+          Error('timeout')));s.on('error',()=>{s.destroy();setTimeout(check,1000)})}check()
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: audit-service
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: audit-service
+  ports:
+  - port: 3005
+    targetPort: 3005
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: ciudadano-ai/frontend:aws-v2
+        ports:
+        - containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: nginx
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf
+          readOnly: true
+      volumes:
+      - name: nginx
+        configMap:
+          name: frontend-nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: frontend
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kong
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kong
+  template:
+    metadata:
+      labels:
+        app: kong
+    spec:
+      containers:
+      - name: kong
+        image: kong:3.8
+        ports:
+        - containerPort: 8000
+        - containerPort: 8001
+        - containerPort: 8100
+        env:
+        - name: KONG_DATABASE
+          value: 'off'
+        - name: KONG_DECLARATIVE_CONFIG
+          value: /kong/kong.yml
+        - name: KONG_ADMIN_LISTEN
+          value: 'off'
+        - name: KONG_STATUS_LISTEN
+          value: 0.0.0.0:8100
+        - name: KONG_TRUSTED_IPS
+          value: 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+        - name: KONG_REAL_IP_HEADER
+          value: X-Forwarded-For
+        - name: KONG_REAL_IP_RECURSIVE
+          value: 'on'
+        readinessProbe:
+          httpGet:
+            path: /status
+            port: 8100
+        livenessProbe:
+          httpGet:
+            path: /status
+            port: 8100
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        volumeMounts:
+        - name: config
+          mountPath: /kong
+          readOnly: true
+        imagePullPolicy: IfNotPresent
+      volumes:
+      - name: config
+        configMap:
+          name: kong-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kong
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: kong
+  ports:
+  - name: proxy
+    port: 8000
+    targetPort: 8000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:7-alpine
+        ports:
+        - containerPort: 6379
+        args:
+        - --appendonly
+        - 'yes'
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 250m
+            memory: 256Mi
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        imagePullPolicy: IfNotPresent
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: redis-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data
+  namespace: ciudadano-ai
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: ciudadano-ai
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:16-alpine
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: ciudadano_ai
+        - name: POSTGRES_USER
+          value: ciudadano
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ciudadano-secrets
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/postgresql/data
+        - name: init
+          mountPath: /docker-entrypoint-initdb.d
+          readOnly: true
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - ciudadano
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 768Mi
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: postgres-data
+      - name: init
+        configMap:
+          name: database-init
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: apache/kafka:3.9.0
+        ports:
+        - containerPort: 9092
+        env:
+        - name: KAFKA_NODE_ID
+          value: '1'
+        - name: KAFKA_PROCESS_ROLES
+          value: broker,controller
+        - name: KAFKA_LISTENER_SECURITY_PROTOCOL_MAP
+          value: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+        - name: KAFKA_LISTENERS
+          value: PLAINTEXT://:9092,CONTROLLER://:9093
+        - name: KAFKA_ADVERTISED_LISTENERS
+          value: PLAINTEXT://kafka:9092
+        - name: KAFKA_CONTROLLER_LISTENER_NAMES
+          value: CONTROLLER
+        - name: KAFKA_CONTROLLER_QUORUM_VOTERS
+          value: 1@127.0.0.1:9093
+        - name: KAFKA_INTER_BROKER_LISTENER_NAME
+          value: PLAINTEXT
+        - name: KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR
+          value: '1'
+        - name: KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR
+          value: '1'
+        - name: KAFKA_TRANSACTION_STATE_LOG_MIN_ISR
+          value: '1'
+        - name: KAFKA_HEAP_OPTS
+          value: -Xms256m -Xmx512m
+        - name: KAFKA_LOG_DIRS
+          value: /tmp/kraft-combined-logs
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 750m
+            memory: 1Gi
+        volumeMounts:
+        - name: data
+          mountPath: /tmp/kraft-combined-logs
+        startupProbe:
+          exec: &id001
+            command:
+            - /opt/kafka/bin/kafka-broker-api-versions.sh
+            - --bootstrap-server
+            - 127.0.0.1:9092
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 30
+        readinessProbe:
+          exec: *id001
+          periodSeconds: 15
+          timeoutSeconds: 10
+          failureThreshold: 3
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: kafka-data
+      securityContext:
+        fsGroup: 1000
+  strategy:
+    type: Recreate
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+  namespace: ciudadano-ai
+spec:
+  selector:
+    app: kafka
+  ports:
+  - port: 9092
+    targetPort: 9092
+    name: broker
+  - name: controller
+    port: 9093
+    targetPort: 9093
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-data
+  namespace: ciudadano-ai
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: conversation-service
+  namespace: ciudadano-ai
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: conversation-service
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: catalog-service
+  namespace: ciudadano-ai
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: catalog-service
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: recommendation-service
+  namespace: ciudadano-ai
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: recommendation-service
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: auth-service
+  namespace: ciudadano-ai
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: auth-service
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: audit-service
+  namespace: ciudadano-ai
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: audit-service
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nlp-service
+  namespace: ciudadano-ai
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nlp-service
+  minReplicas: 1
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: internal-services
+  namespace: ciudadano-ai
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector: {}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: ingress-gateway
+  namespace: ciudadano-ai
+spec:
+  podSelector:
+    matchExpressions:
+    - key: app
+      operator: In
+      values:
+      - kong
+      - frontend
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: caddy
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-config
+  namespace: ciudadano-ai
+data:
+  kong.yml: "_format_version: '3.0'\nservices:\n- name: conversation\n  url: http://conversation-service:3001\n\
+    \  routes:\n  - name: conversation-route\n    paths:\n    - /api/v1/conversations\n\
+    \    strip_path: false\n- name: nlp\n  url: http://nlp-service:8001\n  routes:\n\
+    \  - name: nlp-route\n    paths:\n    - /api/v1/models\n    strip_path: false\n\
+    - name: catalog\n  url: http://catalog-service:3002\n  routes:\n  - name: catalog-route\n\
+    \    paths:\n    - /api/v1/procedures\n    - /api/v1/entities\n    - /api/v1/categories\n\
+    \    - /api/v1/requests\n    strip_path: false\n- name: recommendation\n  url:\
+    \ http://recommendation-service:3003\n  routes:\n  - name: recommendation-route\n\
+    \    paths:\n    - /api/v1/recommendations\n    strip_path: false\n- name: auth\n\
+    \  url: http://auth-service:3004\n  routes:\n  - name: auth-route\n    paths:\n\
+    \    - /api/v1/auth\n    - /api/v1/profiles\n    strip_path: false\n- name: audit\n\
+    \  url: http://audit-service:3005\n  routes:\n  - name: audit-route\n    paths:\n\
+    \    - /api/v1/audit\n    strip_path: false\nplugins:\n- name: correlation-id\n\
+    - name: rate-limiting\n  config:\n    minute: 60\n    policy: redis\n    redis_host:\
+    \ redis\n    redis_port: 6379\n"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: database-init
+  namespace: ciudadano-ai
+data:
+  init.sql: 'CREATE SCHEMA IF NOT EXISTS conversation;
+
+    CREATE SCHEMA IF NOT EXISTS profiles;
+
+    CREATE SCHEMA IF NOT EXISTS recommendations;
+
+    CREATE SCHEMA IF NOT EXISTS auth;
+
+    CREATE SCHEMA IF NOT EXISTS audit;
+
+    CREATE TABLE IF NOT EXISTS audit.events (event_id UUID PRIMARY KEY, event_type
+    TEXT NOT NULL, event_version TEXT NOT NULL, occurred_at TIMESTAMPTZ NOT NULL,
+    correlation_id UUID NOT NULL, conversation_id UUID, producer TEXT NOT NULL, payload
+    JSONB NOT NULL, hash TEXT NOT NULL, previous_hash TEXT);
+
+    CREATE INDEX IF NOT EXISTS audit_events_conversation_idx ON audit.events(conversation_id);
+
+    CREATE INDEX IF NOT EXISTS audit_events_type_idx ON audit.events(event_type);
+
+    CREATE TABLE IF NOT EXISTS recommendations.procedures (id UUID PRIMARY KEY, title
+    TEXT NOT NULL, body TEXT NOT NULL, search_vector TSVECTOR GENERATED ALWAYS AS
+    (to_tsvector(''spanish'', title || '' '' || body)) STORED, source_urls JSONB NOT
+    NULL, verified_at DATE, published BOOLEAN NOT NULL DEFAULT FALSE);
+
+    CREATE INDEX IF NOT EXISTS procedures_search_idx ON recommendations.procedures
+    USING GIN(search_vector);
+
+    CREATE TABLE IF NOT EXISTS profiles.citizen_profiles (id UUID PRIMARY KEY, anonymous
+    BOOLEAN NOT NULL DEFAULT TRUE, preferences JSONB NOT NULL DEFAULT ''{}'', tech_experience
+    TEXT, created_at TIMESTAMPTZ NOT NULL DEFAULT now(), deleted_at TIMESTAMPTZ);
+
+    CREATE TABLE IF NOT EXISTS profiles.consents (id UUID PRIMARY KEY, profile_id
+    UUID NOT NULL, purpose TEXT NOT NULL, version TEXT NOT NULL, granted BOOLEAN NOT
+    NULL, created_at TIMESTAMPTZ NOT NULL, revoked_at TIMESTAMPTZ);
+
+    CREATE TABLE IF NOT EXISTS conversation.sessions (id UUID PRIMARY KEY, anonymous_user_id
+    UUID, state JSONB NOT NULL, expires_at TIMESTAMPTZ NOT NULL);
+
+    CREATE TABLE IF NOT EXISTS auth.admins (id UUID PRIMARY KEY, email TEXT UNIQUE
+    NOT NULL, password_hash TEXT NOT NULL, roles JSONB NOT NULL, permissions JSONB
+    NOT NULL, revoked BOOLEAN NOT NULL DEFAULT FALSE);
+
+
+    CREATE SCHEMA IF NOT EXISTS catalog;
+
+    CREATE TABLE IF NOT EXISTS conversation.app_state (namespace TEXT NOT NULL, key
+    TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS conversation_state_expiry_idx ON conversation.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS profiles.app_state (namespace TEXT NOT NULL, key TEXT
+    NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS profiles_state_expiry_idx ON profiles.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS catalog.app_state (namespace TEXT NOT NULL, key TEXT
+    NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS catalog_state_expiry_idx ON catalog.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS recommendations.app_state (namespace TEXT NOT NULL,
+    key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY
+    KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS recommendations_state_expiry_idx ON recommendations.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS auth.app_state (namespace TEXT NOT NULL, key TEXT NOT
+    NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS auth_state_expiry_idx ON auth.app_state(expires_at);
+
+    CREATE TABLE IF NOT EXISTS audit.app_state (namespace TEXT NOT NULL, key TEXT
+    NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS audit_state_expiry_idx ON audit.app_state(expires_at);
+
+
+    CREATE SCHEMA IF NOT EXISTS recommendation;
+
+    CREATE TABLE IF NOT EXISTS recommendation.app_state (namespace TEXT NOT NULL,
+    key TEXT NOT NULL, data TEXT NOT NULL, expires_at TIMESTAMPTZ NOT NULL, PRIMARY
+    KEY(namespace,key));
+
+    CREATE INDEX IF NOT EXISTS recommendation_state_expiry_idx ON recommendation.app_state(expires_at);
+
+    '
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-nginx
+  namespace: ciudadano-ai
+data:
+  default.conf: "server {\n  listen 80;\n  root /usr/share/nginx/html;\n  set_real_ip_from\
+    \ 10.42.0.0/16;\n  real_ip_header X-Forwarded-For;\n  real_ip_recursive on;\n\
+    \  index index.html;\n  include /etc/nginx/conf.d/security-headers.inc;\n  location\
+    \ /api/ {\n    proxy_pass http://kong:8000;\n    proxy_set_header Host $host;\n\
+    \    proxy_set_header X-Forwarded-For $remote_addr;\n    proxy_set_header X-Forwarded-Proto\
+    \ $scheme;\n  }\n  location / { try_files $uri /index.html; }\n}\n"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: caddy-config
+  namespace: ciudadano-ai
+data:
+  Caddyfile: "ciudadano-ai.3-142-230-27.sslip.io {\n tls {\n protocols tls1.3\n }\n\
+    \ header {\n Strict-Transport-Security \"max-age=31536000\"\n -Server\n }\n reverse_proxy\
+    \ frontend:80 {\n header_up X-Forwarded-For {remote_host}\n }\n}\n"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kafka-data
+  namespace: ciudadano-ai
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: caddy-data
+  namespace: ciudadano-ai
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caddy
+  namespace: ciudadano-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: caddy
+  template:
+    metadata:
+      labels:
+        app: caddy
+    spec:
+      containers:
+      - name: caddy
+        image: caddy:2-alpine
+        ports:
+        - containerPort: 80
+        - containerPort: 443
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 300m
+            memory: 256Mi
+        volumeMounts:
+        - name: config
+          mountPath: /etc/caddy
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: config
+        configMap:
+          name: caddy-config
+      - name: data
+        persistentVolumeClaim:
+          claimName: caddy-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caddy
+  namespace: ciudadano-ai
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: caddy
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  - name: https
+    port: 443
+    targetPort: 443
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: public-caddy
+  namespace: ciudadano-ai
+spec:
+  podSelector:
+    matchLabels:
+      app: caddy
+  policyTypes:
+  - Ingress
+  ingress:
+  - ports:
+    - port: 80
+      protocol: TCP
+    - port: 443
+      protocol: TCP

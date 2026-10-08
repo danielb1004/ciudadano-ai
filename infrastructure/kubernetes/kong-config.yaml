@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kong-config
+data:
+  kong.yml: "_format_version: '3.0'\nservices:\n- name: conversation\n  url: http://conversation-service:3001\n\
+    \  routes:\n  - name: conversation-route\n    paths:\n    - /api/v1/conversations\n\
+    \    strip_path: false\n- name: nlp\n  url: http://nlp-service:8001\n  routes:\n\
+    \  - name: nlp-route\n    paths:\n    - /api/v1/classify\n    - /api/v1/extract-entities\n\
+    \    - /api/v1/models\n    strip_path: false\n- name: catalog\n  url: http://catalog-service:3002\n\
+    \  routes:\n  - name: catalog-route\n    paths:\n    - /api/v1/procedures\n  \
+    \  - /api/v1/entities\n    - /api/v1/categories\n    - /api/v1/requests\n    strip_path:\
+    \ false\n- name: recommendation\n  url: http://recommendation-service:3003\n \
+    \ routes:\n  - name: recommendation-route\n    paths:\n    - /api/v1/recommendations\n\
+    \    strip_path: false\n- name: auth\n  url: http://auth-service:3004\n  routes:\n\
+    \  - name: auth-route\n    paths:\n    - /api/v1/auth\n    - /api/v1/profiles\n\
+    \    strip_path: false\n- name: audit\n  url: http://audit-service:3005\n  routes:\n\
+    \  - name: audit-route\n    paths:\n    - /api/v1/audit\n    strip_path: false\n\
+    plugins:\n- name: cors\n  config:\n    origins:\n    - https://ciudadano.example\n\
+    \    credentials: true\n- name: correlation-id\n- name: rate-limiting\n  config:\n\
+    \    minute: 60\n    policy: redis\n    redis_host: redis\n    redis_port: 6379\n"

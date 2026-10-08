@@ -7,16 +7,20 @@
     "services/*"
   ],
   "scripts": {
-    "dev": "concurrently \"npm run dev --workspace frontend\" \"npm run dev --workspace services/conversation-service\" \"npm run dev --workspace services/nlp-service\" \"npm run dev --workspace services/profile-service\" \"npm run dev --workspace services/recommendation-service\" \"npm run dev --workspace services/auth-service\" \"npm run dev --workspace services/audit-service\"",
+    "dev": "node scripts/dev.mjs",
     "build": "npm run build --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present"
+    "test": "vitest run --coverage && npm run test --workspace frontend",
+    "lint": "npm run lint --workspaces --if-present",
+    "setup": "node scripts/setup.mjs"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
-    "@vitest/coverage-v8": "^2.1.4",
-    "concurrently": "^9.0.1",
-    "typescript": "^5.6.3"
-  }
+    "@vitest/coverage-v8": "^5.0.3",
+    "axe-core": "^4.14.0",
+    "typescript": "^5.6.3",
+    "vitest": "^5.0.3"
+  },
+  "type": "module"
 }

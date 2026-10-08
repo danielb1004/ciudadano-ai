@@ -1,13 +1,13 @@
-# Arquitectura
+# Arquitectura implementada
 
-Ciudadano AI usa Kong como único punto público. La conversación es síncrona hacia PLN, perfilamiento y recomendaciones; los eventos se publican en Kafka para auditoría y proyecciones. Cada servicio es dueño de su esquema PostgreSQL. Redis mantiene contexto corto con TTL de 15 minutos; Kafka conserva eventos según la política de retención del ambiente.
+Seis procesos: conversación, PLN, catálogo, autenticación, recomendación y auditoría. Profile-service es una biblioteca de autenticación, no un séptimo proceso. Kong mantiene /api/v1 sin eliminar el prefijo; /internal queda fuera del gateway.
 
-## ADR-001: microservicios y eventos
+El chat comprueba consentimiento y titularidad, anonimiza antes de PLN y consulta recomendaciones. Recomendación consulta el catálogo separado y puede devolver caché con fecha de sincronización. PLN admite BETO, baseline o reglas explícitas; producción exige checkpoint para BETO.
 
-- **Decisión:** seis servicios independientes, REST para consultas inmediatas y Kafka para hechos de negocio.
-- **Razón:** separar ciclos de despliegue y responsabilidades; permitir reintentos, auditoría y proyecciones CQRS.
-- **Consecuencia:** se requiere observabilidad, contratos versionados, idempotencia y DLQ. El MVP usa adaptadores en memoria cuando no hay dependencias locales, pero el camino de producción es PostgreSQL/Redis/Kafka.
+PostgreSQL es la fuente de estado mediante tablas app_state por esquema, con JSON cifrado AES-256-GCM, expiración y transacciones/bloqueos por agregado. Los esquemas conservan nombres internos (profiles dentro de ms-auth). Redis es caché cifrada de contexto con TTL. El modo local usa memoria y pierde estado al reiniciar.
 
-## Patrones
+Los eventos se guardan en un outbox del esquema del productor y se entregan asíncronamente a Kafka. Tras tres fallos se intenta DLQ, conservando el original para recuperación. El consumidor de auditoría deduplica eventId y encadena los metadatos minimizados con SHA-256 y HMAC. El modo local utiliza entrega HTTP interna al auditor.
 
-Los comandos (`POST/PATCH/DELETE`) y consultas (`GET`) tienen modelos y rutas separados. Los eventos inmutables de conversación, consentimiento y seguridad forman la bitácora de Event Sourcing; una proyección puede reconstruir el estado. Los consumidores deben deduplicar por `eventId`, reintentar con backoff y enviar al tópico `*.DLQ` tras el máximo configurado. Las llamadas síncronas tienen timeout y `CircuitBreaker` con estados CLOSED/OPEN/HALF_OPEN.
+La auditoría demuestra integridad relativa a las claves/almacenamiento; no es un almacenamiento WORM ni impide alteraciones por un administrador de infraestructura con todas las claves. Los estados se guardan como snapshots; no se afirma reconstrucción completa mediante Event Sourcing ni CQRS distribuido.
+
+Timeouts y circuit breakers aíslan PLN/recomendaciones. Probes consultan dependencias configuradas; HPA usa CPU al 70%. Versionar imágenes por commit y operar bases/backups/secretos fuera del código.

@@ -1,0 +1,22 @@
+# Local full-stack override with the trained synthetic BETO checkpoint.
+services:
+  nlp:
+    build:
+      dockerfile: services/nlp-service/Dockerfile.onnx
+    environment:
+      NLP_BACKEND: beto
+      BETO_RUNTIME: onnx
+      BETO_MODEL_PATH: /models/beto-synthetic-v1
+      MODEL_VERSION: beto-synthetic-v1-onnx-fp32
+      NLP_CPU_THREADS: "2"
+      HF_HUB_OFFLINE: "1"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/ready', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 12
+  conversation:
+    depends_on:
+      nlp:
+        condition: service_healthy

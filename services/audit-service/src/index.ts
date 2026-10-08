@@ -1,201 +1,85 @@
-import { createHash } from "node:crypto";
-import { createBaseApp, eventSchema, EventEnvelope, logger, makeEvent, query } from "@ciudadano-ai/shared";
+import { createHash, createHmac } from "node:crypto";
+import { createBaseApp, eventSchema, EventEnvelope, logger, makeEvent, Store, asyncRoute, errorHandler, requireAccess, internalAccess, signingKey } from "@ciudadano-ai/shared";
 import { Kafka } from "kafkajs";
-
-export type AuditRecord = EventEnvelope & {
-  hash: string;
-  previousHash?: string;
-  verified?: boolean;
+export type AuditRecord = EventEnvelope & { hash: string; previousHash?: string; signature: string };
+type Ledger = { records: AuditRecord[]; anchor?: string };
+const ledger = new Store<Ledger>("audit", "ledger");
+const canonical = (value: any): string => {
+  if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
+  if (value && typeof value === "object") return "{" + Object.keys(value).filter(k => value[k] !== undefined).sort().map(k => JSON.stringify(k) + ":" + canonical(value[k])).join(",") + "}";
+  return JSON.stringify(value);
 };
-
-const records: AuditRecord[] = [];
-
-export function appendImmutable(event: EventEnvelope): AuditRecord {
-  eventSchema.parse(event);
-  const existing = records.find((item) => item.eventId === event.eventId);
-  if (existing) return existing;
-
-  const previousHash = records.at(-1)?.hash;
-  const hash = createHash("sha256")
-    .update(JSON.stringify({ event, previousHash }))
-    .digest("hex");
-
-  // Redacción garantizada de campos de texto libre para cumplimiento de privacidad ISO 27001
-  const sanitizedPayload = { ...event.payload, text: undefined, password: undefined, token: undefined };
-  const record: AuditRecord = {
-    ...event,
-    payload: sanitizedPayload,
-    hash,
-    previousHash,
-    verified: true
-  };
-
-  records.push(record);
-
-  void query(
-    "INSERT INTO audit.events (event_id,event_type,event_version,occurred_at,correlation_id,conversation_id,producer,payload,hash,previous_hash) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) ON CONFLICT (event_id) DO NOTHING",
-    [
-      record.eventId,
-      record.eventType,
-      record.eventVersion,
-      record.occurredAt,
-      record.correlationId,
-      record.conversationId,
-      record.producer,
-      record.payload,
-      record.hash,
-      record.previousHash
-    ]
-  );
-
-  return record;
+const redact = (value: any): any => {
+  if (Array.isArray(value)) return value.map(redact);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value).filter(([key]) => !/^(text|message|content|comment|password|token|accessToken|refreshToken|code|contact|email|radicado)$/i.test(key)).map(([key,v]) => [key,redact(v)]));
+};
+const digest = (event: EventEnvelope, previousHash?: string) => createHash("sha256").update(canonical({ event, previousHash })).digest("hex");
+const signature = (hash: string) => createHmac("sha256", process.env.AUDIT_SIGNING_KEY ?? signingKey()).update(hash).digest("hex");
+export async function appendImmutable(event: EventEnvelope): Promise<AuditRecord> {
+  eventSchema.parse(event); const safe = { ...event, payload: redact(event.payload) } as EventEnvelope;
+  return ledger.mutate("chain", async old => {
+    const next = old ?? { records: [] };
+    const existing = next.records.find(r => r.eventId === safe.eventId);
+    if (existing) return { value: next, ttlSeconds: 365 * 86400, result: existing };
+    const previousHash = next.records.at(-1)?.hash ?? next.anchor;
+    const hash = digest(safe, previousHash), record: AuditRecord = { ...safe, hash, previousHash, signature: signature(hash) };
+    next.records.push(record);
+    const cutoff = Date.now() - Number(process.env.AUDIT_RETENTION_DAYS ?? 365) * 86400000;
+    while (next.records.length > 1 && Date.parse(next.records[0].occurredAt) < cutoff) next.anchor = next.records.shift()?.hash;
+    return { value: next, ttlSeconds: 365 * 86400, result: record };
+  });
 }
-
-const app = createBaseApp("audit-service");
-
-// Ingesta interna de eventos
-app.post("/internal/events", (req, res) => {
+export function verifyRecords(records: AuditRecord[], anchor?: string) {
+  let previousHash = anchor;
+  for (const record of records) {
+    const { hash, signature: signed, previousHash: storedPrevious, ...event } = record;
+    if (storedPrevious !== previousHash || digest(event, storedPrevious) !== hash || signature(hash) !== signed) return { valid: false, brokenAt: record.eventId };
+    previousHash = hash;
+  }
+  return { valid: true, brokenAt: null };
+}
+export const app = createBaseApp("audit-service");
+app.post("/internal/events", internalAccess, asyncRoute(async (req, res) => {
   const parsed = eventSchema.safeParse(req.body);
-  if (!parsed.success) return res.status(400).json({ error: { code: "INVALID_EVENT", message: "Evento inválido." } });
-  res.status(201).json(appendImmutable(parsed.data));
-});
-
-// Listar eventos con filtros
-app.get("/api/v1/audit/events", (req, res) => {
-  const type = typeof req.query.type === "string" ? req.query.type : undefined;
-  const producer = typeof req.query.producer === "string" ? req.query.producer : undefined;
-  const limit = Math.min(Number(req.query.limit ?? 100), 500);
-
-  let items = [...records];
-  if (type) items = items.filter((e) => e.eventType === type);
-  if (producer) items = items.filter((e) => e.producer === producer);
-
-  items = items.slice(-limit).reverse();
-
-  res.json({
-    events: items,
-    totalRecords: records.length,
-    immutableChain: true,
-    retentionDays: Number(process.env.AUDIT_RETENTION_DAYS ?? 365)
-  });
-});
-
-// Eventos de una conversación específica
-app.get("/api/v1/audit/conversations/:id", (req, res) => {
-  const items = records.filter((event) => event.conversationId === req.params.id);
-  res.json({ conversationId: req.params.id, events: items, count: items.length });
-});
-
-// Eventos de seguridad (intentos de acceso, fallos, revocaciones)
-app.get("/api/v1/audit/security", (_req, res) => {
-  const items = records.filter((event) => event.eventType.startsWith("security."));
-  res.json({ events: items, count: items.length });
-});
-
-// Verificación criptográfica de integridad de la cadena de hashes
-app.get("/api/v1/audit/verify-integrity", (_req, res) => {
-  let valid = true;
-  let brokenAt: string | null = null;
-
-  for (let i = 0; i < records.length; i++) {
-    const current = records[i];
-    const expectedPrevious = i > 0 ? records[i - 1].hash : undefined;
-
-    if (current.previousHash !== expectedPrevious) {
-      valid = false;
-      brokenAt = current.eventId;
-      break;
-    }
-
-    const { hash, previousHash, verified, ...eventData } = current;
-    const recomputedHash = createHash("sha256")
-      .update(JSON.stringify({ event: eventData, previousHash }))
-      .digest("hex");
-
-    if (recomputedHash !== hash) {
-      valid = false;
-      brokenAt = current.eventId;
-      break;
-    }
-  }
-
-  res.json({
-    valid,
-    chainLength: records.length,
-    brokenAt,
-    algorithm: "SHA-256 Chain of Custody",
-    verifiedAt: new Date().toISOString()
-  });
-});
-
-// Estadísticas para panel de administración
-app.get("/api/v1/audit/stats", (_req, res) => {
-  const byType: Record<string, number> = {};
-  const byProducer: Record<string, number> = {};
-
-  for (const r of records) {
-    byType[r.eventType] = (byType[r.eventType] ?? 0) + 1;
-    byProducer[r.producer] = (byProducer[r.producer] ?? 0) + 1;
-  }
-
-  res.json({
-    totalEvents: records.length,
-    securityEvents: records.filter((r) => r.eventType.startsWith("security.")).length,
-    byType,
-    byProducer,
-    lastEventAt: records.at(-1)?.occurredAt ?? null
-  });
-});
-
+  if (!parsed.success) return res.status(400).json({ error: { code: "INVALID_EVENT", message: "Evento inválido." } }); res.status(201).json(await appendImmutable(parsed.data));
+}));
+app.use("/api/v1/audit", requireAccess("admin", "audit_read"));
+app.get("/api/v1/audit/events", asyncRoute(async (req, res) => {
+  const records = (await ledger.get("chain"))?.records ?? [];
+  const limit = Math.max(1, Math.min(Number(req.query.limit ?? 100) || 100, 500));
+  const events = records.filter(e => (!req.query.type || e.eventType === req.query.type) && (!req.query.producer || e.producer === req.query.producer)).slice(-limit).reverse();
+  res.json({ events, totalRecords: records.length, retentionDays: Number(process.env.AUDIT_RETENTION_DAYS ?? 365) });
+}));
+app.get("/api/v1/audit/conversations/:id", asyncRoute(async (req, res) => res.json({ events: ((await ledger.get("chain"))?.records ?? []).filter(e => e.conversationId === req.params.id) })));
+app.get("/api/v1/audit/security", asyncRoute(async (_req, res) => res.json({ events: ((await ledger.get("chain"))?.records ?? []).filter(e => e.eventType.startsWith("security.")) })));
+app.get("/api/v1/audit/verify-integrity", asyncRoute(async (_req, res) => {
+  const chain = await ledger.get("chain") ?? { records: [] };
+  res.json({ ...verifyRecords(chain.records, chain.anchor), chainLength: chain.records.length, algorithm: "SHA-256 + HMAC-SHA-256", verifiedAt: new Date().toISOString() });
+}));
+app.get("/api/v1/audit/stats", asyncRoute(async (_req, res) => {
+  const records = (await ledger.get("chain"))?.records ?? [], byType: { [key: string]: number } = {}, byProducer: { [key: string]: number } = {};
+  for (const event of records) { byType[event.eventType] = (byType[event.eventType] ?? 0) + 1; byProducer[event.producer] = (byProducer[event.producer] ?? 0) + 1; }
+  res.json({ totalEvents: records.length, securityEvents: records.filter(r => r.eventType.startsWith("security.")).length, byType, byProducer, lastEventAt: records.at(-1)?.occurredAt ?? null });
+}));
 async function consumeEvents() {
-  const brokers = (process.env.KAFKA_BROKERS ?? "").split(",").filter(Boolean);
-  if (!brokers.length) return;
-
-  const kafka = new Kafka({ clientId: "audit-consumer", brokers });
-  const consumer = kafka.consumer({ groupId: "audit-service-v1" });
-  await consumer.connect();
-
-  const topics = [
-    "conversation-message-received",
-    "conversation-intent-classified",
-    "conversation-feedback-submitted",
-    "conversation-deleted",
-    "profile-created",
-    "profile-updated",
-    "profile-deleted",
-    "profile-purged",
-    "consent-granted",
-    "consent-revoked",
-    "recommendation-generated",
-    "procedure-created",
-    "procedure-updated",
-    "procedure-deleted",
-    "security-user-authenticated",
-    "security-access-failed"
-  ];
-
-  for (const topic of topics) {
-    await consumer.subscribe({ topic, fromBeginning: true });
-  }
-
-  await consumer.run({
-    eachMessage: async ({ message }) => {
-      if (!message.value) return;
-      try {
-        appendImmutable(JSON.parse(message.value.toString()) as EventEnvelope);
-      } catch (error) {
-        logger.error({ err: error }, "invalid event sent to audit DLQ");
-      }
+  const brokers = (process.env.KAFKA_BROKERS ?? "").split(",").filter(Boolean); if (!brokers.length) return;
+  const kafka = new Kafka({ clientId: "audit-consumer", brokers }), consumer = kafka.consumer({ groupId: "audit-service-v1" });
+  await consumer.connect(); await consumer.subscribe({ topics: [/^(conversation|profile|consent|recommendation|procedure|request|security)-/], fromBeginning: true });
+  await consumer.run({ eachMessage: async ({ topic, message }) => {
+    if (!message.value || topic.endsWith(".DLQ")) return;
+    try { await appendImmutable(JSON.parse(message.value.toString()) as EventEnvelope); }
+    catch (error) {
+      logger.error({ err: error }, "invalid audit event");
+      const dlq = kafka.producer(); await dlq.connect();
+      try { await dlq.send({ topic: topic + ".DLQ", messages: [{ key: message.key, value: JSON.stringify({ reason: "invalid-event", sourceTopic: topic }) }] }); } finally { await dlq.disconnect(); }
     }
-  });
+  } });
+  const shutdown = () => { void consumer.disconnect(); }; process.once("SIGTERM", shutdown); process.once("SIGINT", shutdown);
 }
-
+app.use(errorHandler);
 if (!process.env.VITEST && process.env.NODE_ENV !== "test") {
-  appendImmutable(makeEvent("audit.service.started", "audit-service", { environment: process.env.NODE_ENV ?? "development" }));
-  void consumeEvents();
-  const port = Number(process.env.PORT ?? 3005);
-  const server = app.listen(port, () => logger.info({ port }, "audit-service listening"));
-  const shutdown = () => server.close(() => process.exit(0));
-  process.once("SIGTERM", shutdown);
-  process.once("SIGINT", shutdown);
+  void appendImmutable(makeEvent("audit.service.started", "audit-service", { environment: process.env.NODE_ENV ?? "development" })).catch(error => logger.error({ err: error }, "audit startup failed"));
+  void consumeEvents().catch(error => { logger.error({ err: error }, "Kafka consumer failed"); process.exitCode = 1; });
+  const server = app.listen(Number(process.env.PORT ?? 3005)); process.once("SIGTERM", () => server.close()); process.once("SIGINT", () => server.close());
 }

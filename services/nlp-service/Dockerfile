@@ -1,7 +1,8 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 WORKDIR /app
-COPY requirements.txt .
+COPY services/nlp-service/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
-COPY app ./app
+COPY services/nlp-service/app ./app
+ENV BETO_MODEL_PATH=/models/beto-intents-v1
 EXPOSE 8001
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]

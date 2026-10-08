@@ -1,0 +1,34 @@
+{
+  "dataset": "C:\\Users\\danyb\\OneDrive\\Documentos\\GitHub\\ciudadano-ai\\ml\\datasets\\synthetic-v1.csv",
+  "sha256": "985cadc89411c210442922274f9f50f6076f18f1f94c55346d6f3dec4c20dc98",
+  "seed": 42,
+  "uniqueSamples": 2340,
+  "academic": false,
+  "datasetType": "synthetic",
+  "duplicatesRemoved": 0,
+  "classes": [
+    "CONSULTA_INFORMATIVA",
+    "SOLICITUD_TRAMITE",
+    "VERIFICACION_ESTADO",
+    "REPORTE_PROBLEMA",
+    "DERIVACION_ENTIDAD"
+  ],
+  "splitStrategy": "template_family",
+  "splitCounts": {
+    "train": 1640,
+    "validation": 354,
+    "test": 346
+  },
+  "classCounts": {
+    "REPORTE_PROBLEMA": 468,
+    "DERIVACION_ENTIDAD": 468,
+    "CONSULTA_INFORMATIVA": 468,
+    "VERIFICACION_ESTADO": 468,
+    "SOLICITUD_TRAMITE": 468
+  },
+  "familyCounts": {
+    "train": 70,
+    "validation": 15,
+    "test": 15
+  }
+}

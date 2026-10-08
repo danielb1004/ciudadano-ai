@@ -1,0 +1,42 @@
+{
+  "datasetType": "synthetic",
+  "academic": false,
+  "generatorVersion": "templates-v1",
+  "seed": 42,
+  "sampleCount": 2340,
+  "uniqueNormalizedSamples": 2340,
+  "sha256": "985cadc89411c210442922274f9f50f6076f18f1f94c55346d6f3dec4c20dc98",
+  "classCounts": {
+    "REPORTE_PROBLEMA": 468,
+    "DERIVACION_ENTIDAD": 468,
+    "CONSULTA_INFORMATIVA": 468,
+    "VERIFICACION_ESTADO": 468,
+    "SOLICITUD_TRAMITE": 468
+  },
+  "templateFamilies": 100,
+  "cities": [
+    "Bogotá",
+    "Medellín",
+    "Cali",
+    "Barranquilla",
+    "Cartagena",
+    "Bucaramanga",
+    "Pereira",
+    "Manizales",
+    "Cúcuta",
+    "Pasto",
+    "Ibagué",
+    "Villavicencio"
+  ],
+  "procedureCount": 15,
+  "humanParticipants": 0,
+  "humanLabelReview": false,
+  "maxCharacters": 140,
+  "limitations": [
+    "Queries were generated, not collected from citizens.",
+    "Labels follow templates and have not received independent human review.",
+    "Geographic names and informal phrases do not establish population representativeness.",
+    "Synthetic evaluation cannot substantiate the empirical results in the Word document.",
+    "Context vocabulary is shared across split sets; template families must remain disjoint."
+  ]
+}

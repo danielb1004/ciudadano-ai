@@ -1,0 +1,9 @@
+{
+  "academic": false,
+  "corpus": "synthetic-v1",
+  "runtime": "onnx-dynamic-int8",
+  "samples": 346,
+  "accuracy": 0.1994219653179191,
+  "f1Macro": 0.06650602409638554,
+  "elapsedSeconds": 15.709165099950042
+}

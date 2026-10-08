@@ -1,0 +1,131 @@
+{
+  "model": "TF-IDF + Logistic Regression",
+  "academic": false,
+  "dataset": {
+    "dataset": "C:\\Users\\danyb\\OneDrive\\Documentos\\GitHub\\ciudadano-ai\\ml\\datasets\\synthetic-v1.csv",
+    "sha256": "985cadc89411c210442922274f9f50f6076f18f1f94c55346d6f3dec4c20dc98",
+    "seed": 42,
+    "uniqueSamples": 2340,
+    "academic": false,
+    "datasetType": "synthetic",
+    "duplicatesRemoved": 0,
+    "classes": [
+      "CONSULTA_INFORMATIVA",
+      "SOLICITUD_TRAMITE",
+      "VERIFICACION_ESTADO",
+      "REPORTE_PROBLEMA",
+      "DERIVACION_ENTIDAD"
+    ],
+    "splitStrategy": "template_family",
+    "splitCounts": {
+      "train": 1640,
+      "validation": 354,
+      "test": 346
+    },
+    "classCounts": {
+      "REPORTE_PROBLEMA": 468,
+      "DERIVACION_ENTIDAD": 468,
+      "CONSULTA_INFORMATIVA": 468,
+      "VERIFICACION_ESTADO": 468,
+      "SOLICITUD_TRAMITE": 468
+    },
+    "familyCounts": {
+      "train": 70,
+      "validation": 15,
+      "test": 15
+    }
+  },
+  "bestC": 2,
+  "sampleCount": 346,
+  "accuracy": 0.7398843930635838,
+  "f1Macro": 0.740580906349666,
+  "perCategory": {
+    "CONSULTA_INFORMATIVA": {
+      "precision": 0.4,
+      "recall": 0.43478260869565216,
+      "f1-score": 0.4166666666666667,
+      "support": 69.0
+    },
+    "SOLICITUD_TRAMITE": {
+      "precision": 0.640625,
+      "recall": 0.5942028985507246,
+      "f1-score": 0.6165413533834586,
+      "support": 69.0
+    },
+    "VERIFICACION_ESTADO": {
+      "precision": 0.9857142857142858,
+      "recall": 1.0,
+      "f1-score": 0.9928057553956835,
+      "support": 69.0
+    },
+    "REPORTE_PROBLEMA": {
+      "precision": 0.971830985915493,
+      "recall": 1.0,
+      "f1-score": 0.9857142857142858,
+      "support": 69.0
+    },
+    "DERIVACION_ENTIDAD": {
+      "precision": 0.7121212121212122,
+      "recall": 0.6714285714285714,
+      "f1-score": 0.6911764705882353,
+      "support": 70.0
+    },
+    "accuracy": 0.7398843930635838,
+    "macro avg": {
+      "precision": 0.7420582967501982,
+      "recall": 0.7400828157349897,
+      "f1-score": 0.740580906349666,
+      "support": 346.0
+    },
+    "weighted avg": {
+      "precision": 0.7419717733842185,
+      "recall": 0.7398843930635838,
+      "f1-score": 0.7404381189630723,
+      "support": 346.0
+    }
+  },
+  "confusionMatrix": [
+    [
+      30,
+      23,
+      0,
+      2,
+      14
+    ],
+    [
+      22,
+      41,
+      1,
+      0,
+      5
+    ],
+    [
+      0,
+      0,
+      69,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      69,
+      0
+    ],
+    [
+      23,
+      0,
+      0,
+      0,
+      47
+    ]
+  ],
+  "labels": [
+    "CONSULTA_INFORMATIVA",
+    "SOLICITUD_TRAMITE",
+    "VERIFICACION_ESTADO",
+    "REPORTE_PROBLEMA",
+    "DERIVACION_ENTIDAD"
+  ]
+}

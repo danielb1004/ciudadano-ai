@@ -1,0 +1,347 @@
+text,intent,template_family
+una preguntica: ¿qué datos pidel formulario del certificado de antecedentes judiciales en cúcuta?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenas, ¿me remites a la entidad que maneja la encuesta del sisbén en bucaramanga?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+me haces el favor: tengo los documentos listos y voy a empezar la actualización del rut en cartagena.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"disculpa, necesito comunicarme con la oficina encargada de la corrección del registro civil en medellín.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"por favor, voy a gestionar la inscripción del rut en barranquilla y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"una preguntica: estoy averiguando cómo es la renovación de la licencia de conducción en manizales, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"buenas tardes, ¿hace falta una cita para la consulta de historia laboral en pasto?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenos días, quiero agendar el inicio del certificado de antecedentes fiscales en ibagué.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"hola, ¿en qué estado está mi solicitud de la cédula digital presentada en medellín?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"por favor, ¿en qué estado está mi solicitud de la consulta de historia laboral presentada en pasto?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"por favor, voy a gestionar el certificado de antecedentes judiciales en cúcuta y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"buenas, la página del certificado de antecedentes judiciales no carga cuando entro desde villavicencio.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"disculpa, se cayó el portal cuando estaba con el pasaporte ordinario en cali.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"hola, el formulario de la consulta de historia laboral en pasto rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas tardes, estoy averiguando cómo es el pasaporte ordinario en bucaramanga, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"buenas, ¿me colaboras? ¿en qué estado está mi solicitud de la corrección del registro civil presentada en medellín?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+una preguntica: necesito comunicarme con la oficina encargada del registro civil de nacimiento en bogotá.,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"buenos días, ¿qué datos pidel formulario del pasaporte ordinario en cali?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenas, ¿me colaboras? ¿en qué estado está mi solicitud de la encuesta del sisbén presentada en cúcuta?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenos días, quiero saber si ya está listo el resultado del certificado de antecedentes disciplinarios en pasto.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"buenas, ¿me remites a la entidad que maneja la actualización del rut en cartagena?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas, ¿me colaboras? tengo los documentos listos y voy a empezar la cédula digital en medellín.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+el formulario de la actualización del rut en cartagena rechaza datos que son correctos.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"hola, quiero agendar el inicio de la cédula digital en medellín.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"hola, necesito comunicarme con la oficina encargada de la encuesta del sisbén en bucaramanga.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"buenas, ¿me colaboras? quiero agendar el inicio de la cédula digital en cartagena.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"buenas, estoy averiguando cómo es la encuesta del sisbén en bucaramanga, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+una preguntica: la página de la inscripción del rut no carga cuando entro desde pereira.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"hola, ¿hay novedades de mi trámite de la presentación de peticiones quejas reclamos sugerencias radicado en cali?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"disculpa, la página del duplicado de la cédula no carga cuando entro desde bogotá.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenos días, ¿qué datos pidel formulario de la inscripción del rut en pereira?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"por favor, ¿en qué estado está mi solicitud del pasaporte ordinario presentada en cali?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenos días, quiero agendar el inicio del certificado de antecedentes judiciales en cúcuta.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"buenos días, estoy averiguando cómo es la actualización del rut en manizales, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"por favor, estoy averiguando cómo es el certificado de antecedentes disciplinarios en pasto, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"buenas tardes, necesito comunicarme con la oficina encargada del certificado de antecedentes fiscales en ibagué.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"por favor, tengo los documentos listos y voy a empezar el certificado de antecedentes fiscales en ibagué.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenas, la página de la renovación de la licencia de conducción no carga cuando entro desde ibagué.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+me haces el favor: el formulario del certificado de afiliación a salud en villavicencio rechaza datos que son correctos.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"hola, ¿en qué estado está mi solicitud del duplicado de la cédula presentada en bogotá?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"disculpa, ¿me remites a la entidad que manejal certificado de antecedentes fiscales en ibagué?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"hola, ¿me remites a la entidad que maneja la presentación de peticiones quejas reclamos sugerencias en cali?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+quiero agendar el inicio del certificado de antecedentes judiciales en villavicencio.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"por favor, quiero agendar el inicio de la actualización del rut en cartagena.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+una preguntica: voy a gestionar el pasaporte ordinario en bucaramanga y busco el primer paso.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"hola, ¿en qué estado está mi solicitud de la encuesta del sisbén presentada en bucaramanga?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"disculpa, ¿hace falta una cita paral duplicado de la cédula en bogotá?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas, ¿me colaboras? la página del pasaporte ordinario no carga cuando entro desde cali.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenas tardes, ¿hay novedades de mi trámite de la corrección del registro civil radicado en medellín?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"buenos días, estoy averiguando cómo es la consulta de historia laboral en pasto, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"buenas tardes, ¿hace falta una cita para la renovación de la licencia de conducción en ibagué?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"disculpa, ¿en qué estado está mi solicitud del duplicado de la cédula presentada en barranquilla?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenas, ¿qué datos pidel formulario de la renovación de la licencia de conducción en manizales?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"por favor, ¿hay novedades de mi trámite de la cédula digital radicado en medellín?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"buenas tardes, ¿qué datos pidel formulario del pasaporte ordinario en bucaramanga?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenas tardes, ¿en qué estado está mi solicitud del certificado de antecedentes judiciales presentada en cúcuta?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenas, ¿me colaboras? quiero saber si ya está listo el resultado de la inscripción del rut en pereira.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"hola, el formulario de la inscripción del rut en pereira rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+quiero saber si ya está listo el resultado de la consulta de historia laboral en pasto.,VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+una preguntica: ¿cuál es el canal institucional para pedir orientación sobre el certificado de antecedentes judiciales en cúcuta?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+¿hace falta una cita para la actualización del rut en cartagena?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenos días, ¿me remites a la entidad que manejal certificado de antecedentes judiciales en cúcuta?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas, ¿me colaboras? ¿cuál es el canal institucional para pedir orientación sobre la actualización del rut en cartagena?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+una preguntica: el formulario del duplicado de la cédula en bogotá rechaza datos que son correctos.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"por favor, el formulario de la presentación de peticiones quejas reclamos sugerencias en cali rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"hola, quiero agendar el inicio de la inscripción del rut en pereira.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+me haces el favor: quiero agendar el inicio de la corrección del registro civil en medellín.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"por favor, ¿qué datos pidel formulario del registro civil de nacimiento en bogotá?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenos días, voy a gestionar la presentación de peticiones quejas reclamos sugerencias en cali y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+una preguntica: quiero saber si ya está listo el resultado de la encuesta del sisbén en cúcuta.,VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"disculpa, voy a gestionar la renovación de la licencia de conducción en ibagué y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+me haces el favor: ¿en qué estado está mi solicitud de la inscripción del rut presentada en barranquilla?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+una preguntica: ¿hay novedades de mi trámite de la renovación de la licencia de conducción radicado en manizales?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"buenos días, se cayó el portal cuando estaba con la encuesta del sisbén en bucaramanga.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"hola, ¿cuál es el canal institucional para pedir orientación sobre la cédula digital en medellín?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"buenas, ¿me colaboras? quiero saber si ya está listo el resultado de la inscripción del rut en barranquilla.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"buenas tardes, ¿me remites a la entidad que manejal pasaporte ordinario en cali?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"por favor, la página de la actualización del rut no carga cuando entro desde manizales.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenas, necesito comunicarme con la oficina encargada de la inscripción del rut en barranquilla.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"me haces el favor: estoy averiguando cómo es la corrección del registro civil en medellín, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"buenas tardes, ¿hace falta una cita paral certificado de afiliación a salud en villavicencio?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas, ¿hay novedades de mi trámite del duplicado de la cédula radicado en bogotá?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+una preguntica: ¿me remites a la entidad que maneja la corrección del registro civil en medellín?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"disculpa, el formulario del certificado de antecedentes judiciales en cúcuta rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas, ¿me colaboras? quiero agendar el inicio de la renovación de la licencia de conducción en manizales.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"buenas tardes, la página de la consulta de historia laboral no carga cuando entro desde pasto.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"estoy averiguando cómo es el certificado de antecedentes judiciales en villavicencio, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+una preguntica: ¿hay novedades de mi trámite de la consulta de historia laboral radicado en pereira?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+me haces el favor: ¿hace falta una cita para la actualización del rut en manizales?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas, ¿me colaboras? ¿hay novedades de mi trámite de la encuesta del sisbén radicado en bucaramanga?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+una preguntica: ¿qué datos pidel formulario de la corrección del registro civil en medellín?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+una preguntica: se cayó el portal cuando estaba con la actualización del rut en manizales.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenos días, se cayó el portal cuando estaba con la renovación de la licencia de conducción en manizales.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenos días, la página del certificado de antecedentes fiscales no carga cuando entro desde ibagué.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenas, ¿me colaboras? se cayó el portal cuando estaba con la presentación de peticiones quejas reclamos sugerencias en cali.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"por favor, la página de la encuesta del sisbén no carga cuando entro desde bucaramanga.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"disculpa, ¿cuál es el canal institucional para pedir orientación sobre la cédula digital en cartagena?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"disculpa, ¿me remites a la entidad que maneja la consulta de historia laboral en pereira?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+una preguntica: ¿en qué estado está mi solicitud del registro civil de nacimiento presentada en bogotá?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenas tardes, se cayó el portal cuando estaba con la consulta de historia laboral en pereira.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+una preguntica: la página de la cédula digital no carga cuando entro desde medellín.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenas, ¿me colaboras? ¿hay novedades de mi trámite de la actualización del rut radicado en manizales?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"hola, quiero saber si ya está listo el resultado de la cédula digital en cartagena.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"buenas, se cayó el portal cuando estaba con el pasaporte ordinario en bucaramanga.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"por favor, ¿hace falta una cita para la encuesta del sisbén en cúcuta?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenos días, tengo los documentos listos y voy a empezar la corrección del registro civil en medellín.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"disculpa, ¿hace falta una cita paral certificado de antecedentes disciplinarios en pasto?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas, ¿me colaboras? el formulario del duplicado de la cédula en barranquilla rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas, el formulario del certificado de antecedentes disciplinarios en pasto rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas, ¿me colaboras? voy a gestionar el certificado de antecedentes judiciales en villavicencio y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"hola, estoy averiguando cómo es el duplicado de la cédula en barranquilla, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+el formulario del registro civil de nacimiento en bogotá rechaza datos que son correctos.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"disculpa, ¿en qué estado está mi solicitud de la actualización del rut presentada en manizales?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenas, se cayó el portal cuando estaba con el duplicado de la cédula en barranquilla.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+voy a gestionar la consulta de historia laboral en pereira y busco el primer paso.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+me haces el favor: necesito comunicarme con la oficina encargada de la cédula digital en cartagena.,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"por favor, ¿cuál es el canal institucional para pedir orientación sobre el certificado de antecedentes disciplinarios en pasto?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"disculpa, la página de la presentación de peticiones quejas reclamos sugerencias no carga cuando entro desde cali.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"una preguntica: estoy averiguando cómo es la encuesta del sisbén en cúcuta, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"por favor, ¿qué datos pidel formulario de la encuesta del sisbén en bucaramanga?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenos días, necesito comunicarme con la oficina encargada del pasaporte ordinario en cali.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"buenas, ¿me colaboras? ¿qué datos pidel formulario del certificado de antecedentes fiscales en ibagué?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenas, ¿me colaboras? ¿me remites a la entidad que manejal certificado de antecedentes disciplinarios en pasto?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenos días, ¿hace falta una cita para la inscripción del rut en barranquilla?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas, tengo los documentos listos y voy a empezar la encuesta del sisbén en cúcuta.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenas tardes, estoy averiguando cómo es la cédula digital en medellín, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"por favor, estoy averiguando cómo es la inscripción del rut en pereira, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"buenas tardes, el formulario de la corrección del registro civil en medellín rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"estoy averiguando cómo es el registro civil de nacimiento en bogotá, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+una preguntica: se cayó el portal cuando estaba con el certificado de antecedentes judiciales en villavicencio.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenas, quiero saber si ya está listo el resultado de la actualización del rut en manizales.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"buenas, voy a gestionar el duplicado de la cédula en barranquilla y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+¿qué datos pidel formulario del duplicado de la cédula en bogotá?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"hola, ¿hay novedades de mi trámite del duplicado de la cédula radicado en barranquilla?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"disculpa, quiero saber si ya está listo el resultado del certificado de afiliación a salud en villavicencio.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+necesito comunicarme con la oficina encargada de la inscripción del rut en pereira.,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+quiero agendar el inicio de la inscripción del rut en barranquilla.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"buenas, ¿en qué estado está mi solicitud del certificado de antecedentes judiciales presentada en villavicencio?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenos días, ¿hay novedades de mi trámite del certificado de antecedentes disciplinarios radicado en pasto?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"buenas, ¿hace falta una cita para la cédula digital en cartagena?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas, ¿me colaboras? ¿hace falta una cita paral pasaporte ordinario en bucaramanga?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"por favor, ¿cuál es el canal institucional para pedir orientación sobre la encuesta del sisbén en bucaramanga?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+¿cuál es el canal institucional para pedir orientación sobre la encuesta del sisbén en cúcuta?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"disculpa, ¿cuál es el canal institucional para pedir orientación sobre el certificado de antecedentes fiscales en ibagué?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"por favor, se cayó el portal cuando estaba con la encuesta del sisbén en cúcuta.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+¿hay novedades de mi trámite de la renovación de la licencia de conducción radicado en ibagué?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"buenas, la página del pasaporte ordinario no carga cuando entro desde bucaramanga.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"por favor, ¿me remites a la entidad que maneja la inscripción del rut en pereira?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"por favor, quiero saber si ya está listo el resultado del duplicado de la cédula en barranquilla.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"disculpa, quiero agendar el inicio de la encuesta del sisbén en bucaramanga.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"buenos días, ¿qué datos pidel formulario de la renovación de la licencia de conducción en ibagué?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenos días, ¿cuál es el canal institucional para pedir orientación sobre el pasaporte ordinario en cali?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"buenas, ¿me colaboras? se cayó el portal cuando estaba con el duplicado de la cédula en bogotá.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenas, ¿cuál es el canal institucional para pedir orientación sobre el pasaporte ordinario en bucaramanga?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"buenos días, el formulario de la renovación de la licencia de conducción en manizales rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas, ¿me colaboras? estoy averiguando cómo es el certificado de afiliación a salud en villavicencio, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+¿me remites a la entidad que maneja la renovación de la licencia de conducción en ibagué?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+me haces el favor: la página de la consulta de historia laboral no carga cuando entro desde pereira.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenas, necesito comunicarme con la oficina encargada del certificado de antecedentes disciplinarios en pasto.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"buenas tardes, ¿qué datos pidel formulario de la inscripción del rut en barranquilla?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+una preguntica: ¿hace falta una cita paral pasaporte ordinario en cali?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas, ¿me colaboras? quiero agendar el inicio de la consulta de historia laboral en pasto.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"buenos días, ¿cuál es el canal institucional para pedir orientación sobre el certificado de antecedentes judiciales en villavicencio?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"buenas, ¿me colaboras? estoy averiguando cómo es el pasaporte ordinario en cali, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"hola, voy a gestionar la corrección del registro civil en medellín y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"buenas tardes, tengo los documentos listos y voy a empezar el registro civil de nacimiento en bogotá.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+me haces el favor: voy a gestionar la inscripción del rut en pereira y busco el primer paso.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"disculpa, quiero saber si ya está listo el resultado del registro civil de nacimiento en bogotá.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"hola, voy a gestionar la encuesta del sisbén en bucaramanga y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"disculpa, tengo los documentos listos y voy a empezar la encuesta del sisbén en bucaramanga.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+una preguntica: ¿en qué estado está mi solicitud de la actualización del rut presentada en cartagena?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenas tardes, ¿hay novedades de mi trámite de la encuesta del sisbén radicado en cúcuta?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"hola, tengo los documentos listos y voy a empezar la inscripción del rut en barranquilla.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenos días, quiero saber si ya está listo el resultado de la renovación de la licencia de conducción en ibagué.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"disculpa, ¿qué datos pidel formulario de la consulta de historia laboral en pereira?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+me haces el favor: el formulario de la cédula digital en medellín rechaza datos que son correctos.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas tardes, voy a gestionar la actualización del rut en cartagena y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"disculpa, voy a gestionar el registro civil de nacimiento en bogotá y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"por favor, se cayó el portal cuando estaba con la renovación de la licencia de conducción en ibagué.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+me haces el favor: se cayó el portal cuando estaba con el certificado de afiliación a salud en villavicencio.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenas, estoy averiguando cómo es la consulta de historia laboral en pereira, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"buenos días, el formulario del pasaporte ordinario en cali rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+se cayó el portal cuando estaba con el certificado de antecedentes disciplinarios en pasto.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+me haces el favor: ¿hay novedades de mi trámite de la inscripción del rut radicado en barranquilla?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"buenas, ¿cuál es el canal institucional para pedir orientación sobre la renovación de la licencia de conducción en manizales?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"buenas tardes, el formulario del pasaporte ordinario en bucaramanga rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas, ¿me colaboras? la página del registro civil de nacimiento no carga cuando entro desde bogotá.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"por favor, ¿hay novedades de mi trámite de la consulta de historia laboral radicado en pasto?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"disculpa, ¿qué datos pidel formulario de la cédula digital en medellín?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"por favor, necesito comunicarme con la oficina encargada del certificado de afiliación a salud en villavicencio.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"hola, ¿cuál es el canal institucional para pedir orientación sobre el certificado de afiliación a salud en villavicencio?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+me haces el favor: quiero saber si ya está listo el resultado de la corrección del registro civil en medellín.,VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"buenos días, tengo los documentos listos y voy a empezar el certificado de antecedentes disciplinarios en pasto.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"hola, ¿cuál es el canal institucional para pedir orientación sobre el duplicado de la cédula en barranquilla?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+¿hay novedades de mi trámite de la cédula digital radicado en cartagena?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"buenas tardes, se cayó el portal cuando estaba con el registro civil de nacimiento en bogotá.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenas, quiero saber si ya está listo el resultado de la presentación de peticiones quejas reclamos sugerencias en cali.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"buenas tardes, quiero agendar el inicio del pasaporte ordinario en bucaramanga.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+la página de la actualización del rut no carga cuando entro desde cartagena.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"hola, estoy averiguando cómo es la presentación de peticiones quejas reclamos sugerencias en cali, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"disculpa, ¿hace falta una cita para la corrección del registro civil en medellín?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas, el formulario de la inscripción del rut en barranquilla rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenos días, ¿me remites a la entidad que manejal registro civil de nacimiento en bogotá?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+me haces el favor: necesito comunicarme con la oficina encargada de la actualización del rut en manizales.,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+¿qué datos pidel formulario del certificado de afiliación a salud en villavicencio?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"hola, ¿hace falta una cita para la presentación de peticiones quejas reclamos sugerencias en cali?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas tardes, voy a gestionar el pasaporte ordinario en cali y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"disculpa, ¿qué datos pidel formulario del duplicado de la cédula en barranquilla?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+una preguntica: el formulario de la consulta de historia laboral en pereira rechaza datos que son correctos.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas, ¿hace falta una cita para la inscripción del rut en pereira?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+una preguntica: quiero saber si ya está listo el resultado del certificado de antecedentes fiscales en ibagué.,VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"por favor, voy a gestionar el certificado de antecedentes disciplinarios en pasto y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+una preguntica: quiero agendar el inicio de la renovación de la licencia de conducción en ibagué.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"hola, ¿hay novedades de mi trámite de la actualización del rut radicado en cartagena?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+una preguntica: ¿cuál es el canal institucional para pedir orientación sobre la corrección del registro civil en medellín?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+¿cuál es el canal institucional para pedir orientación sobre la consulta de historia laboral en pasto?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"por favor, ¿me remites a la entidad que manejal duplicado de la cédula en barranquilla?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"disculpa, ¿hay novedades de mi trámite del certificado de antecedentes fiscales radicado en ibagué?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+tengo los documentos listos y voy a empezar el certificado de afiliación a salud en villavicencio.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenos días, ¿en qué estado está mi solicitud del certificado de antecedentes fiscales presentada en ibagué?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+el formulario del certificado de antecedentes judiciales en villavicencio rechaza datos que son correctos.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenos días, ¿me remites a la entidad que manejal duplicado de la cédula en bogotá?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"hola, ¿hace falta una cita para la encuesta del sisbén en bucaramanga?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"disculpa, se cayó el portal cuando estaba con la cédula digital en medellín.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+se cayó el portal cuando estaba con el certificado de antecedentes fiscales en ibagué.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"hola, ¿qué datos pidel formulario de la presentación de peticiones quejas reclamos sugerencias en cali?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenas, ¿me colaboras? voy a gestionar el certificado de antecedentes fiscales en ibagué y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+la página de la renovación de la licencia de conducción no carga cuando entro desde manizales.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+me haces el favor: ¿cuál es el canal institucional para pedir orientación sobre la renovación de la licencia de conducción en ibagué?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+me haces el favor: quiero agendar el inicio del certificado de antecedentes disciplinarios en pasto.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"hola, se cayó el portal cuando estaba con la cédula digital en cartagena.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"hola, estoy averiguando cómo es el certificado de antecedentes judiciales en cúcuta, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"hola, necesito comunicarme con la oficina encargada de la renovación de la licencia de conducción en manizales.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"disculpa, estoy averiguando cómo es la renovación de la licencia de conducción en ibagué, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+me haces el favor: voy a gestionar la cédula digital en cartagena y busco el primer paso.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"buenas, tengo los documentos listos y voy a empezar la consulta de historia laboral en pereira.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenas, quiero agendar el inicio del pasaporte ordinario en cali.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"buenas, ¿en qué estado está mi solicitud de la presentación de peticiones quejas reclamos sugerencias presentada en cali?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenas, ¿me colaboras? ¿cuál es el canal institucional para pedir orientación sobre la inscripción del rut en barranquilla?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+¿hay novedades de mi trámite del certificado de afiliación a salud radicado en villavicencio?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+me haces el favor: ¿cuál es el canal institucional para pedir orientación sobre la presentación de peticiones quejas reclamos sugerencias en cali?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+voy a gestionar la encuesta del sisbén en cúcuta y busco el primer paso.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"buenas tardes, tengo los documentos listos y voy a empezar la cédula digital en cartagena.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenas tardes, ¿en qué estado está mi solicitud de la consulta de historia laboral presentada en pereira?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+una preguntica: tengo los documentos listos y voy a empezar el certificado de antecedentes judiciales en cúcuta.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenas tardes, quiero saber si ya está listo el resultado del duplicado de la cédula en bogotá.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"hola, quiero saber si ya está listo el resultado de la actualización del rut en cartagena.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"por favor, ¿me remites a la entidad que maneja la encuesta del sisbén en cúcuta?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas tardes, voy a gestionar el duplicado de la cédula en bogotá y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"buenas, ¿me colaboras? estoy averiguando cómo es el duplicado de la cédula en bogotá, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"disculpa, ¿me remites a la entidad que maneja la consulta de historia laboral en pasto?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas, ¿cuál es el canal institucional para pedir orientación sobre la consulta de historia laboral en pereira?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"buenas, quiero agendar el inicio de la consulta de historia laboral en pereira.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"hola, ¿me remites a la entidad que manejal certificado de antecedentes judiciales en villavicencio?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas, ¿hay novedades de mi trámite del pasaporte ordinario radicado en bucaramanga?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"buenas tardes, quiero agendar el inicio del certificado de afiliación a salud en villavicencio.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+una preguntica: voy a gestionar la consulta de historia laboral en pasto y busco el primer paso.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+¿hace falta una cita paral certificado de antecedentes judiciales en villavicencio?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+me haces el favor: ¿hace falta una cita para la consulta de historia laboral en pereira?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"estoy averiguando cómo es la inscripción del rut en barranquilla, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"disculpa, estoy averiguando cómo es la cédula digital en cartagena, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+"buenos días, ¿en qué estado está mi solicitud de la renovación de la licencia de conducción presentada en manizales?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"disculpa, tengo los documentos listos y voy a empezar el pasaporte ordinario en bucaramanga.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+me haces el favor: ¿me remites a la entidad que maneja la actualización del rut en manizales?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas, ¿me colaboras? tengo los documentos listos y voy a empezar el duplicado de la cédula en barranquilla.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+una preguntica: necesito comunicarme con la oficina encargada de la presentación de peticiones quejas reclamos sugerencias en cali.,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"buenas, ¿me colaboras? ¿qué datos pidel formulario de la actualización del rut en cartagena?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenas, ¿me colaboras? necesito comunicarme con la oficina encargada del certificado de antecedentes judiciales en cúcuta.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"por favor, necesito comunicarme con la oficina encargada del pasaporte ordinario en bucaramanga.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"hola, quiero saber si ya está listo el resultado de la cédula digital en medellín.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"por favor, quiero agendar el inicio de la presentación de peticiones quejas reclamos sugerencias en cali.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"buenos días, voy a gestionar la renovación de la licencia de conducción en manizales y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+"buenos días, ¿hace falta una cita paral duplicado de la cédula en barranquilla?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"por favor, quiero saber si ya está listo el resultado del pasaporte ordinario en cali.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"buenos días, necesito comunicarme con la oficina encargada de la actualización del rut en cartagena.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"buenas tardes, ¿me remites a la entidad que manejal certificado de afiliación a salud en villavicencio?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas, voy a gestionar el certificado de afiliación a salud en villavicencio y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+me haces el favor: ¿en qué estado está mi solicitud de la renovación de la licencia de conducción presentada en ibagué?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"por favor, tengo los documentos listos y voy a empezar el pasaporte ordinario en cali.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+tengo los documentos listos y voy a empezar la inscripción del rut en pereira.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenas tardes, quiero saber si ya está listo el resultado de la renovación de la licencia de conducción en manizales.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"disculpa, tengo los documentos listos y voy a empezar la renovación de la licencia de conducción en manizales.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenos días, se cayó el portal cuando estaba con la consulta de historia laboral en pasto.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenas tardes, ¿qué datos pidel formulario de la encuesta del sisbén en cúcuta?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+una preguntica: ¿hace falta una cita para la cédula digital en medellín?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+me haces el favor: se cayó el portal cuando estaba con la actualización del rut en cartagena.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenas, el formulario de la renovación de la licencia de conducción en ibagué rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas tardes, ¿cuál es el canal institucional para pedir orientación sobre la inscripción del rut en pereira?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+una preguntica: quiero agendar el inicio de la encuesta del sisbén en cúcuta.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"por favor, ¿cuál es el canal institucional para pedir orientación sobre el duplicado de la cédula en bogotá?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+"buenas, ¿qué datos pidel formulario del certificado de antecedentes disciplinarios en pasto?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+¿en qué estado está mi solicitud del pasaporte ordinario presentada en bucaramanga?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"disculpa, se cayó el portal cuando estaba con la inscripción del rut en pereira.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenas tardes, la página del duplicado de la cédula no carga cuando entro desde barranquilla.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"hola, la página de la corrección del registro civil no carga cuando entro desde medellín.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenas, necesito comunicarme con la oficina encargada de la cédula digital en medellín.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+¿en qué estado está mi solicitud de la cédula digital presentada en cartagena?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+me haces el favor: ¿qué datos pidel formulario de la actualización del rut en manizales?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+una preguntica: ¿me remites a la entidad que maneja la cédula digital en cartagena?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas, ¿me colaboras? necesito comunicarme con la oficina encargada de la consulta de historia laboral en pasto.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"disculpa, el formulario de la encuesta del sisbén en cúcuta rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"hola, el formulario de la actualización del rut en manizales rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"hola, se cayó el portal cuando estaba con la inscripción del rut en barranquilla.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+"buenos días, la página de la encuesta del sisbén no carga cuando entro desde cúcuta.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenos días, ¿hay novedades de mi trámite de la inscripción del rut radicado en pereira?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+quiero saber si ya está listo el resultado del certificado de antecedentes judiciales en villavicencio.,VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+¿me remites a la entidad que maneja la cédula digital en medellín?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas tardes, ¿me remites a la entidad que manejal pasaporte ordinario en bucaramanga?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+me haces el favor: ¿qué datos pidel formulario de la cédula digital en cartagena?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+"buenos días, necesito comunicarme con la oficina encargada de la renovación de la licencia de conducción en ibagué.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"hola, la página de la cédula digital no carga cuando entro desde cartagena.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenas, ¿me colaboras? ¿hay novedades de mi trámite del certificado de antecedentes judiciales radicado en villavicencio?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"disculpa, necesito comunicarme con la oficina encargada del duplicado de la cédula en barranquilla.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"buenas tardes, necesito comunicarme con la oficina encargada de la consulta de historia laboral en pereira.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"disculpa, ¿hay novedades de mi trámite del registro civil de nacimiento radicado en bogotá?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"me haces el favor: estoy averiguando cómo es la actualización del rut en cartagena, todavía no voy a iniciarlo.",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:20
+me haces el favor: la página del certificado de antecedentes judiciales no carga cuando entro desde cúcuta.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenos días, voy a gestionar la actualización del rut en manizales y busco el primer paso.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:04
+una preguntica: tengo los documentos listos y voy a empezar la renovación de la licencia de conducción en ibagué.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+me haces el favor: ¿me remites a la entidad que maneja la inscripción del rut en barranquilla?,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"buenas, ¿me colaboras? ¿me remites a la entidad que maneja la renovación de la licencia de conducción en manizales?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:14
+"disculpa, quiero agendar el inicio del duplicado de la cédula en bogotá.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"buenas tardes, se cayó el portal cuando estaba con la corrección del registro civil en medellín.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:15
+me haces el favor: ¿hay novedades de mi trámite del certificado de antecedentes judiciales radicado en cúcuta?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:20
+"buenos días, tengo los documentos listos y voy a empezar la presentación de peticiones quejas reclamos sugerencias en cali.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"hola, tengo los documentos listos y voy a empezar el certificado de antecedentes judiciales en villavicencio.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"buenas, ¿me colaboras? quiero saber si ya está listo el resultado de la consulta de historia laboral en pereira.",VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+me haces el favor: quiero saber si ya está listo el resultado del pasaporte ordinario en bucaramanga.,VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+necesito comunicarme con la oficina encargada de la encuesta del sisbén en cúcuta.,DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"por favor, necesito comunicarme con la oficina encargada del certificado de antecedentes judiciales en villavicencio.",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:13
+"por favor, ¿hace falta una cita paral certificado de antecedentes judiciales en cúcuta?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+¿en qué estado está mi solicitud de la inscripción del rut presentada en pereira?,VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+"buenas, ¿en qué estado está mi solicitud del certificado de afiliación a salud presentada en villavicencio?",VERIFICACION_ESTADO,VERIFICACION_ESTADO:01
+me haces el favor: ¿hace falta una cita paral certificado de antecedentes fiscales en ibagué?,CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+"buenas, ¿me colaboras? el formulario de la encuesta del sisbén en bucaramanga rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
+"buenas tardes, tengo los documentos listos y voy a empezar el duplicado de la cédula en bogotá.",SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"hola, la página del certificado de afiliación a salud no carga cuando entro desde villavicencio.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+"buenas, ¿me colaboras? ¿hace falta una cita paral registro civil de nacimiento en bogotá?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:06
+me haces el favor: tengo los documentos listos y voy a empezar la consulta de historia laboral en pasto.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:15
+"hola, ¿qué datos pidel formulario del certificado de antecedentes judiciales en villavicencio?",CONSULTA_INFORMATIVA,CONSULTA_INFORMATIVA:15
+una preguntica: quiero agendar el inicio del duplicado de la cédula en barranquilla.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+la página de la inscripción del rut no carga cuando entro desde barranquilla.,REPORTE_PROBLEMA,REPORTE_PROBLEMA:01
+quiero saber si ya está listo el resultado de la encuesta del sisbén en bucaramanga.,VERIFICACION_ESTADO,VERIFICACION_ESTADO:10
+"buenas tardes, ¿cuál es el canal institucional para pedir orientación sobre el registro civil de nacimiento en bogotá?",DERIVACION_ENTIDAD,DERIVACION_ENTIDAD:12
+quiero agendar el inicio del registro civil de nacimiento en bogotá.,SOLICITUD_TRAMITE,SOLICITUD_TRAMITE:09
+"por favor, el formulario de la cédula digital en cartagena rechaza datos que son correctos.",REPORTE_PROBLEMA,REPORTE_PROBLEMA:11
